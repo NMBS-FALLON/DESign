@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>38c14ce8-afe9-4742-8fa6-1fe2e6444b91</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>DESign_BASE</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)AngleData.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ExtractJoistDetails.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Job.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JoistBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Load.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QueryAngleData.cs" />
+  </ItemGroup>
+</Project>
