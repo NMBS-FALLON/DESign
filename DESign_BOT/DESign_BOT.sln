@@ -5,7 +5,13 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DESign_BOT", "DESign_BOT\DESign_BOT.csproj", "{8E87F34A-9F79-43C3-AB37-92018F8D66B8}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DESign_BASE", "..\DESign_BASE\DESign_BASE\DESign_BASE.shproj", "{38C14CE8-AFE9-4742-8FA6-1FE2E6444B91}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\DESign_BASE\DESign_BASE\DESign_BASE.projitems*{8e87f34a-9f79-43c3-ab37-92018f8d66b8}*SharedItemsImports = 4
+		..\DESign_BASE\DESign_BASE\DESign_BASE.projitems*{38c14ce8-afe9-4742-8fa6-1fe2e6444b91}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
