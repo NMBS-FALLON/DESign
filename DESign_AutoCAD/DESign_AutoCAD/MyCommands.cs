@@ -20,8 +20,13 @@ namespace DESign_AutoCAD
         {
             Job job1 = new Job();
             job1 = joistDetails.JobFromShoporderJoistDetails();
+            if (job1.Joists == null && job1.Girders == null)
+            {
+                return;
+            }
             List<Joist> joists = job1.Joists;
 
+            
 
             foreach (Joist joist in joists)
             {
@@ -98,6 +103,10 @@ namespace DESign_AutoCAD
         {
             Job job1 = new Job();
             job1 = joistDetails.JobFromShoporderJoistDetails();
+            if (job1.Joists == null && job1.Girders == null)
+            {
+                return;
+            }
             List<Girder> girders = job1.Girders;
 
 
@@ -183,6 +192,10 @@ namespace DESign_AutoCAD
         {
             Job job1 = new Job();
             job1 = joistDetails.JobFromShoporderJoistDetails();
+            if (job1.Joists == null && job1.Girders == null)
+            {
+                return;
+            }
             List<Joist> joists = job1.Joists;
 
             foreach (Joist joist in joists)
@@ -263,6 +276,10 @@ namespace DESign_AutoCAD
         {
             Job job1 = new Job();
             job1 = joistDetails.JobFromShoporderJoistDetails();
+            if (job1.Joists == null && job1.Girders == null)
+            {
+                return;
+            }
             List<Joist> joists = job1.Joists;
 
             foreach (Joist joist in joists)
@@ -343,6 +360,10 @@ namespace DESign_AutoCAD
         {
             Job job1 = new Job();
             job1 = joistDetails.JobFromShoporderJoistDetails();
+            if (job1.Joists == null && job1.Girders == null)
+            {
+                return;
+            }
             List<Joist> joists = job1.Joists;
  
             foreach (Joist joist in joists)
