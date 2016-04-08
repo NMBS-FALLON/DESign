@@ -73,6 +73,16 @@ namespace DESign_BOT.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] DesignTCWidths {
+            get {
+                object obj = ResourceManager.GetObject("DesignTCWidths", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] NMBS_BOM_EMPTY {
             get {
                 object obj = ResourceManager.GetObject("NMBS_BOM_EMPTY", resourceCulture);
