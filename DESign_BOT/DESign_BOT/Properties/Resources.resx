@@ -121,6 +121,9 @@
   <data name="BLANK_AB_SHEET" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\BLANK_AB_SHEET.xlsx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="DesignTCWidths" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DesignTCWidths.xlsx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="NMBS_BOM_EMPTY" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\NMBS BOM_EMPTY.xlsx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
