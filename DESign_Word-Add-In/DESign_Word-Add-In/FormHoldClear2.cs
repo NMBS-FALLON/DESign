@@ -357,6 +357,22 @@ namespace DESign_WordAddIn
                         currentJoistSeatInfo.slotSetback = BPLlineArray[6];      // slot setback
                         currentJoistSeatInfo.slotSize = BPLlineArray[7];      // slot size
                         currentJoistSeatInfo.slotGauge = StringManipulation.ConvertLengthtoDecimal("0-" + BPLlineArray[8]);      // slot gauge
+
+                        string[] bpl2 = BPLlineArray[7].Split(new string[] { " x " }, StringSplitOptions.RemoveEmptyEntries);
+                        double slotLength = StringManipulation.ConvertLengthtoDecimal("0-" + bpl2[1])*12.0;
+                        double slotSetback = 0.0;
+                        if (BPLlineArray[6].Contains("-") == true)
+                        {
+                            slotSetback = StringManipulation.ConvertLengthtoDecimal(BPLlineArray[6])*12.0;
+                        }
+                        else
+                        {
+                            slotSetback = StringManipulation.ConvertLengthtoDecimal("0-" + BPLlineArray[6])*12.0;
+                        }
+                        if(slotSetback<slotLength/2.0 +0.75)
+                        {
+                            MessageBox.Show(mark + " " + currentJoistSeatInfo.bplSide + ":\nSTIFFENER PLATE INTERFERES WITH SLOT, PLEASE CORRECT MANUALLY");
+                        }
                     }
 
                     if (marksWithHoldClears[i].Item2 == true)
@@ -420,6 +436,23 @@ namespace DESign_WordAddIn
                         currentJoistSeatInfo.slotSetback = BPLlineArray[6];      // slot setback
                         currentJoistSeatInfo.slotSize = BPLlineArray[7];      // slot size
                         currentJoistSeatInfo.slotGauge = StringManipulation.ConvertLengthtoDecimal("0-" + BPLlineArray[8]);      // slot gauge
+
+                        string[] bpl2 = BPLlineArray[7].Split(new string[] { " x " }, StringSplitOptions.RemoveEmptyEntries);
+                        double slotLength = StringManipulation.ConvertLengthtoDecimal("0-" + bpl2[1]) * 12.0;
+                        double slotSetback = 0.0;
+                        if (BPLlineArray[6].Contains("-") == true)
+                        {
+                            slotSetback = StringManipulation.ConvertLengthtoDecimal(BPLlineArray[6]) * 12.0;
+                        }
+                        else
+                        {
+                            slotSetback = StringManipulation.ConvertLengthtoDecimal("0-" + BPLlineArray[6]) * 12.0;
+                        }
+                        if (slotSetback < slotLength / 2.0 + 0.75)
+                        {
+                            MessageBox.Show(mark + " " + currentJoistSeatInfo.bplSide + ":\nSTIFFENER PLATE INTERFERES WITH SLOT, PLEASE CORRECT MANUALLY");
+                        }
+
                     }
 
 
@@ -485,6 +518,22 @@ namespace DESign_WordAddIn
                         currentJoistSeatInfo.slotSetback = BPLlineArray[6];      // slot setback
                         currentJoistSeatInfo.slotSize = BPLlineArray[7];      // slot size
                         currentJoistSeatInfo.slotGauge = StringManipulation.ConvertLengthtoDecimal("0-" + BPLlineArray[8]);      // slot gauge
+
+                        string[] bpl2 = BPLlineArray[7].Split(new string[] { " x " }, StringSplitOptions.RemoveEmptyEntries);
+                        double slotLength = StringManipulation.ConvertLengthtoDecimal("0-" + bpl2[1]) * 12.0;
+                        double slotSetback = 0.0;
+                        if (BPLlineArray[6].Contains("-") == true)
+                        {
+                            slotSetback = StringManipulation.ConvertLengthtoDecimal(BPLlineArray[6]) * 12.0;
+                        }
+                        else
+                        {
+                            slotSetback = StringManipulation.ConvertLengthtoDecimal("0-" + BPLlineArray[6]) * 12.0;
+                        }
+                        if (slotSetback < slotLength / 2.0 + 0.75)
+                        {
+                            MessageBox.Show(mark + " " + currentJoistSeatInfo.bplSide + ":\nSTIFFENER PLATE INTERFERES WITH SLOT, PLEASE CORRECT MANUALLY");
+                        }
                     }
 
 
@@ -549,6 +598,22 @@ namespace DESign_WordAddIn
                         currentJoistSeatInfo.slotSetback = BPLlineArray[6];      // slot setback
                         currentJoistSeatInfo.slotSize = BPLlineArray[7];      // slot size
                         currentJoistSeatInfo.slotGauge = StringManipulation.ConvertLengthtoDecimal("0-" + BPLlineArray[8]);      // slot gauge
+
+                        string[] bpl2 = BPLlineArray[7].Split(new string[] { " x " }, StringSplitOptions.RemoveEmptyEntries);
+                        double slotLength = StringManipulation.ConvertLengthtoDecimal("0-" + bpl2[1]) * 12.0;
+                        double slotSetback = 0.0;
+                        if (BPLlineArray[6].Contains("-") == true)
+                        {
+                            slotSetback = StringManipulation.ConvertLengthtoDecimal(BPLlineArray[6]) * 12.0;
+                        }
+                        else
+                        {
+                            slotSetback = StringManipulation.ConvertLengthtoDecimal("0-" + BPLlineArray[6]) * 12.0;
+                        }
+                        if (slotSetback < slotLength / 2.0 + 0.75)
+                        {
+                            MessageBox.Show(mark + " " + currentJoistSeatInfo.bplSide + ":\nSTIFFENER PLATE INTERFERES WITH SLOT, PLEASE CORRECT MANUALLY");
+                        }
                     }
 
                     if (marksWithHoldClears[i].Item3 == true)
@@ -882,14 +947,14 @@ namespace DESign_WordAddIn
                     thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor*5.0) / 12.0);
                     thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor*5.0) / 12.0);
 
-                    thisHCSeatInfo.HCMaterial = "4050";
-                    diffInHCandTC = 1;
+                    thisHCSeatInfo.HCMaterial = "5043";
+                    diffInHCandTC = 0;
 
-                    if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 5.0) + 4.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 5.0) + 4.001)
+                    if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 5.0) + 5.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 5.0) + 5.001)
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125)
+                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) >= 5.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) >= 5.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
                     }
@@ -1463,69 +1528,6 @@ namespace DESign_WordAddIn
                     }
 
 
-                    /*
-                                        range.Find.Execute(HCSeatInfo[i].bplSide);
-                                        range.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                                        range.Expand(Word.WdUnits.wdCharacter);
-                                        while (range.Text == " ")
-                                        {
-                                            range.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                                            range.Expand(Word.WdUnits.wdCharacter);
-                                        }
-
-
-
-
-                                        range.MoveEnd(Word.WdUnits.wdCharacter, 9);
-                                        if (HCSeatInfo[i].buttedSeat == true) { range.Text = "HC-1      "; }
-                                        if (HCSeatInfo[i].gappedSeat == true)
-                                        {
-
-                                            string newSlopeString = "";
-                                            if (HCSeatInfo[i].bplOutsideDepth!=HCSeatInfo[i].bplInsideDepth)
-                                            {
-
-                                                if (HCSeatInfo[i].bplSide == "BPL-L")
-                                                {
-                                                    newSlopeString = HCSeatInfo[i].bplOutsideDepth + "|" + HCSeatInfo[i].bplInsideDepth;
-                                                }
-                                                if (HCSeatInfo[i].bplSide=="BPL-R")
-                                                {
-                                                    newSlopeString =  HCSeatInfo[i].bplInsideDepth + "|" + HCSeatInfo[i].bplOutsideDepth ;
-                                                }
-                                            }
-
-
-                                            int additionalSpaces = 9 - HCSeatInfo[i].bplLength.Length;
-                                            string strAdditionalSpaces = "";
-                                            for (int l = 0; l < additionalSpaces; l++)
-                                            {
-                                                strAdditionalSpaces = strAdditionalSpaces + " ";
-                                            }
-                                            if (HCSeatInfo[i].bplOutsideDepth != HCSeatInfo[i].bplInsideDepth)
-                                            {
-                                                range.MoveEnd(Word.WdUnits.wdCharacter, 28);
-                                                if (range.Text.Contains("\v"))
-                                                {
-                                                    range.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-                                                    range.MoveEndUntil("\v");
-
-                                                }
-                                                range.Text = range.Text = "HC-2      " + HCSeatInfo[i].bplLength.ToString() + strAdditionalSpaces + " " + HCSeatInfo[i].seatType+"    " + newSlopeString;
-                                            }
-                                            else
-                                            {
-                                                range.MoveEnd(Word.WdUnits.wdCharacter, 9);
-                                                range.Text = range.Text = "HC-2      " + HCSeatInfo[i].bplLength.ToString() + strAdditionalSpaces;
-                                            }
-                                        }
-                                        if (HCSeatInfo[i].plateSeatP04 == true) { range.Text = "HC-3      "; }
-                                        if (HCSeatInfo[i].plateSeatP08 == true) { range.Text = "HC-4      "; }
-                                        range.Font.Bold = 1;
-                                        range.Underline = Word.WdUnderline.wdUnderlineSingle;
-                                        range.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                                        range.GoTo(Word.WdGoToItem.wdGoToPage, Word.WdGoToDirection.wdGoToLast);
-                    */
                 }
 
             }
