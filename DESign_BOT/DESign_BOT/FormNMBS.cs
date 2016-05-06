@@ -154,12 +154,13 @@ namespace DESign_BOT
             
             foreach(Joist joist in job.Joists)
             {
-                if (joist.TCWidth == "5") { dblFiveInch = dblFiveInch + joist.BaseLength; }
-                if (joist.TCWidth == "7") { dblSevenInch = dblSevenInch + joist.BaseLength; }
-                if (joist.TCWidth == "8") { dblEightInch = dblEightInch + joist.BaseLength; }
-                if (joist.TCWidth == "9") { dblNineInch = dblNineInch + joist.BaseLength; }
-                if (joist.TCWidth == "11") { dblElevenInch = dblElevenInch + joist.BaseLength; }
-                if (joist.TCWidth == "13") { dblThirteenInch = dblThirteenInch + joist.BaseLength; }
+                double qty = Convert.ToDouble(joist.Quantity);
+                if (joist.TCWidth == "5") { dblFiveInch = dblFiveInch + qty*joist.BaseLength; }
+                if (joist.TCWidth == "7") { dblSevenInch = dblSevenInch + qty*joist.BaseLength; }
+                if (joist.TCWidth == "8") { dblEightInch = dblEightInch + qty*joist.BaseLength; }
+                if (joist.TCWidth == "9") { dblNineInch = dblNineInch + qty*joist.BaseLength; }
+                if (joist.TCWidth == "11") { dblElevenInch = dblElevenInch + qty*joist.BaseLength; }
+                if (joist.TCWidth == "13") { dblThirteenInch = dblThirteenInch + qty*joist.BaseLength; }
 
             }
 
