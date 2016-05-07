@@ -741,8 +741,8 @@ namespace DESign_WordAddIn
                 if (thisJoistSeatInfo.TC.Contains("A") == true && gaIsGreater3pt5 == true)
                 {
                     thisHCSeatInfo.HCMaterial = "3025";
-                    if (tcThickness < 0.15625) { diffInHCandTC = -2; }
-                    else if (tcThickness < 0.21875) { diffInHCandTC = -1; }
+                    if (tcThickness < 0.15625) { diffInHCandTC = 2; }
+                    else if (tcThickness < 0.21875) { diffInHCandTC = 1; }
                     else { diffInHCandTC = 0; }
 
                     double seatVLeg = QueryAngleDataXML.DblVleg(thisHCSeatInfo.HCMaterial);
@@ -771,9 +771,16 @@ namespace DESign_WordAddIn
                     if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 3.0) + 3.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 3.0) + 3.001)
                     {
                         thisHCSeatInfo.buttedSeat = true;
-                        thisHCSeatInfo.HCMaterial = "3031";
-                        if (thisJoistSeatInfo.TC == "3028") { diffInHCandTC = 1; }
-                        if (thisJoistSeatInfo.TC == "3031") { diffInHCandTC = 0; }
+                        if (thisJoistSeatInfo.TC == "3028")
+                        {
+                            thisHCSeatInfo.HCMaterial = "3028";
+                            diffInHCandTC = 0;
+                        }
+                        if (thisJoistSeatInfo.TC == "3031")
+                        {
+                            thisHCSeatInfo.HCMaterial = "3031";
+                            diffInHCandTC = 0;
+                        }
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 3.0) / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 3.0) / 12.0);
                     }
@@ -786,18 +793,11 @@ namespace DESign_WordAddIn
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 3.0) / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 3.0) / 12.0);
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 3.0) + 4.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 3.0) + 4.001)
-                    {
-                        thisHCSeatInfo.buttedSeat = true;
-                        thisHCSeatInfo.HCMaterial = "4037";
-                        diffInHCandTC = 1;
-                        thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 3.0) / 12.0);
-                        thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 3.0) / 12.0);
-                    }
                     else
                     {
                         thisHCSeatInfo.HCMaterial = thisJoistSeatInfo.TC;
-                        diffInHCandTC = 0;
+                        if (thisJoistSeatInfo.TC == "3028") { diffInHCandTC = 0; }
+                        if (thisJoistSeatInfo.TC == "3031") { diffInHCandTC = -1; }
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor*3.0) / 12.0 - 0.25 / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor*3.0) / 12.0 - 0.25 / 12.0);
                         thisHCSeatInfo.plateSeatP04 = true;
@@ -810,8 +810,8 @@ namespace DESign_WordAddIn
                     if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 3.5) + 3.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 3.5) + 3.001)
                     {
                         thisHCSeatInfo.buttedSeat = true;
-                        thisHCSeatInfo.HCMaterial = "3031";
-                        diffInHCandTC = 1;
+                        thisHCSeatInfo.HCMaterial = "3028";
+                        diffInHCandTC = 0;
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 3.5) / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 3.5) / 12.0);
                     }
@@ -837,10 +837,6 @@ namespace DESign_WordAddIn
 
                 if (thisJoistSeatInfo.TC == "3531" || thisJoistSeatInfo.TC == "3534")
                 {
-                    diffInHCandTC = 1;
-                    thisHCSeatInfo.HCMaterial = "4037";
-                    thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor*3.5) / 12.0);
-                    thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor*3.5) / 12.0);
 
                     if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 3.5) + 3.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 3.5) + 3.001)
                     {
@@ -850,20 +846,6 @@ namespace DESign_WordAddIn
                         if (thisJoistSeatInfo.TC == "3534") { diffInHCandTC = -1; }
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 3.5) / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 3.5) / 12.0);
-                    }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 3.5) + 4.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 3.5) + 4.001)
-                    {
-                        thisHCSeatInfo.buttedSeat = true;
-                        diffInHCandTC = 1;
-                        thisHCSeatInfo.HCMaterial = "4037";
-
-                    }
-
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 3.5) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 3.5) >= 4.001 - 0.125)
-                    {
-                        thisHCSeatInfo.gappedSeat = true;
-                        diffInHCandTC = 1;
-                        thisHCSeatInfo.HCMaterial = "4037";
                     }
                     else
                     {
@@ -944,8 +926,8 @@ namespace DESign_WordAddIn
                 }
                 if (thisJoistSeatInfo.TC == "5043")
                 {
-                    thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor*5.0) / 12.0);
-                    thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor*5.0) / 12.0);
+                    thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) / 12.0);
+                    thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) / 12.0);
 
                     thisHCSeatInfo.HCMaterial = "5043";
                     diffInHCandTC = 0;
