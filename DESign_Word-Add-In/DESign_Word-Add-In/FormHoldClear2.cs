@@ -929,21 +929,22 @@ namespace DESign_WordAddIn
                     thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) / 12.0);
                     thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) / 12.0);
 
-                    thisHCSeatInfo.HCMaterial = "5043";
+                    thisHCSeatInfo.HCMaterial = "4043";
                     diffInHCandTC = 0;
 
-                    if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 5.0) + 5.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 5.0) + 5.001)
+                    if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 5.0) + 4.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 4.0) + 5.001)
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) >= 5.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) >= 5.001 - 0.125)
+                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
                     }
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
-                        thisHCSeatInfo.paMat = "P0608";
+                        thisHCSeatInfo.paMat = "P0604";
+                        diffInHCandTC = -3;
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) / 12.0 - 0.5 / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) / 12.0 - 0.5 / 12.0);
                         if (thisJoistSeatInfo.bplInsideDepth > thisJoistSeatInfo.bplOutsideDepth)
