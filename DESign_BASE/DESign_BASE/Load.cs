@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace DESign_BASE
 {
@@ -12,7 +13,7 @@ namespace DESign_BASE
             get { return Type; }
             set
             {
-                if(Enum.GetNames(typeof(Types)).Contains(value) == true)
+                if (Enum.GetValues(typeof(Types)).Cast<string>().ToArray().Contains(value) == true)
                 {
                     Type = value;
                 }
@@ -24,7 +25,7 @@ namespace DESign_BASE
             get { return Category; }
             set
             {
-                if (Enum.GetNames(typeof(Categories)).Contains(value) == true)
+                if (Enum.GetValues(typeof(Categories)).Cast<string>().ToArray().Contains(value) == true)
                 {
                     Category = value;
                 }
@@ -37,7 +38,7 @@ namespace DESign_BASE
             get { return Position; }
             set
             {
-                if (Enum.GetNames(typeof(Positions)).Contains(value) == true)
+                if (Enum.GetValues(typeof(Positions)).Cast<string>().ToArray().Contains(value) == true)
                 {
                     Position = value;
                 }
