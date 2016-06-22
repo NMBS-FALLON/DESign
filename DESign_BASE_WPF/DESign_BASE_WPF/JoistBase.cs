@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using DESign_BASE_WPF_WPF;
+using DESign_BASE_WPF;
+using System.Collections.Generic;
 
 
-namespace DESign_BASE_WPF_WPF
+namespace DESign_BASE_WPF
 {
     public class JoistBase
     {
@@ -37,6 +38,8 @@ namespace DESign_BASE_WPF_WPF
                 return strippedNumber;
             }
         }
+        public List<string> Notes { get; set; }
+        public List<string> Loads { get; set; }
     }
 
     public class Joist : JoistBase

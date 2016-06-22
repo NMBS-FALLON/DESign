@@ -22,6 +22,7 @@ namespace DESign_Sales
     /// </summary>
     public partial class MainWindow : Window
     {
+        ExtractBlueBeamMarkups extractBlueBeamMarkups = new ExtractBlueBeamMarkups();
         public MainWindow()
         {
             InitializeComponent();
@@ -29,10 +30,8 @@ namespace DESign_Sales
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            string st = "TX";
-            DESign_BASE_WPF.Load load1 = new Load();
-            load1.Category = st;
-            MessageBox.Show(load1.Category);
+            Job job = new Job();
+            job = extractBlueBeamMarkups.JobFromBlueBeamMarkups();
         }
     }
 }
