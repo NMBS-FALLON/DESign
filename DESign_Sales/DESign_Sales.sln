@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DESign_Sales", "DESign_Sales\DESign_Sales.csproj", "{BFCECCA4-F72F-4F46-B7CC-B71F6868213D}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DESign_BASE_WPF", "..\DESign_BASE_WPF\DESign_BASE_WPF\DESign_BASE_WPF.shproj", "{E963CE23-2C3A-4390-9284-E7FB185393CE}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\DESign_BASE_WPF\DESign_BASE_WPF\DESign_BASE_WPF.projitems*{bfcecca4-f72f-4f46-b7cc-b71f6868213d}*SharedItemsImports = 4
+		..\DESign_BASE_WPF\DESign_BASE_WPF\DESign_BASE_WPF.projitems*{e963ce23-2c3a-4390-9284-e7fb185393ce}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFCECCA4-F72F-4F46-B7CC-B71F6868213D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFCECCA4-F72F-4F46-B7CC-B71F6868213D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFCECCA4-F72F-4F46-B7CC-B71F6868213D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFCECCA4-F72F-4F46-B7CC-B71F6868213D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

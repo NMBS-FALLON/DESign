@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DESign_BASE_WPF
+namespace DESign_BASE_WPF_WPF
 {
     public class Job
     {

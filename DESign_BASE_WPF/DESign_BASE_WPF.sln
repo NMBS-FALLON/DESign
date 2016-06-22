@@ -1,0 +1,15 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DESign_BASE_WPF", "DESign_BASE_WPF\DESign_BASE_WPF.shproj", "{E963CE23-2C3A-4390-9284-E7FB185393CE}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		DESign_BASE_WPF\DESign_BASE_WPF.projitems*{e963ce23-2c3a-4390-9284-e7fb185393ce}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

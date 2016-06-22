@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
-using System.Windows.Forms;
 using System.Data;
+using Microsoft.Win32;
 
-namespace DESign_BASE_WPF
+namespace DESign_BASE_WPF_WPF
 {
     public class ExtractJoistDetails
     {
@@ -18,8 +18,9 @@ namespace DESign_BASE_WPF
 
             OpenFileDialog openBOMFileDialog = new OpenFileDialog();
             openBOMFileDialog.Title = "SELECT JOIST DETAILS";
+       
             //openBOMFileDialog.Filter = "Excel WorkBook|*.xls";
-            if (openBOMFileDialog.ShowDialog() == DialogResult.OK)
+            if (openBOMFileDialog.ShowDialog()==true)
             {
                 string fileName = openBOMFileDialog.FileName;
                 job.Number = fileName.Split(new string[] { " -", ".xls" }, StringSplitOptions.RemoveEmptyEntries)[1];
