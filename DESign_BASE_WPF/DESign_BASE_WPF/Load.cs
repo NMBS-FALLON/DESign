@@ -5,8 +5,11 @@ using System.Linq;
 
 namespace DESign_BASE_WPF
 {
+    
     public class Load
     {
+        StringManipulation stringManipulation = new StringManipulation();
+
         enum Types {U, NU, GU, C, CB, CP, CA, C3, CZ, AX, M, S};
         private string type = "";
         public string Type
@@ -51,9 +54,41 @@ namespace DESign_BASE_WPF
         public string Reference { get; set; }
         public int Group { get; set; }
         public double StartValue { get; set; }
-        public double StartLocation { get; set; }
+        private double dblStartLocation = 0.0;
+        public double DblStartLocation
+        {
+            get
+            {
+                if (StrStartLocation != "")
+                {
+                    dblStartLocation = stringManipulation.hyphenLengthToDecimal(StrStartLocation);
+                }
+                return dblStartLocation;
+            }
+            set
+            {
+                dblStartLocation = value;
+            }
+        }
+        public string StrStartLocation { get; set; }
         public double EndValue { get; set; }
-        public double EndLocation { get; set; }
+        private double dblEndLocation = 0.0;
+        public double DblEndLocation
+        {
+            get
+            {
+                if (StrEndLocation != "")
+                {
+                    dblEndLocation = stringManipulation.hyphenLengthToDecimal(StrEndLocation);
+                }
+                return dblEndLocation;
+            }
+            set
+            {
+                dblEndLocation = value;
+            }
+        }
+        public string StrEndLocation { get; set; }
     }
 
     

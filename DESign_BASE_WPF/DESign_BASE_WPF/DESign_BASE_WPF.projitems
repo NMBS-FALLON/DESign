@@ -18,5 +18,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)JoistBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Load.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QueryAngleData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StringManipulation.cs" />
   </ItemGroup>
 </Project>

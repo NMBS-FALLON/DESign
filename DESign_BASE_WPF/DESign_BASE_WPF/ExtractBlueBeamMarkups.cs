@@ -56,15 +56,17 @@ namespace DESign_BASE_WPF
                     Girder girder = new Girder();
 
                     girder.Mark = (string)girderMarkup.Element("Label");
-                    girder.Description = (string)girderMarkup.Element("girder_DESC");
+                    girder.Description = (string)girderMarkup.Element("JOIST_DESC");
                     girder.Quantity = (int)girderMarkup.Element("Count");
 
                     string allNotes = (string)girderMarkup.Element("NOTES");
-                    girder.Notes = Regex.Split(allNotes, "\r\n").ToList();
+                    girder.Notes = Regex.Split(allNotes, "\n").ToList();
 
                     string allLoads = (string)girderMarkup.Element("LOADS");
                     girder.Loads = Regex.Split(allLoads, "\n").ToList();
 
+
+                    girder.strBaseLength = (string)girderMarkup.Element("J-G_Length");
                     girders.Add(girder);
                 }
 
@@ -79,24 +81,34 @@ namespace DESign_BASE_WPF
                     joist.Quantity = (int)joistMarkup.Element("Count");
 
                     string allNotes = (string)joistMarkup.Element("NOTES");
-                    joist.Notes = Regex.Split(allNotes, "\r\n").ToList();
+                    joist.Notes = Regex.Split(allNotes, "\n").ToList();
 
                     string allLoads = (string)joistMarkup.Element("LOADS");
                     joist.Loads = Regex.Split(allLoads, "\n").ToList();
 
+                    joist.strBaseLength = (string)joistMarkup.Element("J-G_Length");
+
                     joists.Add(joist);
                 }
 
-                //TEST
-                foreach (Joist joist in joists)
-                {
-                    foreach(string str in joist.Loads)
-                    {
-                        MessageBox.Show(str);
-                    }
-                    
+                //CREATE EXCEL COM OBJECT
 
-                }
+                //TEST
+                //foreach (Joist joist in joists)
+                //{
+                //    foreach(string str in joist.Loads)
+                //    {
+                //        MessageBox.Show(str);
+                //    }
+
+
+                //}
+
+                //ADD JOISTS AND GIRDERS TO JOB
+                joists = joists.OrderBy(x => x.StrippedNumber).ToList();
+                girders = girders.OrderBy(x => x.StrippedNumber).ToList();
+                job.Joists = joists;
+                job.Girders = girders;
             }
             return job;
         }

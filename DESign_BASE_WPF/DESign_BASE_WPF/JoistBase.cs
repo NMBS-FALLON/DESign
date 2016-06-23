@@ -13,7 +13,8 @@ namespace DESign_BASE_WPF
         public string Mark { get; set; }
         public int Quantity { get; set; }
         public string Description { get; set; }
-        public double BaseLength { get; set; }
+        public double dblBaseLength { get; set; }
+        public string strBaseLength { get; set; }
         public string JoistType { get; set; }
         public double SeatsBDL { get; set; }
         public double SeatsBDR { get; set; }

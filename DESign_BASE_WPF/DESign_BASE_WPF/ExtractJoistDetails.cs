@@ -58,7 +58,7 @@ namespace DESign_BASE_WPF
                         girder.Mark = (string)joistDetailArray[row, 1];
                         girder.Quantity = Convert.ToInt32(joistDetailArray[row, 2]);
                         girder.Description = (string)joistDetailArray[row, 3];
-                        girder.BaseLength = Convert.ToDouble(joistDetailArray[row, 4]);
+                        girder.dblBaseLength = Convert.ToDouble(joistDetailArray[row, 4]);
                         girder.JoistType = (string)joistDetailArray[row, 5];
                         girder.SeatsBDL = Convert.ToDouble(joistDetailArray[row, 6]);
                         girder.SeatsBDR = Convert.ToDouble(joistDetailArray[row, 7]);
@@ -84,7 +84,7 @@ namespace DESign_BASE_WPF
                         joist.Mark = (string)joistDetailArray[row, 1];
                         joist.Quantity = Convert.ToInt32(joistDetailArray[row, 2]);
                         joist.Description = (string)joistDetailArray[row, 3];
-                        joist.BaseLength = Convert.ToDouble(joistDetailArray[row, 4]);
+                        joist.dblBaseLength = Convert.ToDouble(joistDetailArray[row, 4]);
                         joist.JoistType = (string)joistDetailArray[row, 5];
                         joist.SeatsBDL = Convert.ToDouble(joistDetailArray[row, 6]);
                         joist.SeatsBDR = Convert.ToDouble(joistDetailArray[row, 7]);
