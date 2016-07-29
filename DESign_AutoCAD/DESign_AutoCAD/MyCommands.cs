@@ -12,7 +12,7 @@ namespace DESign_AutoCAD
 
     public class MyCommands
     {
-      
+  
         DESign_BASE.ExtractJoistDetails joistDetails = new ExtractJoistDetails();
 
         [CommandMethod("MyCommandGroup", "TCWIDTHS_JOISTS", CommandFlags.Modal)]

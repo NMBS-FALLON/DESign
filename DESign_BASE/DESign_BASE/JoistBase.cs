@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using DESign_BASE_WPF;
+using DESign_BASE;
 
 
-namespace DESign_BASE_WPF
+namespace DESign_BASE
 {
     public class JoistBase
     {

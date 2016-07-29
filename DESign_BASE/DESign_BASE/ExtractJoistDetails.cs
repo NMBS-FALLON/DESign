@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.Data;
 
-namespace DESign_BASE_WPF
+namespace DESign_BASE
 {
     public class ExtractJoistDetails
     {
