@@ -2,7 +2,7 @@
 using System.Xml.Linq;
 using System.Reflection;
 
-namespace DESign_BASE_WPF
+namespace DESign_BASE
 {
     public class QueryAngleData
     {
