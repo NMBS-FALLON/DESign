@@ -83,7 +83,10 @@ namespace DESign_BASE_WPF
 
                         joist.Mark = (string)joistMarkup.Element("Label");
                         joist.Description = (string)joistMarkup.Element("JOIST_DESC");
-                        joist.Quantity = (int)joistMarkup.Element("Count");
+
+                        string joistQuantity = (string)joistMarkup.Element("Count");
+                        int joistQuantity_int = Convert.ToInt32(joistQuantity.Replace(",", ""));
+                        joist.Quantity = joistQuantity_int;
 
                         string allNotes = (string)joistMarkup.Element("NOTES");
                         joist.Notes = Regex.Split(allNotes, "\n").ToList();

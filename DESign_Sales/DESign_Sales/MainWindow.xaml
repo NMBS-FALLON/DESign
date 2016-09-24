@@ -8,6 +8,7 @@
         Title="MainWindow" Height="350" Width="525">
     <Grid>
         <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Height="22" Margin="36,48,0,0" VerticalAlignment="Top" Width="67" Click="button_Click"/>
+        <Button x:Name="button1" Content="Button 2" HorizontalAlignment="Left" Margin="36,108,0,0" VerticalAlignment="Top" Width="67" Click="button1_Click"/>
 
     </Grid>
 </Window>
