@@ -44,8 +44,10 @@ namespace DESign_WordAddIn
             print.PrintShopCopies();
         }
 
-
-
+        private void btnSinglePrintShopCopy_Click(object sender, RibbonControlEventArgs e)
+        {
+            print.SinglePrintShopCopies();
+        }
     }
 
 

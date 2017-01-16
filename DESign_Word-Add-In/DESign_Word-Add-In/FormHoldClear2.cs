@@ -1308,15 +1308,19 @@ namespace DESign_WordAddIn
 
                 for (int index = 1; index < seatList.Count(); index++)
                 {
-                    if (seatList[index].mark.Substring(0, seatList[index].mark.Length - 3) == seatList[index - 1].mark.Substring(0, seatList[index - 1].mark.Length - 3) &&
-                        seatList[index].HCMaterial == seatList[index - 1].HCMaterial &&
-                        seatList[index].bplLength == seatList[index - 1].bplLength &&
-                        seatList[index].HCInsideHeight == seatList[index - 1].HCInsideHeight &&
-                        seatList[index].HCOutsideHeight == seatList[index - 1].HCOutsideHeight &&
-                        seatList[index].slotSetback == seatList[index - 1].slotSetback &&
-                        seatList[index].GOL == seatList[index - 1].GOL &&
-                        seatList[index].stiffPlateLength == seatList[index - 1].stiffPlateLength &&
-                        seatList[index].paMat == seatList[index-1].paMat)
+                    if (
+                            seatList[index].mark.Substring(0, seatList[index].mark.Length - 3) == seatList[index - 1].mark.Substring(0, seatList[index - 1].mark.Length - 3) &&
+                            seatList[index].HCMaterial == seatList[index - 1].HCMaterial &&
+                            seatList[index].bplLength == seatList[index - 1].bplLength &&
+                            seatList[index].HCInsideHeight == seatList[index - 1].HCInsideHeight &&
+                            seatList[index].HCOutsideHeight == seatList[index - 1].HCOutsideHeight &&
+                            seatList[index].slotSetback == seatList[index - 1].slotSetback &&
+                            seatList[index].GOL == seatList[index - 1].GOL &&
+                            seatList[index].slotSize == seatList[index - 1].slotSize &&
+                            seatList[index].bplOutsideDepth == seatList[index - 1].bplInsideDepth &&
+                            seatList[index].stiffPlateLength == seatList[index - 1].stiffPlateLength &&
+                            seatList[index].paWidth == seatList[index - 1].paWidth
+                        )
                     {
                         seatList[index - 1].mark = seatList[index - 1].mark.Substring(0, seatList[index - 1].mark.Length - 3) + "\u00A0" + "BE";
                         seatList[index - 1].qty = seatList[index - 1].qty + seatList[index].qty;
@@ -1333,12 +1337,19 @@ namespace DESign_WordAddIn
                     {
                         if (index2 != index)
                         {
-                            if (seatList[index].HCMaterial == seatList[index2].HCMaterial &&
+                            if (
+                                seatList[index].HCMaterial == seatList[index2].HCMaterial &&
                                 seatList[index].bplLength == seatList[index2].bplLength &&
                                 seatList[index].HCInsideHeight == seatList[index2].HCInsideHeight &&
                                 seatList[index].HCOutsideHeight == seatList[index2].HCOutsideHeight &&
                                 seatList[index].slotSetback == seatList[index2].slotSetback &&
-                                seatList[index].GOL == seatList[index2].GOL)
+                                seatList[index].GOL == seatList[index2].GOL &&
+                                seatList[index].slotSize == seatList[index2].slotSize &&
+                                seatList[index].bplOutsideDepth == seatList[index2].bplInsideDepth &&
+                                seatList[index].stiffPlateLength == seatList[index2].stiffPlateLength &&
+                                seatList[index].paWidth == seatList[index2].paWidth
+                                )
+
                             {
                                 if (index < index2)
                                 {

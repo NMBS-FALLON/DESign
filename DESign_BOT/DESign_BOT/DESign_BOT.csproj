@@ -14,7 +14,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>Q:\Designer Aid\DESign\DESign BOT\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
+    <InstallFrom>Unc</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>1</UpdateInterval>
@@ -22,11 +22,11 @@
     <UpdatePeriodically>true</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
+    <InstallUrl>\\nmbsfaln-fs\Engr\Designer Aid\DESign\DESign BOT\</InstallUrl>
     <UpdateUrl>\\nmbsfaln-fs\Engr\Designer Aid\DESign\DESign BOT\</UpdateUrl>
     <ProductName>DESign BOT</ProductName>
     <PublisherName>DESign</PublisherName>
-    <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>10</ApplicationRevision>
+    <ApplicationRevision>12</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -36,7 +36,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -56,10 +56,10 @@
     </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>AE33CCBBFFB55CB46E159D34122298893D8306FC</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>20DF929886C4D59799AD9A4460AC644F44602A36</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>WFormNMBS_1_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>DESign_BOT_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -140,6 +140,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="DESign_BOT_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -182,10 +183,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dsign.ico" />
-    <EmbeddedResource Include="Resources\AngleData.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Core">

@@ -34,6 +34,7 @@
             this.labelProgramState = new System.Windows.Forms.Label();
             this.btnCreateNewBOM = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.btnWoodReqFromJoistDetails = new System.Windows.Forms.Button();
             this.btnQuickTCWidth = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.tBoxWoodReq = new System.Windows.Forms.TextBox();
@@ -43,7 +44,6 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.btnWoodReqFromJoistDetails = new System.Windows.Forms.Button();
             this.tabControlConvertBOM.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -69,7 +69,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage1.Size = new System.Drawing.Size(323, 315);
+            this.tabPage1.Size = new System.Drawing.Size(323, 290);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Convert BOM\'s";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -114,14 +114,24 @@
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Size = new System.Drawing.Size(323, 290);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Wd Nailr";
+            this.tabPage2.Text = "Wood Nailer";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // btnWoodReqFromJoistDetails
+            // 
+            this.btnWoodReqFromJoistDetails.Location = new System.Drawing.Point(8, 192);
+            this.btnWoodReqFromJoistDetails.Name = "btnWoodReqFromJoistDetails";
+            this.btnWoodReqFromJoistDetails.Size = new System.Drawing.Size(155, 30);
+            this.btnWoodReqFromJoistDetails.TabIndex = 7;
+            this.btnWoodReqFromJoistDetails.Text = "Wood Req. From Joist Details";
+            this.btnWoodReqFromJoistDetails.UseVisualStyleBackColor = true;
+            this.btnWoodReqFromJoistDetails.Click += new System.EventHandler(this.btnWoodReqFromJoistDetails_Click);
             // 
             // btnQuickTCWidth
             // 
-            this.btnQuickTCWidth.Location = new System.Drawing.Point(8, 233);
+            this.btnQuickTCWidth.Location = new System.Drawing.Point(8, 228);
             this.btnQuickTCWidth.Name = "btnQuickTCWidth";
-            this.btnQuickTCWidth.Size = new System.Drawing.Size(130, 34);
+            this.btnQuickTCWidth.Size = new System.Drawing.Size(155, 30);
             this.btnQuickTCWidth.TabIndex = 6;
             this.btnQuickTCWidth.Text = "TC Widths  From Joist Details";
             this.btnQuickTCWidth.UseVisualStyleBackColor = true;
@@ -131,7 +141,7 @@
             // 
             this.button3.Location = new System.Drawing.Point(8, 156);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(130, 26);
+            this.button3.Size = new System.Drawing.Size(155, 30);
             this.button3.TabIndex = 5;
             this.button3.Text = "TC Widths From S.O.\'s";
             this.button3.UseVisualStyleBackColor = true;
@@ -139,10 +149,10 @@
             // 
             // tBoxWoodReq
             // 
-            this.tBoxWoodReq.Location = new System.Drawing.Point(144, 120);
+            this.tBoxWoodReq.Location = new System.Drawing.Point(169, 120);
             this.tBoxWoodReq.Multiline = true;
             this.tBoxWoodReq.Name = "tBoxWoodReq";
-            this.tBoxWoodReq.Size = new System.Drawing.Size(171, 147);
+            this.tBoxWoodReq.Size = new System.Drawing.Size(146, 138);
             this.tBoxWoodReq.TabIndex = 4;
             this.tBoxWoodReq.TextChanged += new System.EventHandler(this.tBoxWoodReq_TextChanged);
             // 
@@ -150,7 +160,7 @@
             // 
             this.btnWoodReqFromSOs.Location = new System.Drawing.Point(8, 120);
             this.btnWoodReqFromSOs.Name = "btnWoodReqFromSOs";
-            this.btnWoodReqFromSOs.Size = new System.Drawing.Size(130, 30);
+            this.btnWoodReqFromSOs.Size = new System.Drawing.Size(155, 30);
             this.btnWoodReqFromSOs.TabIndex = 3;
             this.btnWoodReqFromSOs.Text = "Wood Req. From S.O.\'s";
             this.btnWoodReqFromSOs.UseVisualStyleBackColor = true;
@@ -201,21 +211,11 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // btnWoodReqFromJoistDetails
-            // 
-            this.btnWoodReqFromJoistDetails.Location = new System.Drawing.Point(8, 188);
-            this.btnWoodReqFromJoistDetails.Name = "btnWoodReqFromJoistDetails";
-            this.btnWoodReqFromJoistDetails.Size = new System.Drawing.Size(130, 39);
-            this.btnWoodReqFromJoistDetails.TabIndex = 7;
-            this.btnWoodReqFromJoistDetails.Text = "Wood Req. From Joist Detials";
-            this.btnWoodReqFromJoistDetails.UseVisualStyleBackColor = true;
-            this.btnWoodReqFromJoistDetails.Click += new System.EventHandler(this.btnWoodReqFromJoistDetails_Click);
-            // 
             // FormNMBSHelper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(331, 313);
+            this.ClientSize = new System.Drawing.Size(331, 296);
             this.Controls.Add(this.tabControlConvertBOM);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.HelpButton = true;

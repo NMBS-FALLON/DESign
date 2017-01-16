@@ -35,7 +35,7 @@
     <PublishUrl>Q:\Designer Aid\DESign\DESign WORD ADD-IN\</PublishUrl>
     <InstallUrl>\\nmbsfaln-fs\engr\designer aid\design\design word add-in\</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.32</ApplicationVersion>
+    <ApplicationVersion>1.0.0.34</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
@@ -258,6 +258,7 @@
     <EmbeddedResource Include="Ribbon1.resx">
       <DependentUpon>Ribbon1.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="DESign_Word-Add-In_TemporaryKey.pfx" />
     <None Include="DESign_WordAddIn.Properties.Resources.datasource" />
     <None Include="DESign_WordAddIn_1_TemporaryKey.pfx" />
     <None Include="DESign_WordAddIn_2_TemporaryKey.pfx" />
@@ -333,10 +334,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>DESign_WordAddIn_4_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>DESign_Word-Add-In_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>321D43954611482128E88C86C3483B9A46BB8A86</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>3C248D8FFABC6CB74A7E27EA447B0DF519E3548B</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>

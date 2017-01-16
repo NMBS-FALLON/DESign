@@ -40,6 +40,7 @@
             this.btnHoldClear = this.Factory.CreateRibbonButton();
             this.groupPrint = this.Factory.CreateRibbonGroup();
             this.btnPrintShopCopies = this.Factory.CreateRibbonButton();
+            this.btnSinglePrintShopCopy = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.groupManualOperations.SuspendLayout();
             this.groupPrint.SuspendLayout();
@@ -75,6 +76,7 @@
             // groupPrint
             // 
             this.groupPrint.Items.Add(this.btnPrintShopCopies);
+            this.groupPrint.Items.Add(this.btnSinglePrintShopCopy);
             this.groupPrint.Label = "PRINTING";
             this.groupPrint.Name = "groupPrint";
             // 
@@ -83,6 +85,12 @@
             this.btnPrintShopCopies.Label = "Print Shop Copies";
             this.btnPrintShopCopies.Name = "btnPrintShopCopies";
             this.btnPrintShopCopies.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnPrintShopCopies_Click);
+            // 
+            // btnSinglePrintShopCopy
+            // 
+            this.btnSinglePrintShopCopy.Label = "Single Shop Copy";
+            this.btnSinglePrintShopCopy.Name = "btnSinglePrintShopCopy";
+            this.btnSinglePrintShopCopy.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnSinglePrintShopCopy_Click);
             // 
             // RibbonNMBS
             // 
@@ -108,6 +116,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnHoldClear;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup groupPrint;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPrintShopCopies;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnSinglePrintShopCopy;
     }
 
     partial class ThisRibbonCollection

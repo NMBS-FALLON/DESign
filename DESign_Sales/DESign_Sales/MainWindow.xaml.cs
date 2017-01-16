@@ -45,7 +45,7 @@ namespace DESign_Sales
             Excel.Worksheet oSheet = workbook.ActiveSheet;
 
             oXL.Visible = true;
-
+            workbook.SaveAs(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/DESIGN SALES", Excel.XlFileFormat.xlOpenXMLWorkbookMacroEnabled);
             oSheet = workbook.Worksheets["J (1)"];
             int sheetIndex = oSheet.Index;
             var listOfStrippedMarks = job.ListOfStrippedMarks;
