@@ -16,6 +16,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using DESign_BASE;
 
 
 namespace DESign_WordAddIn
@@ -369,22 +370,25 @@ namespace DESign_WordAddIn
             List<string> TCs = joistData[4];
             List<string> BCs = joistData[5];
             List<string> woodLengths1 = woodLengths();
-            List<string> woodWiths = new List<string>(TCs.Count);
+            List<string> woodWidths = new List<string>(TCs.Count);
+            DESign_BASE.QueryAngleData queryAngleData = new DESign_BASE.QueryAngleData();
             for (int i = 0; i <= TCs.Count - 1; i++)
             {
-                string firstTwoChar = TCs[i].Substring(0, 2);
-                bool contains18 = TCs[i].Contains("1.8");
+               // string firstTwoChar = TCs[i].Substring(0, 2);
+               // bool contains18 = TCs[i].Contains("1.8");
 
-                if (TCs[i].Contains("18") == true | TCs[i].Contains("A30") == true) { woodWiths.Add("5\""); }
-                else if (TCs[i].Contains("29") == true) { woodWiths.Add("7 1/8\""); }
-                else if (TCs[i].Contains("A44") == true) { woodWiths.Add("7\""); }
-                else if (TCs[i] != "A28" && TCs[i].Contains("A28") == true) { woodWiths.Add("7\""); }
-                else if (firstTwoChar.Contains("30")) { woodWiths.Add("7\""); }
-                else if (firstTwoChar.Contains("35")) { woodWiths.Add("8\""); }
-                else if (firstTwoChar.Contains("40")) { woodWiths.Add("9\""); }
-                else if (firstTwoChar.Contains("50")) { woodWiths.Add("11\""); }
-                else if (firstTwoChar.Contains("60")) { woodWiths.Add("13\""); }
-                else { woodWiths.Add(" "); }
+               // if (TCs[i].Contains("18") == true | TCs[i].Contains("A30") == true) { woodWiths.Add("5\""); }
+               // else if (TCs[i].Contains("29") == true) { woodWiths.Add("7 1/8\""); }
+               // else if (TCs[i].Contains("A44") == true) { woodWiths.Add("7\""); }
+               // else if (TCs[i] != "A28" && TCs[i].Contains("A28") == true) { woodWiths.Add("7\""); }
+               // else if (firstTwoChar.Contains("30")) { woodWiths.Add("7\""); }
+               // else if (firstTwoChar.Contains("35")) { woodWiths.Add("8\""); }
+               // else if (firstTwoChar.Contains("40")) { woodWiths.Add("9\""); }
+               // else if (firstTwoChar.Contains("50")) { woodWiths.Add("11\""); }
+               // else if (firstTwoChar.Contains("60")) { woodWiths.Add("13\""); }
+               // else { woodWiths.Add(" "); }
+               
+                woodWidths.Add(queryAngleData.WNtcWidth(TCs[i]) + "\"");
             }
 
 
@@ -578,7 +582,7 @@ namespace DESign_WordAddIn
             bool areAsEqual = StringManipulation.areStringElementsEqual(stringListLengthA); //tboxListA
             bool areBsEqual = StringManipulation.areStringElementsEqual(stringListLengthB); //tboxListB
             bool areWoodLengthsEqual = StringManipulation.areStringElementsEqual(woodLengths1);
-            bool areWoodWithsEqual = StringManipulation.areStringElementsEqual(woodWiths);
+            bool areWoodWithsEqual = StringManipulation.areStringElementsEqual(woodWidths);
 
             if (areAsEqual && areBsEqual && areWoodLengthsEqual && areWoodWithsEqual == true)
             {
@@ -596,7 +600,7 @@ namespace DESign_WordAddIn
                 tableNailBacksheetALL.Cell(2, 2).Range.Text = joistData[6][0];
                 tableNailBacksheetALL.Cell(2, 3).Range.Text = stringListLengthA[0]; //tboxListA
                 tableNailBacksheetALL.Cell(2, 4).Range.Text = stringListLengthB[0]; //tboxListB
-                tableNailBacksheetALL.Cell(2, 5).Range.Text = woodWiths[0];
+                tableNailBacksheetALL.Cell(2, 5).Range.Text = woodWidths[0];
                 tableNailBacksheetALL.Cell(2, 6).Range.Text = woodLengths1[0];
                 tableNailBacksheetALL.Cell(2, 7).Range.Text = "";
 
@@ -640,7 +644,7 @@ namespace DESign_WordAddIn
                     tableNailBacksheet.Cell(i + 2, 1).Range.Text = Marks[i];
                     tableNailBacksheet.Cell(i + 2, 2).Range.Text = Qtys[i];
                     tableNailBacksheet.Cell(i + 2, 6).Range.Text = woodLengths1[i];
-                    tableNailBacksheet.Cell(i + 2, 5).Range.Text = woodWiths[i];
+                    tableNailBacksheet.Cell(i + 2, 5).Range.Text = woodWidths[i];
                     tableNailBacksheet.Cell(i + 2, 3).Range.Text = stringListLengthA[i]; //tboxlistA
                     tableNailBacksheet.Cell(i + 2, 4).Range.Text = stringListLengthB[i]; //tboxListB
                 }
