@@ -20,7 +20,7 @@ namespace DESign_Sales_Excel_Add_in
             Excel.Application thisApp = Globals.ThisAddIn.Application;
             Excel.Workbook thisWB = Globals.ThisAddIn.Application.ActiveWorkbook;
             Excel.Worksheet thisWS = Globals.ThisAddIn.Application.ActiveWorkbook.ActiveSheet;
-            MessageBox.Show(thisWS.Name);
+            
         }
     }
 }

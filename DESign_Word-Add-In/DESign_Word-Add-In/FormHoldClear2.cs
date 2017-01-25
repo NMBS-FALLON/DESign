@@ -18,7 +18,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Reflection;
 using System.Threading;
-
+using DESign_BASE;
 
 
 namespace DESign_WordAddIn
@@ -29,7 +29,8 @@ namespace DESign_WordAddIn
 
         StringManipulation StringManipulation = new StringManipulation();
 
-        QueryAngleDataXML QueryAngleDataXML = new QueryAngleDataXML();
+        DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
+        
 
         public FormHoldClear2()
         {
@@ -690,8 +691,8 @@ namespace DESign_WordAddIn
                 int diffInHCandTC = 0;
 
 
-                double tcVLeg = QueryAngleDataXML.DblVleg(thisJoistSeatInfo.TC);
-                double tcThickness = QueryAngleDataXML.DblThickness(thisJoistSeatInfo.TC);
+                double tcVLeg = QueryAngleData.DblVleg(thisJoistSeatInfo.TC);
+                double tcThickness = QueryAngleData.DblThickness(thisJoistSeatInfo.TC);
 
 
                 bool gaIsGreater3pt5 = false;
@@ -719,7 +720,7 @@ namespace DESign_WordAddIn
                     else if (tcThickness < 0.20) { thisHCSeatInfo.HCMaterial = "2018"; }
                     else { thisHCSeatInfo.HCMaterial = "2024"; }
 
-                    double seatVLeg = QueryAngleDataXML.DblVleg(thisHCSeatInfo.HCMaterial);
+                    double seatVLeg = QueryAngleData.DblVleg(thisHCSeatInfo.HCMaterial);
                     if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * tcVLeg)+ seatVLeg && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * tcVLeg) + seatVLeg)
                     {
                         thisHCSeatInfo.buttedSeat = true;
@@ -745,7 +746,7 @@ namespace DESign_WordAddIn
                     else if (tcThickness < 0.21875) { diffInHCandTC = 1; }
                     else { diffInHCandTC = 0; }
 
-                    double seatVLeg = QueryAngleDataXML.DblVleg(thisHCSeatInfo.HCMaterial);
+                    double seatVLeg = QueryAngleData.DblVleg(thisHCSeatInfo.HCMaterial);
                     if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor*tcVLeg) + seatVLeg && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor*tcVLeg) + seatVLeg)
                     {
                         thisHCSeatInfo.buttedSeat = true;

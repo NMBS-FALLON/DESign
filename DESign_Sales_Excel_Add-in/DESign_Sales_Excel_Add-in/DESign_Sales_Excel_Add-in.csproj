@@ -152,6 +152,7 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="Classes\Mark_Worksheet.cs" />
     <Compile Include="NMBS_Sales_Ribbon.cs">
       <SubType>Component</SubType>
     </Compile>
