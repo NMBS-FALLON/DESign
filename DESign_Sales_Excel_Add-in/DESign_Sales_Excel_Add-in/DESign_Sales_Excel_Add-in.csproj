@@ -152,7 +152,10 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Classes\Mark_Worksheet.cs" />
+    <Compile Include="Worksheet_Values\BaseTypes_WS_Values.cs" />
+    <Compile Include="Worksheet_Values\Bridging_WS_Values.cs" />
+    <Compile Include="Worksheet_Values\Load.cs" />
+    <Compile Include="Worksheet_Values\Marks_WS_Values.cs" />
     <Compile Include="NMBS_Sales_Ribbon.cs">
       <SubType>Component</SubType>
     </Compile>
