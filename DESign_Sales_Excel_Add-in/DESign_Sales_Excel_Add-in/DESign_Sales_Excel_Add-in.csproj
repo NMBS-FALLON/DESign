@@ -175,10 +175,10 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Worksheet_Values\BaseTypeLine.cs" />
+    <Compile Include="Worksheet_Values\BaseType.cs" />
     <Compile Include="Worksheet_Values\Load.cs" />
-    <Compile Include="Worksheet_Values\BridgingLine.cs" />
-    <Compile Include="Worksheet_Values\JoistLine.cs" />
+    <Compile Include="Worksheet_Values\Bridging.cs" />
+    <Compile Include="Worksheet_Values\Joist.cs" />
     <Compile Include="NMBS_Sales_Ribbon.cs">
       <SubType>Component</SubType>
     </Compile>

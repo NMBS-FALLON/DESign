@@ -8,7 +8,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
     public class Takeoff
     {
-        public List<BaseTypeLine> BaseTypeLines { get; set; }
-        public List<JoistLine> JoistLines { get; set; }
+        public List<BaseType> BaseTypes { get; set; }
+        public List<Joist> Joists { get; set; }
     }
 }

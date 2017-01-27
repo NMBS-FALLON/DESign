@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
-    public class JoistLine
+    public class BaseType
     {
-        public StringWithUpdateCheck Mark { get; set; }
-        public List<StringWithUpdateCheck> BaseTypes { get; set; }
-        public IntWithUpdateCheck Quantity { get; set; }
+        public StringWithUpdateCheck Name { get; set; }
         public StringWithUpdateCheck Description { get; set; }
         public DoubleWithUpdateCheck BaseLengthFt { get; set; }
         public DoubleWithUpdateCheck BaseLengthIn { get; set; }
@@ -31,5 +29,6 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public StringWithUpdateCheck WnSpacing { get; set; }
         public List<StringWithUpdateCheck> Notes { get; set; }
     }
+
 
 }

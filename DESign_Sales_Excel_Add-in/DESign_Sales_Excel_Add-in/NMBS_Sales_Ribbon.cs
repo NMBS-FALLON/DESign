@@ -32,9 +32,108 @@ namespace DESign_Sales_Excel_Add_in
             object[,] baseTypesCells = (object[,])baseTypesRange.Value2;
 
             ///////////////////
-            // CODE FOR Creating BaseTypes 
+            // Determine the row of the first baseType since estimators dont always place the first baseType at the top
+            bool firstBaseTypeReached = false;
+            int firstBaseTypeRow = 0;
+
+            int i = 4;
+            while (firstBaseTypeReached == false)
+            {
+                if (baseTypesCells[i, 1] != null)
+                {
+                    firstBaseTypeReached = true;
+                    firstBaseTypeRow = i;
+                }
+                i++;
+            }
+
+            // Create a list containing the number of rows between each baseType
+            List<int> rowsPerBaseTypeList = new List<int>();
+            int rowsPerBaseType = 1;
+            for (i = firstBaseTypeRow; i < baseTypesCells.GetLength(0); i++)
+            {
+                if (baseTypesCells[i + 1, 1] == null)
+                {
+                    rowsPerBaseType++;
+                }
+                else
+                {
+                    rowsPerBaseTypeList.Add(rowsPerBaseType);
+                    rowsPerBaseType = 1;
+                }
+                if (i == baseTypesCells.GetLength(0) - 1)
+                {
+                    rowsPerBaseTypeList.Add(rowsPerBaseType);
+                }
+            }
+
+            // Now that we can break out the chunks of information for each baseType, we can create the list of baseTypeLines
+            List<BaseType> baseTypes = new List<BaseType>();
+
+            int rowCount = firstBaseTypeRow;
+            foreach (int rowsForThisBaseType in rowsPerBaseTypeList)
+            {
+                BaseType baseType = new BaseType();
+
+                baseType.Name = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 1] };
+                baseType.Description = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 2] };
+                baseType.BaseLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 3] };
+                baseType.BaseLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 4] };
+                baseType.TcxlQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 5] };
+                baseType.TcxlLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 6] };
+                baseType.TcxlLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 7] };
+                baseType.TcxrQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 8] };
+                baseType.TcxrLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 9] };
+                baseType.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 10] };
+                baseType.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 11] };
+                baseType.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 12] };
+                baseType.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 13] };
+                baseType.Uplift = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 14] };
+                baseType.Erfos = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 26] };
+                baseType.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 27] };
+                baseType.DeflectionLL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 28] };
+                baseType.WnSpacing = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 29] };
+
+                
+                List<Load> loads = new List<Load>();
+                List<StringWithUpdateCheck> notes = new List<StringWithUpdateCheck>();
+
+                for (i = 0; i < rowsForThisBaseType; i++)
+                {
+
+                    Load load = new Load();
+                    load.LoadInfoType = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 15] };
+                    load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 16] };
+                    load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 17] };
+                    load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 18] };
+                    load.Load1DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 19] };
+                    load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 20] };
+                    load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21] };
+                    load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 22] };
+                    load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 23] };
+                    load.CaseNumber = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 24] };
+                    load.LoadNote = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 25] };
+                    if (load.IsNull == false)
+                    {
+                        loads.Add(load);
+                    }
+
+                    StringWithUpdateCheck note = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 30] };
+                    if (note.Text != null && note.IsUpdated == false)
+                    {
+                        notes.Add(note);
+                    }
+
+                }
+                baseType.Loads = loads;
+                baseType.Notes = notes;
+
+                baseTypes.Add(baseType);
+                rowCount = rowCount + rowsForThisBaseType;
+            }
+
             ///////////////////
-            
+
             // Create a range for the 'Marks' tab
             Excel.Range marksRange = marksWS.UsedRange;
 
@@ -45,7 +144,7 @@ namespace DESign_Sales_Excel_Add_in
             bool firstMarkReached = false;
             int firstMarkRow = 0;
 
-            int i = 4;
+            i = 4;
             while(firstMarkReached ==false)
             {
                 if (marksCells[i, 1] != null)
@@ -77,42 +176,42 @@ namespace DESign_Sales_Excel_Add_in
             }
 
             // Now that we can break out the chunks of information for each mark, we can create the list of joistLines
-            List<JoistLine> joistLines = new List<JoistLine>();
+            List<Joist> joistLines = new List<Joist>();
             
-            int rowCount = firstMarkRow;
+            rowCount = firstMarkRow;
             foreach (int rowsForThisMark in rowsPerMarkList)
             {
-                JoistLine joistLine = new JoistLine();
-                joistLine.Mark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 1] };
-                joistLine.Quantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 3] };
-                joistLine.Description = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 4] };
-                joistLine.BaseLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 5] };
-                joistLine.BaseLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 6] };
-                joistLine.TcxlQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 7] };
-                joistLine.TcxlLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 8] };
-                joistLine.TcxlLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 9] };
-                joistLine.TcxrQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 10] };
-                joistLine.TcxrLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 11] };
-                joistLine.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 12] };
-                joistLine.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 13] };
-                joistLine.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 14] };
-                joistLine.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 15] };
-                joistLine.Uplift = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 16] };
-                joistLine.Erfos = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 28] };
-                joistLine.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 29] };
-                joistLine.DeflectionLL = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 30] };
-                joistLine.WnSpacing = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 31] };
+                Joist joist = new Joist();
+                joist.Mark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 1] };
+                joist.Quantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 3] };
+                joist.Description = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 4] };
+                joist.BaseLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 5] };
+                joist.BaseLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 6] };
+                joist.TcxlQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 7] };
+                joist.TcxlLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 8] };
+                joist.TcxlLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 9] };
+                joist.TcxrQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 10] };
+                joist.TcxrLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 11] };
+                joist.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 12] };
+                joist.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 13] };
+                joist.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 14] };
+                joist.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 15] };
+                joist.Uplift = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 16] };
+                joist.Erfos = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 28] };
+                joist.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 29] };
+                joist.DeflectionLL = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 30] };
+                joist.WnSpacing = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 31] };
 
-                List<StringWithUpdateCheck> baseTypes = new List<StringWithUpdateCheck>();
+                List<StringWithUpdateCheck> baseTypesOnMark = new List<StringWithUpdateCheck>();
                 List<Load> loads = new List<Load>();
                 List<StringWithUpdateCheck> notes = new List<StringWithUpdateCheck>();
 
                 for (i = 0; i < rowsForThisMark; i++)
                 {
-                    StringWithUpdateCheck baseType = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 2] };
-                    if (baseType.Text != null && baseType.IsUpdated == false)
+                    StringWithUpdateCheck baseTypeOnMark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 2] };
+                    if (baseTypeOnMark.Text != null && baseTypeOnMark.IsUpdated == false)
                     {
-                        baseTypes.Add(baseType);
+                        baseTypesOnMark.Add(baseTypeOnMark);
                     }
 
 
@@ -141,11 +240,11 @@ namespace DESign_Sales_Excel_Add_in
                     }
 
                 }
-                joistLine.BaseTypes = baseTypes;
-                joistLine.Loads = loads;
-                joistLine.Notes = notes;
+                joist.BaseTypesOnMark = baseTypesOnMark;
+                joist.Loads = loads;
+                joist.Notes = notes;
 
-                joistLines.Add(joistLine);
+                joistLines.Add(joist);
                 rowCount = rowCount + rowsForThisMark;
             }
 
@@ -153,9 +252,10 @@ namespace DESign_Sales_Excel_Add_in
 
             Takeoff takeoff = new Takeoff();
 
-            takeoff.JoistLines = joistLines;
+            takeoff.BaseTypes = baseTypes;
+            takeoff.Joists = joistLines;
 
-            foreach(JoistLine joistLine in takeoff.JoistLines)
+            foreach(Joist joistLine in takeoff.Joists)
             {
                 foreach(Load load in joistLine.Loads)
                 {
