@@ -175,6 +175,12 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="Convert_Takeoff_Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Convert_Takeoff_Form.Designer.cs">
+      <DependentUpon>Convert_Takeoff_Form.cs</DependentUpon>
+    </Compile>
     <Compile Include="Worksheet_Values\BaseType.cs" />
     <Compile Include="Worksheet_Values\Load.cs" />
     <Compile Include="Worksheet_Values\Bridging.cs" />
@@ -190,6 +196,9 @@
     </Compile>
     <Compile Include="Worksheet_Values\Takeoff.cs" />
     <Compile Include="Worksheet_Values\UpdateCheck.cs" />
+    <EmbeddedResource Include="Convert_Takeoff_Form.resx">
+      <DependentUpon>Convert_Takeoff_Form.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="NMBS_Sales_Ribbon.resx">
       <DependentUpon>NMBS_Sales_Ribbon.cs</DependentUpon>
     </EmbeddedResource>

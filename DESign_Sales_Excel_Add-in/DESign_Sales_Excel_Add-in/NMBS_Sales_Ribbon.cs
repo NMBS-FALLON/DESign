@@ -18,9 +18,8 @@ namespace DESign_Sales_Excel_Add_in
         
         private void button1_Click(object sender, RibbonControlEventArgs e)
         {
-            Takeoff takeoff = new Takeoff();
-            takeoff = takeoff.ImportTakeoff();
-            takeoff.CreateOriginalTakeoff(takeoff);
+            Convert_Takeoff_Form convert_Takeoff_Form = new Convert_Takeoff_Form();
+            convert_Takeoff_Form.Show();
         }
 
 
