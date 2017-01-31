@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
-
+    [Serializable]
     public class Load
     {
         public StringWithUpdateCheck LoadInfoType { get; set; }
@@ -18,7 +18,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public DoubleWithUpdateCheck Load2Value { get; set; }
         public DoubleWithUpdateCheck Load2DistanceFt { get; set; }
         public DoubleWithUpdateCheck Load2DistanceIn { get; set; }
-        public StringWithUpdateCheck CaseNumber { get; set; }
+        public DoubleWithUpdateCheck CaseNumber { get; set; }
         public StringWithUpdateCheck LoadNote { get; set; }
         private bool isNull;
         public bool IsNull
@@ -43,7 +43,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     Load2DistanceFt.IsUpdated == false &&
                     Load2DistanceIn.Value == null &&
                     Load2DistanceIn.IsUpdated == false &&
-                    CaseNumber.Text == null &&
+                    CaseNumber.Value == null &&
                     CaseNumber.IsUpdated == false &&
                     LoadNote.Text == null &&
                     LoadNote.IsUpdated == false)

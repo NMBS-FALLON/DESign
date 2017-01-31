@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
+    [Serializable]
     public class Joist
     {
         public StringWithUpdateCheck Mark { get; set; }

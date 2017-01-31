@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
@@ -111,7 +112,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21] };
                     load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 22] };
                     load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 23] };
-                    load.CaseNumber = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 24] };
+                    load.CaseNumber = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 24] };
                     load.LoadNote = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 25] };
                     if (load.IsNull == false)
                     {
@@ -226,7 +227,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 23] };
                     load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 24] };
                     load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 25] };
-                    load.CaseNumber = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 26] };
+                    load.CaseNumber = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 26] };
                     load.LoadNote = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 27] };
                     if (load.IsNull == false)
                     {
@@ -348,9 +349,15 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             Excel.Worksheet sheet = workbook.ActiveSheet;
 
             oXL.Visible = false;
-            workbook.SaveAs(Environment.GetFolderPath(
-                Environment.SpecialFolder.Desktop) + "/NEW TAKEOFF",
-                Excel.XlFileFormat.xlOpenXMLWorkbookMacroEnabled);
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Excel files (*.xlsm)|*.xlsm";
+            saveFileDialog.ShowDialog();
+            
+            if(saveFileDialog.FileName != "")
+            {
+                workbook.SaveAs(saveFileDialog.FileName);
+            }
+            //workbook.SaveAs();
             sheet = workbook.Worksheets["J (1)"];
             int sheetIndex = sheet.Index;
 
@@ -404,7 +411,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     CellInsert(sheet, loadRow, 22, load.Load2Value.Value);
                     CellInsert(sheet, loadRow, 23, load.Load2DistanceFt.Value);
                     CellInsert(sheet, loadRow, 24, load.Load2DistanceFt.Value);
-                    CellInsert(sheet, loadRow, 25, load.CaseNumber.Text);
+                    CellInsert(sheet, loadRow, 25, load.CaseNumber.Value);
 
                     loadRow++;
                 }
@@ -438,6 +445,81 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             else
             {
                 sheet.Cells[row, column] = o;
+            }
+        }
+
+        public void SeperateSeismic(Takeoff takeoff, double sds = 0.00)
+        {
+            foreach (Joist joist in takeoff.Joists)
+            {
+                //Determine if joist has Seismic Loads
+
+                var listOfLoadTypes = from load in joist.Loads
+                                      select load.LoadInfoCategory.Text;
+                bool hasSeismic = false;
+                foreach (string type in listOfLoadTypes)
+                {
+                    if(type == "SM")
+                    {
+                        hasSeismic = true;
+                    }
+                }
+
+                if (hasSeismic == true)
+                {
+
+                    // select seismic LC, should be 3 unless 3 is taken (which is rare). 
+                    var listOfLCs = from load in joist.Loads
+                                    select Convert.ToInt32(load.CaseNumber.Value);
+
+                    int seismicLC = 0;
+                    if (listOfLCs.Contains(3) == false)
+                    {
+                        seismicLC = 3;
+                    }
+                    else
+                    {
+                        seismicLC = listOfLCs.Max() + 1;
+                    }
+
+                    // Move seismic loads to seismic load case
+
+                    foreach (Load load in joist.Loads)
+                    {
+                        if (load.LoadInfoCategory.Text == "SM")
+                        {
+                            load.CaseNumber.Value = seismicLC;
+                        }
+                    }
+
+                    // Copy all other positive loads from LC1 to LC3. 
+                    //ISSUES: no important loads can be in any other load case than LC1. 
+                    List<Load> newLoads = new List<Load>();
+                    Load copiedLoad = new Load();
+                    foreach (Load load in joist.Loads)
+                    {
+                        if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null) && load.Load1Value.Value >= 0)
+                        {
+
+                            copiedLoad = DeepClone(load);
+                            copiedLoad.CaseNumber.Value = seismicLC;
+                            newLoads.Add(copiedLoad);
+                        }
+                    }
+                    joist.Loads.AddRange(newLoads);
+                }
+            }
+        }
+
+        public static T DeepClone<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
             }
         }
     }
