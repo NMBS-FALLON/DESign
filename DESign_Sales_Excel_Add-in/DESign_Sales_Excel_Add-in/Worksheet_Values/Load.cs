@@ -20,7 +20,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public DoubleWithUpdateCheck Load2DistanceIn { get; set; }
         public DoubleWithUpdateCheck CaseNumber { get; set; }
         public StringWithUpdateCheck LoadNote { get; set; }
-        private bool isNull;
+        private bool isNull = true;
         public bool IsNull
         {
             get

@@ -14,15 +14,16 @@ namespace DESign_Sales_Excel_Add_in
 
         private void btnConvertTakeoff_Click(object sender, EventArgs e)
         {
-            this.Close();
+            
             Takeoff takeoff = new Takeoff();
             takeoff = takeoff.ImportTakeoff();
             if(cbSeperateSeismic.Checked == true)
             {
-                takeoff.SeperateSeismic(takeoff);
+                takeoff.SeperateSeismic(Math.Ceiling(Convert.ToDouble(tbSDS.Text)));
             }
             
-            takeoff.CreateOriginalTakeoff(takeoff);
+            takeoff.CreateOriginalTakeoff();
+            this.Close();
         }
     }
 }

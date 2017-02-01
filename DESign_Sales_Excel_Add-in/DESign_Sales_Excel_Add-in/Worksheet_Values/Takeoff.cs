@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.RegularExpressions;
 
 namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
@@ -112,7 +113,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21] };
                     load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 22] };
                     load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 23] };
-                    load.CaseNumber = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 24] };
+                    load.CaseNumber = new DoubleWithUpdateCheck { Value = ToNullableDouble((string)baseTypesCells[rowCount + i, 24]) };
                     load.LoadNote = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 25] };
                     if (load.IsNull == false)
                     {
@@ -336,8 +337,14 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             return takeoff;
 
         }
-
-        public void CreateOriginalTakeoff(Takeoff takeoff)
+        public static double? ToNullableDouble(string s)
+        {
+            if (s == null) return null;
+            double i;
+            if (double.TryParse(s, out i)) return i;
+            return null;
+        }
+        public void CreateOriginalTakeoff()
         {
             string excelPath = System.IO.Path.GetTempFileName();
             System.IO.File.WriteAllBytes(excelPath, Properties.Resources.BLANK_SALES_BOM);
@@ -352,21 +359,17 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Excel files (*.xlsm)|*.xlsm";
             saveFileDialog.ShowDialog();
-            
-            if(saveFileDialog.FileName != "")
-            {
-                workbook.SaveAs(saveFileDialog.FileName);
-            }
-            //workbook.SaveAs();
+           
+
             sheet = workbook.Worksheets["J (1)"];
             int sheetIndex = sheet.Index;
 
             int row = 7;
             int pageRowCounter = 0;
             int sheetCount = 1;
-            for (int markCounter = 0; markCounter < takeoff.Joists.Count;)
+            for (int markCounter = 0; markCounter < Joists.Count;)
             {
-                Joist joist = takeoff.Joists[markCounter];
+                Joist joist = Joists[markCounter];
 
 
                 pageRowCounter = pageRowCounter + Math.Max(joist.Loads.Count, joist.Notes.Count) + 3;
@@ -419,8 +422,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 int noteRow = row;
                 foreach(StringWithUpdateCheck note in joist.Notes)
                 {
-                    CellInsert(sheet, noteRow, 26, note);
-                    //sheet.Cells[noteRow, 26] = note;
+                    CellInsert(sheet, noteRow, 26, note.Text);
                     noteRow++;
                 }
 
@@ -429,6 +431,11 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
             SkipLoop:
                 ;
+            }
+
+            if (saveFileDialog.FileName != "")
+            {
+                workbook.SaveAs(saveFileDialog.FileName);
             }
 
             oXL.Visible = true;
@@ -448,65 +455,96 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             }
         }
 
-        public void SeperateSeismic(Takeoff takeoff, double sds = 0.00)
+        public void SeperateSeismic(double sds = 0.00)
         {
-            foreach (Joist joist in takeoff.Joists)
+            foreach (Joist joist in Joists)
             {
                 //Determine if joist has Seismic Loads
-
-                var listOfLoadTypes = from load in joist.Loads
-                                      select load.LoadInfoCategory.Text;
-                bool hasSeismic = false;
-                foreach (string type in listOfLoadTypes)
+                if (joist.IsLoadOverLoad== true)
                 {
-                    if(type == "SM")
+                    var listOfLoadTypes = from load in joist.Loads
+                                          select load.LoadInfoCategory.Text;
+                    bool hasSeismic = false;
+                    foreach (string type in listOfLoadTypes)
                     {
-                        hasSeismic = true;
-                    }
-                }
-
-                if (hasSeismic == true)
-                {
-
-                    // select seismic LC, should be 3 unless 3 is taken (which is rare). 
-                    var listOfLCs = from load in joist.Loads
-                                    select Convert.ToInt32(load.CaseNumber.Value);
-
-                    int seismicLC = 0;
-                    if (listOfLCs.Contains(3) == false)
-                    {
-                        seismicLC = 3;
-                    }
-                    else
-                    {
-                        seismicLC = listOfLCs.Max() + 1;
-                    }
-
-                    // Move seismic loads to seismic load case
-
-                    foreach (Load load in joist.Loads)
-                    {
-                        if (load.LoadInfoCategory.Text == "SM")
+                        if (type == "SM")
                         {
-                            load.CaseNumber.Value = seismicLC;
+                            hasSeismic = true;
                         }
                     }
 
-                    // Copy all other positive loads from LC1 to LC3. 
-                    //ISSUES: no important loads can be in any other load case than LC1. 
-                    List<Load> newLoads = new List<Load>();
-                    Load copiedLoad = new Load();
-                    foreach (Load load in joist.Loads)
+                    if (hasSeismic)
                     {
-                        if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null) && load.Load1Value.Value >= 0)
-                        {
 
-                            copiedLoad = DeepClone(load);
-                            copiedLoad.CaseNumber.Value = seismicLC;
-                            newLoads.Add(copiedLoad);
+                        // SET SEISMIC LC TO 6. 
+                        var listOfLCs = from load in joist.Loads
+                                        select Convert.ToInt32(load.CaseNumber.Value);
+
+                        int seismicLC = 3;
+                        if (listOfLCs.Contains(3) == true)
+                        {
+                            MessageBox.Show(String.Format("MARK {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION; ENDING PROGRAM",
+                                joist.Mark.Text));
                         }
+
+                        // Move seismic loads to seismic load case
+
+                        foreach (Load load in joist.Loads)
+                        {
+                            if (load.LoadInfoCategory.Text == "SM")
+                            {
+                                load.CaseNumber.Value = seismicLC;
+                            }
+                        }
+
+                        // Copy all other positive loads from LC1 to LC3. 
+                        //ISSUES: no important loads can be in any other load case than LC1. 
+                        List<Load> newLoads = new List<Load>();
+                        Load copiedLoad = new Load();
+                        foreach (Load load in joist.Loads)
+                        {
+                            if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null) && load.Load1Value.Value >= 0)
+                            {
+
+                                copiedLoad = DeepClone(load);
+                                copiedLoad.CaseNumber.Value = seismicLC;
+                                newLoads.Add(copiedLoad);
+                            }
+                        }
+                        joist.Loads.AddRange(newLoads);
+
+                        //ADD JOIST U DL
+                        Load uDL = new Load();
+                        uDL.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
+                        uDL.LoadInfoCategory = new StringWithUpdateCheck { Text = "CL" };
+                        uDL.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
+                        uDL.Load1Value = new DoubleWithUpdateCheck { Value = joist.UDL };
+                        uDL.Load1DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                        uDL.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                        uDL.Load2Value = new DoubleWithUpdateCheck { Value = null };
+                        uDL.Load2DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                        uDL.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                        uDL.LoadNote = new StringWithUpdateCheck { Text = null };
+                        uDL.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
+                        joist.Loads.Add(uDL);
+
+                        //ADD JOIST U SM 
+                        Load uSM = new Load();
+                        uSM.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
+                        uSM.LoadInfoCategory = new StringWithUpdateCheck { Text = "SM" };
+                        uSM.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
+                        uSM.Load1Value = new DoubleWithUpdateCheck { Value = 0.14 * sds * joist.UDL};
+                        uSM.Load1DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                        uSM.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                        uSM.Load2Value = new DoubleWithUpdateCheck { Value = null };
+                        uSM.Load2DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                        uSM.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                        uSM.LoadNote = new StringWithUpdateCheck { Text = null };
+                        uSM.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
+                        joist.Loads.Add(uSM);
+
+
                     }
-                    joist.Loads.AddRange(newLoads);
                 }
             }
         }

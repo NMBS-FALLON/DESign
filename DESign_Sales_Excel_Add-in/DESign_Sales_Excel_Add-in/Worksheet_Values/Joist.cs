@@ -31,6 +31,80 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public DoubleWithUpdateCheck DeflectionLL { get; set; }
         public StringWithUpdateCheck WnSpacing { get; set; }
         public List<StringWithUpdateCheck> Notes { get; set; }
+        private bool isGirder = false;
+        public bool IsGirder
+        {
+            get
+            {
+                if (Description.Text.Contains("G") == true)
+                {
+                    isGirder = true;
+                }
+                return isGirder;
+            }
+        }
+        private bool isLoadOverLoad = false;
+        public bool IsLoadOverLoad
+        {
+            get
+            {
+                if (isGirder == false)
+                {
+                    string[] seperators = { "K", "LH", "DLH" };
+                    string loadOrSeries = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1];
+                    if (loadOrSeries.Contains("/") == true)
+                    {
+                        isLoadOverLoad = true;
+                    }
+                }
+                return isLoadOverLoad;
+            }
+        }
+        private double tl;
+        public double TL
+        {
+            get
+            {
+                if(IsLoadOverLoad == true)
+                {
+                    string[] seperators = { "K", "LH", "DLH" };
+
+                    tl = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[0]);
+                    
+                }
+                return tl;
+            }
+        }
+        private double ll;
+        public double LL
+        {
+            get
+            {
+                if(IsLoadOverLoad == true)
+                {
+                    string[] seperators = { "K", "LH", "DLH" };
+
+                    ll = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[1]);
+
+                }
+                return ll;
+            }
+        }
+        private double uDL;
+        public double UDL
+        {
+            get
+            {
+                if (IsLoadOverLoad == true)
+                {
+
+                    uDL = TL - LL;
+                }
+                return uDL;
+            }
+        }
+        
+
     }
 
 }
