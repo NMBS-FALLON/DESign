@@ -13,6 +13,36 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public List<StringWithUpdateCheck> BaseTypesOnMark { get; set; }
         public IntWithUpdateCheck Quantity { get; set; }
         public StringWithUpdateCheck Description { get; set; }
+        private StringWithUpdateCheck descriptionAdjusted;
+        public StringWithUpdateCheck DescriptionAdjusted
+        {
+            get
+            {
+                descriptionAdjusted = new StringWithUpdateCheck { Text = Description.Text, IsUpdated = Description.IsUpdated };
+                if(IsGirder == true)
+                {
+
+                    string[] seperators = { "N", "K" };
+                    string[] descriptionSplit = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+                    string load = descriptionSplit[1];
+                    if (load.Contains("/") == true)
+                    {
+
+                        string tl = load.Split('/')[0];
+                        if (descriptionSplit.Length == 2)
+                        {
+                            descriptionAdjusted.Text = descriptionSplit[0] + "N" + tl + "K";
+                        }
+                        else
+                        {
+                            descriptionAdjusted.Text = descriptionSplit[0] + "N" + tl + "K" + descriptionSplit[2];
+                        }
+                    }
+                }
+                return descriptionAdjusted;
+                    
+            }
+        }
         public DoubleWithUpdateCheck BaseLengthFt { get; set; }
         public DoubleWithUpdateCheck BaseLengthIn { get; set; }
         public IntWithUpdateCheck TcxlQuantity { get; set; }
@@ -48,63 +78,91 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         {
             get
             {
-                if (isGirder == false)
+
+
+                if (Description.Text.Contains("/") == true)
                 {
-                    string[] seperators = { "K", "LH", "DLH" };
-                    string loadOrSeries = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1];
-                    if (loadOrSeries.Contains("/") == true)
-                    {
-                        isLoadOverLoad = true;
-                    }
+                    isLoadOverLoad = true;
                 }
+
                 return isLoadOverLoad;
             }
         }
-        private double tl;
-        public double TL
-        {
-            get
-            {
-                if(IsLoadOverLoad == true)
-                {
-                    string[] seperators = { "K", "LH", "DLH" };
-
-                    tl = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[0]);
-                    
-                }
-                return tl;
-            }
-        }
-        private double ll;
-        public double LL
-        {
-            get
-            {
-                if(IsLoadOverLoad == true)
-                {
-                    string[] seperators = { "K", "LH", "DLH" };
-
-                    ll = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[1]);
-
-                }
-                return ll;
-            }
-        }
-        private double uDL;
-        public double UDL
+        private double? tl;
+        public double? TL
         {
             get
             {
                 if (IsLoadOverLoad == true)
                 {
+                    if (isGirder == false)
+                    {
+                        string[] seperators = { "K", "LH", "DLH" };
+                        tl = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[0]);
+                    }
 
-                    uDL = TL - LL;
+                    else
+                    {
+                        tl = Convert.ToDouble(GirderLoad().Split('/')[0]);
+                    }
+                }
+            
+                return tl;
+            }
+        }
+        private double? ll;
+        public double? LL
+        {
+            get
+            {
+                if (IsLoadOverLoad == true)
+                {
+                    if (isGirder == false)
+                    {
+                        string[] seperators = { "K", "LH", "DLH" };
+                        ll = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[1]);
+                    }
+                    else
+                    {
+                        ll = Convert.ToDouble(GirderLoad().Split('/')[1]);
+                    }
+                }
+                return ll;
+            }
+        }
+        private double? uDL;
+        public double? UDL
+        {
+            get
+            {
+                if (IsLoadOverLoad == true)
+                {
+                    if (IsGirder == false)
+                    {
+                        uDL = TL - LL;
+                    }
+                    else
+                    {
+                            string[] seperators = { "G", "N", "K" };
+                            string[] descriptionSplit = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+                            double? spaces = Convert.ToDouble(descriptionSplit[1]);
+                            double? joistSpace = (BaseLengthFt.Value + BaseLengthIn.Value / 12.0) / spaces;
+                            uDL = ((TL - LL) * 1000.0) / joistSpace;
+                    }
                 }
                 return uDL;
             }
         }
+        private string GirderLoad()
+        {
+            string[] seperators = { "N", "K" };
+            string[] descriptionSplit = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+            string girderLoad = girderLoad = descriptionSplit[1];
+            return girderLoad;
+        }
         
 
     }
+    
 
 }

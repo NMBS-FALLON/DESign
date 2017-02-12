@@ -19,11 +19,17 @@ namespace DESign_Sales_Excel_Add_in
             takeoff = takeoff.ImportTakeoff();
             if(cbSeperateSeismic.Checked == true)
             {
-                takeoff.SeperateSeismic(Math.Ceiling(Convert.ToDouble(tbSDS.Text)));
+                takeoff.SeperateSeismic(Convert.ToDouble(tbSDS.Text));
             }
             
             takeoff.CreateOriginalTakeoff();
             this.Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var dfObjectArray = Deedle.Frame.ReadCsv("C:\\Users\\darien.shannon\\Desktop\\DECK\\Deck Tables.csv");
+            string s = "s";
         }
     }
 }

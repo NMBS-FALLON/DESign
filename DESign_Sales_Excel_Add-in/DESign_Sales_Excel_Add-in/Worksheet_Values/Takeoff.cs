@@ -17,12 +17,13 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public List<BaseType> BaseTypes { get; set; }
         public List<Joist> Joists { get; set; }
         public List<Bridging> Bridging { get; set; }
+        // Initialize the necessary Excel objects:
+        Excel.Application oXL = Globals.ThisAddIn.Application;
+        Excel._Workbook oWB = Globals.ThisAddIn.Application.ActiveWorkbook;
 
         public Takeoff ImportTakeoff()
         {
-            // Initialize the necessary Excel objects:
-            Excel.Application oXL = Globals.ThisAddIn.Application;
-            Excel._Workbook oWB = Globals.ThisAddIn.Application.ActiveWorkbook;
+            
             Excel._Worksheet marksWS = (Excel._Worksheet)oWB.Worksheets["Marks"];
             Excel._Worksheet baseTypesWS = (Excel._Worksheet)oWB.Worksheets["Base Types"];
 
@@ -32,6 +33,26 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
             //Create an object array containing all information from the 'Base Types' tab, in the form of a multidimensional array [row, column]
             object[,] baseTypesCells = (object[,])baseTypesRange.Value2;
+
+            //Create a multidemnsional bool array that is true if the cell is highlighted (i.e. estimator marked it as updated) and false if it is not highlighted (i.e. cell has not been updated).
+            int numRows = baseTypesRange.Rows.Count;
+            int numColumns = baseTypesRange.Columns.Count;
+
+            bool[,] isUpdated = new bool[numRows, numColumns];
+            for (int row = 1; row<=numRows; row++)
+            {
+                for(int col = 1; col<=numColumns; col++)
+                {
+                    if (baseTypesRange[row, col].Interior.ColorIndex != -4142)
+                    {
+                        isUpdated[row-1, col-1] = true;
+                    }
+                    else
+                    {
+                        isUpdated[row-1, col-1] = false;
+                    }
+                }
+            }
 
             ///////////////////
             // Determine the row of the first baseType since estimators dont always place the first baseType at the top
@@ -77,24 +98,24 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             {
                 BaseType baseType = new BaseType();
 
-                baseType.Name = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 1] };
-                baseType.Description = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 2] };
-                baseType.BaseLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 3] };
-                baseType.BaseLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 4] };
-                baseType.TcxlQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 5] };
-                baseType.TcxlLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 6] };
-                baseType.TcxlLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 7] };
-                baseType.TcxrQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 8] };
-                baseType.TcxrLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 9] };
-                baseType.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 10] };
-                baseType.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 11] };
-                baseType.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 12] };
-                baseType.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 13] };
-                baseType.Uplift = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 14] };
-                baseType.Erfos = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 26] };
-                baseType.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 27] };
-                baseType.DeflectionLL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 28] };
-                baseType.WnSpacing = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 29] };
+                baseType.Name = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 1] , IsUpdated = isUpdated[rowCount-1, 0]};
+                baseType.Description = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 2], IsUpdated = isUpdated[rowCount - 1, 1] };
+                baseType.BaseLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 3], IsUpdated = isUpdated[rowCount - 1, 2] };
+                baseType.BaseLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] };
+                baseType.TcxlQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] };
+                baseType.TcxlLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] };
+                baseType.TcxlLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] };
+                baseType.TcxrQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] };
+                baseType.TcxrLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] };
+                baseType.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] };
+                baseType.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] };
+                baseType.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
+                baseType.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
+                baseType.Uplift = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
+                baseType.Erfos = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 26], IsUpdated = isUpdated[rowCount - 1, 25] };
+                baseType.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 27], IsUpdated = isUpdated[rowCount - 1, 26] };
+                baseType.DeflectionLL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 28], IsUpdated = isUpdated[rowCount - 1, 27] };
+                baseType.WnSpacing = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 29], IsUpdated = isUpdated[rowCount - 1, 28] };
 
 
                 List<Load> loads = new List<Load>();
@@ -104,24 +125,28 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 {
 
                     Load load = new Load();
-                    load.LoadInfoType = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 15] };
-                    load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 16] };
-                    load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 17] };
-                    load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 18] };
-                    load.Load1DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 19] };
-                    load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 20] };
-                    load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21] };
-                    load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 22] };
-                    load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 23] };
-                    load.CaseNumber = new DoubleWithUpdateCheck { Value = ToNullableDouble((string)baseTypesCells[rowCount + i, 24]) };
-                    load.LoadNote = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 25] };
+                    load.LoadInfoType = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 15], IsUpdated = isUpdated[rowCount + i - 1, 14] };
+                    load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 16], IsUpdated = isUpdated[rowCount + i - 1, 15] };
+                    load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
+                    load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
+                    load.Load1DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                    load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
+                    load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
+                    load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                    load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
+                    load.CaseNumber = new DoubleWithUpdateCheck { Value = ToNullableDouble((string)baseTypesCells[rowCount + i, 24]), IsUpdated = isUpdated[rowCount + i - 1, 23] };
+                    load.LoadNote = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] };
                     if (load.IsNull == false)
                     {
                         loads.Add(load);
                     }
 
-                    StringWithUpdateCheck note = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 30] };
-                    if (note.Text != null && note.IsUpdated == false)
+                    StringWithUpdateCheck note = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 30], IsUpdated = isUpdated[rowCount + i - 1, 29] };
+                    if (note.Text != null)
+                    {
+                        notes.Add(note);
+                    }
+                    if(note.Text == null && note.IsUpdated == true)
                     {
                         notes.Add(note);
                     }
@@ -141,6 +166,26 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
             // Create an object array containing all information from the 'Marks' tab, in the form of a multidimensional array [rows, column]
             object[,] marksCells = (object[,])marksRange.Value2;
+
+            //Create a multidemnsional bool array that is true if the cell is highlighted (i.e. estimator marked it as updated) and false if it is not highlighted (i.e. cell has not been updated).
+            numRows = marksRange.Rows.Count;
+            numColumns = marksRange.Columns.Count;
+
+            isUpdated = new bool[numRows, numColumns];
+            for (int row = 1; row <= numRows; row++)
+            {
+                for (int col = 1; col <= numColumns; col++)
+                {
+                    if (marksRange[row, col].Interior.ColorIndex != -4142)
+                    {
+                        isUpdated[row - 1, col - 1] = true;
+                    }
+                    else
+                    {
+                        isUpdated[row - 1, col - 1] = false;
+                    }
+                }
+            }
 
             // Determine the row of the first mark since estimators dont always place the first mark at the top
             bool firstMarkReached = false;
@@ -184,25 +229,25 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             foreach (int rowsForThisMark in rowsPerMarkList)
             {
                 Joist joist = new Joist();
-                joist.Mark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 1] };
-                joist.Quantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 3] };
-                joist.Description = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 4] };
-                joist.BaseLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 5] };
-                joist.BaseLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 6] };
-                joist.TcxlQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 7] };
-                joist.TcxlLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 8] };
-                joist.TcxlLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 9] };
-                joist.TcxrQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 10] };
-                joist.TcxrLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 11] };
-                joist.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 12] };
-                joist.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 13] };
-                joist.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 14] };
-                joist.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 15] };
-                joist.Uplift = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 16] };
-                joist.Erfos = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 28] };
-                joist.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 29] };
-                joist.DeflectionLL = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 30] };
-                joist.WnSpacing = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 31] };
+                joist.Mark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 1], IsUpdated = isUpdated[rowCount - 1, 0] };
+                joist.Quantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 3], IsUpdated = isUpdated[rowCount - 1, 2] };
+                joist.Description = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] };
+                joist.BaseLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] };
+                joist.BaseLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] };
+                joist.TcxlQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] };
+                joist.TcxlLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] };
+                joist.TcxlLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] };
+                joist.TcxrQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] };
+                joist.TcxrLengthFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] };
+                joist.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
+                joist.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
+                joist.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
+                joist.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] };
+                joist.Uplift = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 16], IsUpdated = isUpdated[rowCount - 1, 15] };
+                joist.Erfos = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 28], IsUpdated = isUpdated[rowCount - 1, 27] };
+                joist.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 29], IsUpdated = isUpdated[rowCount - 1, 28] };
+                joist.DeflectionLL = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 30], IsUpdated = isUpdated[rowCount - 1, 29] };
+                joist.WnSpacing = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 31], IsUpdated = isUpdated[rowCount - 1, 30] };
 
                 List<StringWithUpdateCheck> baseTypesOnMark = new List<StringWithUpdateCheck>();
                 List<Load> loads = new List<Load>();
@@ -210,7 +255,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                 for (i = 0; i < rowsForThisMark; i++)
                 {
-                    StringWithUpdateCheck baseTypeOnMark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 2] };
+                    StringWithUpdateCheck baseTypeOnMark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 2] }; 
                     if (baseTypeOnMark.Text != null && baseTypeOnMark.IsUpdated == false)
                     {
                         baseTypesOnMark.Add(baseTypeOnMark);
@@ -219,27 +264,32 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
 
                     Load load = new Load();
-                    load.LoadInfoType = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 17] };
-                    load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 18] };
-                    load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 19] };
-                    load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 20] };
-                    load.Load1DistanceFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 21] };
-                    load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 22] };
-                    load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 23] };
-                    load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 24] };
-                    load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 25] };
-                    load.CaseNumber = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 26] };
-                    load.LoadNote = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 27] };
+                    load.LoadInfoType = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
+                    load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
+                    load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                    load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
+                    load.Load1DistanceFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
+                    load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                    load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
+                    load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] };
+                    load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] };
+                    load.CaseNumber = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] };
+                    load.LoadNote = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 27], IsUpdated = isUpdated[rowCount + i - 1, 26] };
                     if (load.IsNull == false)
                     {
                         loads.Add(load);
                     }
 
-                    StringWithUpdateCheck note = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 32] };
-                    if (note.Text != null && note.IsUpdated == false)
+                    StringWithUpdateCheck note = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 32], IsUpdated = isUpdated[rowCount + i - 1, 31] };
+                    if (note.Text != null)
                     {
                         notes.Add(note);
                     }
+                    if (note.Text == null && note.IsUpdated == true)
+                    {
+                        notes.Add(note);
+                    }
+
 
                 }
                 joist.BaseTypesOnMark = baseTypesOnMark;
@@ -309,34 +359,29 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         if (joist.DeflectionLL.Value == null && bT.DeflectionLL.Value != null) { joist.DeflectionLL = bT.DeflectionLL; }
                         if (joist.WnSpacing.Text != null && bT.WnSpacing.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type WN spacing interferes with original; using original ", joist.Mark.Text)); }
                         if (joist.WnSpacing.Text == null && bT.WnSpacing.Text != null) { joist.WnSpacing = bT.WnSpacing; }
-                        
+
 
 
                         //ADD THE LOADS
                         foreach (Load load in bT.Loads)
                         {
                             joist.Loads.Add(load);
+
                         }
                         //ADD THE NOTES
-                        foreach(StringWithUpdateCheck note in bT.Notes)
+                        foreach (StringWithUpdateCheck note in bT.Notes)
                         {
                             joist.Notes.Add(note);
                         }
-
-
                     }
-                    
-
-                    
                 }
             }
-
-
-
-            // RETURN COMPLETE TAKEOFF
             return takeoff;
 
+
+
         }
+
         public static double? ToNullableDouble(string s)
         {
             if (s == null) return null;
@@ -349,16 +394,14 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             string excelPath = System.IO.Path.GetTempFileName();
             System.IO.File.WriteAllBytes(excelPath, Properties.Resources.BLANK_SALES_BOM);
 
-            Excel.Application oXL = new Excel.Application();
+            //Excel.Application oXL = new Excel.Application();
             Excel.Workbooks workbooks = oXL.Workbooks;
             Excel.Workbook workbook = workbooks.Open(excelPath);
             Excel.Sheets sheets = workbook.Worksheets;
             Excel.Worksheet sheet = workbook.ActiveSheet;
 
-            oXL.Visible = false;
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Excel files (*.xlsm)|*.xlsm";
-            saveFileDialog.ShowDialog();
+            //oXL.Visible = false;
+
            
 
             sheet = workbook.Worksheets["J (1)"];
@@ -372,8 +415,8 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 Joist joist = Joists[markCounter];
 
 
-                pageRowCounter = pageRowCounter + Math.Max(joist.Loads.Count, joist.Notes.Count) + 3;
-                if (pageRowCounter > 34)
+                pageRowCounter = pageRowCounter + Math.Max(Math.Max(joist.Loads.Count, joist.Notes.Count),1) + 3;
+                if (pageRowCounter > 35)
                 {
                     sheetCount = sheetCount + 1;
                     Excel.Worksheet worksheet_copy = workbook.Worksheets["J(BLANK)"];
@@ -386,35 +429,35 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     pageRowCounter = 0;
                     goto SkipLoop;
                 }
-                CellInsert(sheet, row, 1, joist.Mark.Text);
-                CellInsert(sheet, row, 2, joist.Quantity.Value);
-                CellInsert(sheet, row, 3, joist.Description.Text);
-                CellInsert(sheet, row, 4, joist.BaseLengthFt.Value);
-                CellInsert(sheet, row, 5, joist.BaseLengthIn.Value);
-                CellInsert(sheet, row, 6, joist.TcxlQuantity.Value);
-                CellInsert(sheet, row, 7, joist.TcxlLengthFt.Value);
-                CellInsert(sheet, row, 8, joist.TcxlLengthIn.Value);
-                CellInsert(sheet, row, 9, joist.TcxrQuantity.Value);
-                CellInsert(sheet, row, 10, joist.TcxrLengthFt.Value);
-                CellInsert(sheet, row, 11, joist.TcxrLengthIn.Value);
-                CellInsert(sheet, row, 12, joist.SeatDepthLE.Value);
-                CellInsert(sheet, row, 13, joist.SeatDepthRE.Value);
-                CellInsert(sheet, row, 14, joist.BcxQuantity.Value);
-                CellInsert(sheet, row, 15, joist.Uplift.Value);
+                CellInsert(sheet, row, 1, joist.Mark.Text, joist.Mark.IsUpdated);
+                CellInsert(sheet, row, 2, joist.Quantity.Value, joist.Quantity.IsUpdated);
+                CellInsert(sheet, row, 3, joist.DescriptionAdjusted.Text, joist.DescriptionAdjusted.IsUpdated);
+                CellInsert(sheet, row, 4, joist.BaseLengthFt.Value, joist.BaseLengthFt.IsUpdated);
+                CellInsert(sheet, row, 5, joist.BaseLengthIn.Value, joist.BaseLengthIn.IsUpdated);
+                CellInsert(sheet, row, 6, joist.TcxlQuantity.Value, joist.TcxlQuantity.IsUpdated);
+                CellInsert(sheet, row, 7, joist.TcxlLengthFt.Value, joist.TcxlLengthFt.IsUpdated);
+                CellInsert(sheet, row, 8, joist.TcxlLengthIn.Value, joist.TcxlLengthIn.IsUpdated);
+                CellInsert(sheet, row, 9, joist.TcxrQuantity.Value, joist.TcxrQuantity.IsUpdated);
+                CellInsert(sheet, row, 10, joist.TcxrLengthFt.Value, joist.TcxrLengthFt.IsUpdated);
+                CellInsert(sheet, row, 11, joist.TcxrLengthIn.Value, joist.TcxrLengthIn.IsUpdated);
+                CellInsert(sheet, row, 12, joist.SeatDepthLE.Value, joist.SeatDepthLE.IsUpdated);
+                CellInsert(sheet, row, 13, joist.SeatDepthRE.Value, joist.SeatDepthRE.IsUpdated);
+                CellInsert(sheet, row, 14, joist.BcxQuantity.Value, joist.BcxQuantity.IsUpdated);
+                CellInsert(sheet, row, 15, joist.Uplift.Value, joist.Uplift.IsUpdated);
 
                 int loadRow = row;
                 foreach(Load load in joist.Loads)
                 {
-                    CellInsert(sheet, loadRow, 16, load.LoadInfoType.Text);
-                    CellInsert(sheet, loadRow, 17, load.LoadInfoCategory.Text);
-                    CellInsert(sheet, loadRow, 18, load.LoadInfoPosition.Text);
-                    CellInsert(sheet, loadRow, 19, load.Load1Value.Value);
-                    CellInsert(sheet, loadRow, 20, load.Load1DistanceFt.Value);
-                    CellInsert(sheet, loadRow, 21, load.Load1DistanceIn.Value);
-                    CellInsert(sheet, loadRow, 22, load.Load2Value.Value);
-                    CellInsert(sheet, loadRow, 23, load.Load2DistanceFt.Value);
-                    CellInsert(sheet, loadRow, 24, load.Load2DistanceFt.Value);
-                    CellInsert(sheet, loadRow, 25, load.CaseNumber.Value);
+                    CellInsert(sheet, loadRow, 16, load.LoadInfoType.Text, load.LoadInfoType.IsUpdated);
+                    CellInsert(sheet, loadRow, 17, load.LoadInfoCategory.Text, load.LoadInfoCategory.IsUpdated);
+                    CellInsert(sheet, loadRow, 18, load.LoadInfoPosition.Text, load.LoadInfoPosition.IsUpdated);
+                    CellInsert(sheet, loadRow, 19, load.Load1Value.Value, load.Load1Value.IsUpdated);
+                    CellInsert(sheet, loadRow, 20, load.Load1DistanceFt.Value, load.Load1DistanceFt.IsUpdated);
+                    CellInsert(sheet, loadRow, 21, load.Load1DistanceIn.Value, load.Load1DistanceIn.IsUpdated);
+                    CellInsert(sheet, loadRow, 22, load.Load2Value.Value, load.Load2Value.IsUpdated);
+                    CellInsert(sheet, loadRow, 23, load.Load2DistanceFt.Value, load.Load2DistanceFt.IsUpdated);
+                    CellInsert(sheet, loadRow, 24, load.Load2DistanceIn.Value, load.Load2DistanceIn.IsUpdated);
+                    CellInsert(sheet, loadRow, 25, load.CaseNumber.Value, load.CaseNumber.IsUpdated);
 
                     loadRow++;
                 }
@@ -422,7 +465,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 int noteRow = row;
                 foreach(StringWithUpdateCheck note in joist.Notes)
                 {
-                    CellInsert(sheet, noteRow, 26, note.Text);
+                    CellInsert(sheet, noteRow, 26, note.Text, note.IsUpdated);
                     noteRow++;
                 }
 
@@ -433,6 +476,9 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 ;
             }
 
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Excel files (*.xlsm)|*.xlsm";
+            saveFileDialog.ShowDialog();
             if (saveFileDialog.FileName != "")
             {
                 workbook.SaveAs(saveFileDialog.FileName);
@@ -442,16 +488,25 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             Marshal.ReleaseComObject(sheet);
             Marshal.ReleaseComObject(workbook);
             Marshal.ReleaseComObject(workbooks);
+            Marshal.ReleaseComObject(oWB);
             Marshal.ReleaseComObject(oXL);
             GC.Collect();
 
         }
-        private void CellInsert(Excel.Worksheet sheet, int row, int column, object o)
+        private void CellInsert(Excel.Worksheet sheet, int row, int column, object o, bool isUpdated)
         {
             if (o == null) { }
             else
             {
                 sheet.Cells[row, column] = o;
+            }
+
+            if (isUpdated == true)
+            {
+                oXL.ActiveWorkbook.Worksheets["HighlightedCell"].Range["A1"].Copy();
+                sheet.Cells[row, column].PasteSpecial(Excel.XlPasteType.xlPasteFormats,
+                                                      Excel.XlPasteSpecialOperation.xlPasteSpecialOperationNone, false, false);
+
             }
         }
 
@@ -459,9 +514,10 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         {
             foreach (Joist joist in Joists)
             {
+
+
                 //Determine if joist has Seismic Loads
-                if (joist.IsLoadOverLoad== true)
-                {
+
                     var listOfLoadTypes = from load in joist.Loads
                                           select load.LoadInfoCategory.Text;
                     bool hasSeismic = false;
@@ -473,7 +529,10 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         }
                     }
 
-                    if (hasSeismic)
+                if (hasSeismic)
+                {
+                    //DETERMINE IF JOIST IS LOAD OVER LOAD. If not then message saying that joist is not load over load and seismic cannot be seperated
+                    if (joist.IsLoadOverLoad == true)
                     {
 
                         // SET SEISMIC LC TO 6. 
@@ -533,7 +592,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         uSM.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
                         uSM.LoadInfoCategory = new StringWithUpdateCheck { Text = "SM" };
                         uSM.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
-                        uSM.Load1Value = new DoubleWithUpdateCheck { Value = 0.14 * sds * joist.UDL};
+                        uSM.Load1Value = new DoubleWithUpdateCheck { Value = 0.14 * sds * joist.UDL };
                         uSM.Load1DistanceFt = new DoubleWithUpdateCheck { Value = null };
                         uSM.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
                         uSM.Load2Value = new DoubleWithUpdateCheck { Value = null };
@@ -543,9 +602,14 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         uSM.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
                         joist.Loads.Add(uSM);
 
-
+                    }
+                    else
+                    {
+                        string message = String.Format("MARK {0} IS NOT GIVEN IN TL/LL FORMAT; SEISMIC LC WILL NOT BE SEPERTATED", joist.Mark.Text);
+                        MessageBox.Show(message);
                     }
                 }
+                
             }
         }
 

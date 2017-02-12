@@ -129,6 +129,10 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="Deedle, Version=1.2.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Deedle.1.2.5\lib\net40\Deedle.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -181,6 +185,8 @@
     <Compile Include="Convert_Takeoff_Form.Designer.cs">
       <DependentUpon>Convert_Takeoff_Form.cs</DependentUpon>
     </Compile>
+    <Compile Include="Deck\DiaphragmTable.cs" />
+    <Compile Include="Worksheet_Values\Serialize.cs" />
     <Compile Include="Worksheet_Values\BaseType.cs" />
     <Compile Include="Worksheet_Values\Load.cs" />
     <Compile Include="Worksheet_Values\Bridging.cs" />
@@ -213,6 +219,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="DESign_Sales_Excel_Add-in_TemporaryKey.pfx" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -224,7 +231,10 @@
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="Resources\BLANK SALES BOM.xlsm" />
+    <None Include="Resources\BLANK SALES BOM.xlsm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\TAKEOFF.xlsx" />
     <None Include="ThisAddIn.Designer.xml">
       <DependentUpon>ThisAddIn.cs</DependentUpon>
     </None>
@@ -232,6 +242,9 @@
       <DependentUpon>ThisAddIn.Designer.xml</DependentUpon>
     </Compile>
     <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Serialize\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

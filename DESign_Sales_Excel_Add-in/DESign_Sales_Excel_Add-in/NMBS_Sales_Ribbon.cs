@@ -6,6 +6,7 @@ using Microsoft.Office.Tools.Ribbon;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
 using DESign_Sales_Excel_Add_in.Worksheet_Values;
+using System.Runtime.InteropServices;
 
 namespace DESign_Sales_Excel_Add_in
 {
@@ -21,9 +22,6 @@ namespace DESign_Sales_Excel_Add_in
             Convert_Takeoff_Form convert_Takeoff_Form = new Convert_Takeoff_Form();
             convert_Takeoff_Form.Show();
         }
-
-
-
 
     }
 }
