@@ -14,16 +14,25 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
     public class Takeoff
     {
+        public class Sequence
+        {
+            public StringWithUpdateCheck Name { get; set; }
+            public List<Joist> Joists { get; set; }
+            public List<Bridging> Bridging { get; set; }
+        }
         public List<BaseType> BaseTypes { get; set; }
-        public List<Joist> Joists { get; set; }
-        public List<Bridging> Bridging { get; set; }
+
+        public List<Sequence> Sequences { get; set; }
+
+
         // Initialize the necessary Excel objects:
         Excel.Application oXL = Globals.ThisAddIn.Application;
+        Excel.Workbook workbook;
         Excel._Workbook oWB = Globals.ThisAddIn.Application.ActiveWorkbook;
 
         public Takeoff ImportTakeoff()
         {
-            
+            //
             Excel._Worksheet marksWS = (Excel._Worksheet)oWB.Worksheets["Marks"];
             Excel._Worksheet baseTypesWS = (Excel._Worksheet)oWB.Worksheets["Base Types"];
 
@@ -39,28 +48,29 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             int numColumns = baseTypesRange.Columns.Count;
 
             bool[,] isUpdated = new bool[numRows, numColumns];
-            for (int row = 1; row<=numRows; row++)
+            for (int row = 1; row <= numRows; row++)
             {
-                for(int col = 1; col<=numColumns; col++)
+                for (int col = 1; col <= numColumns; col++)
                 {
                     if (baseTypesRange[row, col].Interior.ColorIndex != -4142)
                     {
-                        isUpdated[row-1, col-1] = true;
+                        isUpdated[row - 1, col - 1] = true;
                     }
                     else
                     {
-                        isUpdated[row-1, col-1] = false;
+                        isUpdated[row - 1, col - 1] = false;
                     }
                 }
             }
 
             ///////////////////
+            
             // Determine the row of the first baseType since estimators dont always place the first baseType at the top
             bool firstBaseTypeReached = false;
             int firstBaseTypeRow = 0;
 
             int i = 4;
-            while (firstBaseTypeReached == false && i<baseTypesCells.GetLength(0))
+            while (firstBaseTypeReached == false && i < baseTypesCells.GetLength(0))
             {
                 if (baseTypesCells != null)
                 {
@@ -92,8 +102,11 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     rowsPerBaseTypeList.Add(rowsPerBaseType);
                 }
             }
+            
 
             // Now that we can break out the chunks of information for each baseType, we can create the list of baseTypeLines
+            
+
             List<BaseType> baseTypes = new List<BaseType>();
 
             int rowCount = firstBaseTypeRow;
@@ -164,7 +177,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     rowCount = rowCount + rowsForThisBaseType;
                 }
             }
-
+            
             ///////////////////
 
             // Create a range for the 'Marks' tab
@@ -193,21 +206,24 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 }
             }
 
-            // Determine the row of the first mark since estimators dont always place the first mark at the top
-            bool firstMarkReached = false;
+
+
+            // Determine the row of the first mark or sequence since estimators dont always place it at the top
+            bool firstLineReached = false;
             int firstMarkRow = 0;
 
             i = 4;
-            while (firstMarkReached == false)
+            while (firstLineReached == false)
             {
                 if (marksCells[i, 1] != null)
                 {
-                    firstMarkReached = true;
+                    firstLineReached = true;
                     firstMarkRow = i;
                 }
                 i++;
             }
 
+            
             // Create a list containing the number of rows between each mark
             List<int> rowsPerMarkList = new List<int>();
             int rowsPerMark = 1;
@@ -261,7 +277,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                 for (i = 0; i < rowsForThisMark; i++)
                 {
-                    StringWithUpdateCheck baseTypeOnMark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 2] }; 
+                    StringWithUpdateCheck baseTypeOnMark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 2] };
                     if (baseTypeOnMark.Text != null && baseTypeOnMark.IsUpdated == false)
                     {
                         baseTypesOnMark.Add(baseTypeOnMark);
@@ -306,86 +322,171 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 rowCount = rowCount + rowsForThisMark;
             }
 
+            //Seperate Sequences
+            List<Sequence> sequences = new List<Sequence>();
+            var sequenceQuery = from jst in joistLines
+                                where jst.BaseTypesOnMark.Count == 0 && jst.Quantity.Value == null && jst.Description.Text == null
+                                select jst;
+            if (!sequenceQuery.Any()) //No named sequences on takeoff
+            {
+                Sequence sequence = new Sequence();
+                sequence.Name = new StringWithUpdateCheck { Text = "" };
+                sequence.Joists = joistLines;
+                sequences.Add(sequence);
+            }
+            else
+            {
+                
+
+                if (joistLines[0].Quantity.Value != null || joistLines[0].Description.Text != null || joistLines[0].BaseTypesOnMark.Count != 0)
+                {
+                    MessageBox.Show("Please name your first sequence");
+                }
+                else
+                {
+                    Sequence sequence = new Sequence();
+                    sequence.Name = new StringWithUpdateCheck { Text = "" };
+
+                    
+                    int jstIndex = 0;
+
+                    for(int joistIndex = jstIndex; joistIndex<joistLines.Count; joistIndex ++)
+                    {
+                        if(joistLines[joistIndex].Quantity.Value == null && joistLines[joistIndex].Description.Text == null && joistLines[joistIndex].BaseTypesOnMark.Count == 0)
+                        {
+                            sequence.Joists = new List<Joist>();
+                            sequence.Name.Text = joistLines[joistIndex].Mark.Text;
+                            sequence.Name.IsUpdated = joistLines[joistIndex].Mark.IsUpdated;
+                        }
+                        else
+                        {
+                            Joist joist = new Joist();
+                            joist = joistLines[joistIndex];
+                            sequence.Joists.Add(joist);
+                        }
+                        if (joistIndex + 1 < joistLines.Count)
+                        {
+                            if (joistLines[joistIndex + 1].Quantity.Value == null && joistLines[joistIndex + 1].Description.Text == null && joistLines[joistIndex + 1].BaseTypesOnMark.Count == 0)
+                            {
+                                Sequence coppiedSequence = new Sequence();
+                                List<Joist> newJoists = new List<Joist>();
+                                foreach (Joist jst in sequence.Joists)
+                                {
+                                    Joist newJoist = new Joist();
+                                    newJoist = DeepClone(jst);
+                                    newJoists.Add(newJoist);
+                                }
+                                StringWithUpdateCheck coppiedName = new StringWithUpdateCheck();
+                                coppiedName = DeepClone(sequence.Name);
+                                coppiedSequence.Name = coppiedName;
+                                coppiedSequence.Joists = newJoists;
+                                sequences.Add(coppiedSequence);
+                            }
+                        }
+                        else
+                        {
+                            Sequence coppiedSequence = new Sequence();
+                            List<Joist> newJoists = new List<Joist>();
+                            foreach (Joist jst in sequence.Joists)
+                            {
+                                Joist newJoist = new Joist();
+                                newJoist = DeepClone(jst);
+                                newJoists.Add(newJoist);
+                            }
+                            StringWithUpdateCheck coppiedName = new StringWithUpdateCheck();
+                            coppiedName = DeepClone(sequence.Name);
+                            coppiedSequence.Name = coppiedName;
+                            coppiedSequence.Joists = newJoists;
+                            sequences.Add(coppiedSequence);
+                        }
+                    }
+                }
+            }
+
+
+
+
 
 
             Takeoff takeoff = new Takeoff();
-
             takeoff.BaseTypes = baseTypes;
-            takeoff.Joists = joistLines;
+            takeoff.Sequences = sequences;
 
-
-            // ADD BASE TYPES TO JOISTS
-
-            foreach (var joist in takeoff.Joists)
+            foreach (Sequence seq in takeoff.Sequences)
             {
-                foreach (var baseType in joist.BaseTypesOnMark)
+                
+
+
+                // ADD BASE TYPES TO JOISTS
+
+                foreach (var joist in seq.Joists)
                 {
-                    // Select the matching base type. THIS WILL NEED TO BE UPDATED TO CHECK FOR TYPOS AND TO MAKE SURE BASETYPES EXIST
-                    var matchedBaseType = from bT in takeoff.BaseTypes
-                                          where bT.Name.Text == baseType.Text
-                                          select bT;
-
-
-                    //ADD THE LOADS
-                    foreach (var bT in matchedBaseType)
+                    foreach (var baseType in joist.BaseTypesOnMark)
                     {
-                        //ADD VALUES    ???DO I NEED TO CHECK ANYTHING THAT MAY BE UPDATED??? IF SO HOW TO IMPLEMENT?
-
-                        if (joist.Description.Text != null && bT.Description.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type description interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.Description.Text == null && bT.Description.Text != null) { joist.Description = bT.Description; }
-                        if (joist.BaseLengthFt.Value != null && bT.BaseLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type base length ft. interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.BaseLengthFt.Value == null && bT.BaseLengthFt.Value != null) { joist.BaseLengthFt = bT.BaseLengthFt; }
-                        if (joist.BaseLengthIn.Value != null && bT.BaseLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type base length in. interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.BaseLengthIn.Value == null && bT.BaseLengthIn.Value != null) { joist.BaseLengthIn = bT.BaseLengthIn; }
-                        if (joist.TcxlQuantity.Value != null && bT.TcxlQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL quantity interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.TcxlQuantity.Value == null && bT.TcxlQuantity.Value != null) { joist.TcxlQuantity = bT.TcxlQuantity; }
-                        if (joist.TcxlLengthFt.Value != null && bT.TcxlLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL length ft. interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.TcxlLengthFt.Value == null && bT.TcxlLengthFt.Value != null) { joist.TcxlLengthFt = bT.TcxlLengthFt; }
-                        if (joist.TcxlLengthIn.Value != null && bT.TcxlLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL length in. interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.TcxlLengthIn.Value == null && bT.TcxlLengthIn.Value != null) { joist.TcxlLengthIn = bT.TcxlLengthIn; }
-                        if (joist.TcxrQuantity.Value != null && bT.TcxrQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR quantity interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.TcxrQuantity.Value == null && bT.TcxrQuantity.Value != null) { joist.TcxrQuantity = bT.TcxrQuantity; }
-                        if (joist.TcxrLengthFt.Value != null && bT.TcxrLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR length ft. interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.TcxrLengthFt.Value == null && bT.TcxrLengthFt.Value != null) { joist.TcxrLengthFt = bT.TcxrLengthFt; }
-                        if (joist.TcxrLengthIn.Value != null && bT.TcxrLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR length in. interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.TcxrLengthIn.Value == null && bT.TcxrLengthIn.Value != null) { joist.TcxrLengthIn = bT.TcxrLengthIn; }
-                        if (joist.SeatDepthLE.Value != null && bT.SeatDepthLE.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type LE seat depth interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.SeatDepthLE.Value == null && bT.SeatDepthLE.Value != null) { joist.SeatDepthLE = bT.SeatDepthLE; }
-                        if (joist.SeatDepthRE.Value != null && bT.SeatDepthRE.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type RE seat depth interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.SeatDepthRE.Value == null && bT.SeatDepthRE.Value != null) { joist.SeatDepthRE = bT.SeatDepthRE; }
-                        if (joist.BcxQuantity.Value != null && bT.BcxQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type BCX quantity interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.BcxQuantity.Value == null && bT.BcxQuantity.Value != null) { joist.BcxQuantity = bT.BcxQuantity; }
-                        if (joist.Uplift.Value != null && bT.Uplift.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type uplift interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.Uplift.Value == null && bT.Uplift.Value != null) { joist.Uplift = bT.Uplift; }
-                        if (joist.Erfos.Text != null && bT.Erfos.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type erfos interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.Erfos.Text == null && bT.Erfos.Text != null) { joist.Erfos = bT.Erfos; }
-                        if (joist.DeflectionTL.Value != null && bT.DeflectionTL.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TL deflection interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.DeflectionTL.Value == null && bT.DeflectionTL.Value != null) { joist.DeflectionTL = bT.DeflectionTL; }
-                        if (joist.DeflectionLL.Value != null && bT.DeflectionLL.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type LL deflection interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.DeflectionLL.Value == null && bT.DeflectionLL.Value != null) { joist.DeflectionLL = bT.DeflectionLL; }
-                        if (joist.WnSpacing.Text != null && bT.WnSpacing.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type WN spacing interferes with original; using original ", joist.Mark.Text)); }
-                        if (joist.WnSpacing.Text == null && bT.WnSpacing.Text != null) { joist.WnSpacing = bT.WnSpacing; }
-
+                        // Select the matching base type. THIS WILL NEED TO BE UPDATED TO CHECK FOR TYPOS AND TO MAKE SURE BASETYPES EXIST
+                        var matchedBaseType = from bT in takeoff.BaseTypes
+                                              where bT.Name.Text == baseType.Text
+                                              select bT;
 
 
                         //ADD THE LOADS
-                        foreach (Load load in bT.Loads)
+                        foreach (var bT in matchedBaseType)
                         {
-                            joist.Loads.Add(load);
+                            //ADD VALUES    ???DO I NEED TO CHECK ANYTHING THAT MAY BE UPDATED??? IF SO HOW TO IMPLEMENT?
 
-                        }
-                        //ADD THE NOTES
-                        foreach (StringWithUpdateCheck note in bT.Notes)
-                        {
-                            joist.Notes.Add(note);
+                            if (joist.Description.Text != null && bT.Description.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type description interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.Description.Text == null && bT.Description.Text != null) { joist.Description = bT.Description; }
+                            if (joist.BaseLengthFt.Value != null && bT.BaseLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type base length ft. interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.BaseLengthFt.Value == null && bT.BaseLengthFt.Value != null) { joist.BaseLengthFt = bT.BaseLengthFt; }
+                            if (joist.BaseLengthIn.Value != null && bT.BaseLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type base length in. interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.BaseLengthIn.Value == null && bT.BaseLengthIn.Value != null) { joist.BaseLengthIn = bT.BaseLengthIn; }
+                            if (joist.TcxlQuantity.Value != null && bT.TcxlQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL quantity interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.TcxlQuantity.Value == null && bT.TcxlQuantity.Value != null) { joist.TcxlQuantity = bT.TcxlQuantity; }
+                            if (joist.TcxlLengthFt.Value != null && bT.TcxlLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL length ft. interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.TcxlLengthFt.Value == null && bT.TcxlLengthFt.Value != null) { joist.TcxlLengthFt = bT.TcxlLengthFt; }
+                            if (joist.TcxlLengthIn.Value != null && bT.TcxlLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL length in. interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.TcxlLengthIn.Value == null && bT.TcxlLengthIn.Value != null) { joist.TcxlLengthIn = bT.TcxlLengthIn; }
+                            if (joist.TcxrQuantity.Value != null && bT.TcxrQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR quantity interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.TcxrQuantity.Value == null && bT.TcxrQuantity.Value != null) { joist.TcxrQuantity = bT.TcxrQuantity; }
+                            if (joist.TcxrLengthFt.Value != null && bT.TcxrLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR length ft. interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.TcxrLengthFt.Value == null && bT.TcxrLengthFt.Value != null) { joist.TcxrLengthFt = bT.TcxrLengthFt; }
+                            if (joist.TcxrLengthIn.Value != null && bT.TcxrLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR length in. interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.TcxrLengthIn.Value == null && bT.TcxrLengthIn.Value != null) { joist.TcxrLengthIn = bT.TcxrLengthIn; }
+                            if (joist.SeatDepthLE.Value != null && bT.SeatDepthLE.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type LE seat depth interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.SeatDepthLE.Value == null && bT.SeatDepthLE.Value != null) { joist.SeatDepthLE = bT.SeatDepthLE; }
+                            if (joist.SeatDepthRE.Value != null && bT.SeatDepthRE.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type RE seat depth interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.SeatDepthRE.Value == null && bT.SeatDepthRE.Value != null) { joist.SeatDepthRE = bT.SeatDepthRE; }
+                            if (joist.BcxQuantity.Value != null && bT.BcxQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type BCX quantity interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.BcxQuantity.Value == null && bT.BcxQuantity.Value != null) { joist.BcxQuantity = bT.BcxQuantity; }
+                            if (joist.Uplift.Value != null && bT.Uplift.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type uplift interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.Uplift.Value == null && bT.Uplift.Value != null) { joist.Uplift = bT.Uplift; }
+                            if (joist.Erfos.Text != null && bT.Erfos.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type erfos interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.Erfos.Text == null && bT.Erfos.Text != null) { joist.Erfos = bT.Erfos; }
+                            if (joist.DeflectionTL.Value != null && bT.DeflectionTL.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TL deflection interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.DeflectionTL.Value == null && bT.DeflectionTL.Value != null) { joist.DeflectionTL = bT.DeflectionTL; }
+                            if (joist.DeflectionLL.Value != null && bT.DeflectionLL.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type LL deflection interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.DeflectionLL.Value == null && bT.DeflectionLL.Value != null) { joist.DeflectionLL = bT.DeflectionLL; }
+                            if (joist.WnSpacing.Text != null && bT.WnSpacing.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type WN spacing interferes with original; using original ", joist.Mark.Text)); }
+                            if (joist.WnSpacing.Text == null && bT.WnSpacing.Text != null) { joist.WnSpacing = bT.WnSpacing; }
+
+
+
+                            //ADD THE LOADS
+                            foreach (Load load in bT.Loads)
+                            {
+                                joist.Loads.Add(load);
+
+                            }
+                            //ADD THE NOTES
+                            foreach (StringWithUpdateCheck note in bT.Notes)
+                            {
+                                joist.Notes.Add(note);
+                            }
                         }
                     }
                 }
             }
             return takeoff;
-
-
-
         }
 
         public static double? ToNullableDouble(string s)
@@ -397,89 +498,103 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         }
         public void CreateOriginalTakeoff()
         {
+
             string excelPath = System.IO.Path.GetTempFileName();
             System.IO.File.WriteAllBytes(excelPath, Properties.Resources.BLANK_SALES_BOM);
 
-            //Excel.Application oXL = new Excel.Application();
-            Excel.Workbooks workbooks = oXL.Workbooks;
-            Excel.Workbook workbook = workbooks.Open(excelPath);
+            Excel.Application oXL2 = new Excel.Application();
+            Excel.Workbooks workbooks = oXL2.Workbooks;
+            workbook = workbooks.Open(excelPath);
             Excel.Sheets sheets = workbook.Worksheets;
-            Excel.Worksheet sheet = workbook.ActiveSheet;
+            Excel.Worksheet sheet = new Excel.Worksheet();
 
-            //oXL.Visible = false;
+            oXL2.Visible = false;
 
-           
 
-            sheet = workbook.Worksheets["J (1)"];
-            int sheetIndex = sheet.Index;
 
-            int row = 7;
-            int pageRowCounter = 0;
-            int sheetCount = 1;
-            for (int markCounter = 0; markCounter < Joists.Count;)
+
+            int sheetIndex = 6;
+
+            int sheetCount = 0;
+            foreach (Sequence sequence in Sequences)
             {
-                Joist joist = Joists[markCounter];
+                sheetCount++;
+                sheetIndex++;
+                Excel.Worksheet firstSheetOfSequence = workbook.Worksheets["J(BLANK)"];
+                firstSheetOfSequence.Copy(Type.Missing, After: sheets[sheetIndex-1]);
+                firstSheetOfSequence = workbook.Worksheets[sheetIndex];
+                firstSheetOfSequence.Name = "J (" + Convert.ToString(sheetCount) + ")";
+                sheet = workbook.Worksheets[sheetIndex];
+                CellInsert(sheet, 5, 3, sequence.Name.Text, sequence.Name.IsUpdated);
 
-
-                pageRowCounter = pageRowCounter + Math.Max(Math.Max(joist.Loads.Count, joist.Notes.Count),1) + 3;
-                if (pageRowCounter > 35)
+                int row = 7;
+                int pageRowCounter = 0;
+                
+                for (int markCounter = 0; markCounter < sequence.Joists.Count;)
                 {
-                    sheetCount = sheetCount + 1;
-                    Excel.Worksheet worksheet_copy = workbook.Worksheets["J(BLANK)"];
-                    worksheet_copy.Copy(Type.Missing, After: sheets[sheetIndex]);
-                    worksheet_copy = workbook.Worksheets[sheetIndex + 1];
-                    worksheet_copy.Name = "J (" + Convert.ToString(sheetCount) + ")";
-                    sheetIndex++;
-                    sheet = workbook.Worksheets[sheetIndex];
-                    row = 7;
-                    pageRowCounter = 0;
-                    goto SkipLoop;
+                    Joist joist = sequence.Joists[markCounter];
+
+
+                    pageRowCounter = pageRowCounter + Math.Max(Math.Max(joist.Loads.Count, joist.Notes.Count), 1) + 3;
+                    if (pageRowCounter > 35)
+                    {
+                        sheetCount = sheetCount + 1;
+                        Excel.Worksheet worksheet_copy = workbook.Worksheets["J(BLANK)"];
+                        worksheet_copy.Copy(Type.Missing, After: sheets[sheetIndex]);
+                        worksheet_copy = workbook.Worksheets[sheetIndex + 1];
+                        worksheet_copy.Name = "J (" + Convert.ToString(sheetCount) + ")";
+                        sheetIndex++;
+                        sheet = workbook.Worksheets[sheetIndex];
+                        row = 7;
+                        pageRowCounter = 0;
+                        goto SkipLoop;
+                    }
+                    CellInsert(sheet, row, 1, joist.Mark.Text, joist.Mark.IsUpdated);
+                    CellInsert(sheet, row, 2, joist.Quantity.Value, joist.Quantity.IsUpdated);
+                    CellInsert(sheet, row, 3, joist.DescriptionAdjusted.Text, joist.DescriptionAdjusted.IsUpdated);
+                    CellInsert(sheet, row, 4, joist.BaseLengthFt.Value, joist.BaseLengthFt.IsUpdated);
+                    CellInsert(sheet, row, 5, joist.BaseLengthIn.Value, joist.BaseLengthIn.IsUpdated);
+                    CellInsert(sheet, row, 6, joist.TcxlQuantity.Value, joist.TcxlQuantity.IsUpdated);
+                    CellInsert(sheet, row, 7, joist.TcxlLengthFt.Value, joist.TcxlLengthFt.IsUpdated);
+                    CellInsert(sheet, row, 8, joist.TcxlLengthIn.Value, joist.TcxlLengthIn.IsUpdated);
+                    CellInsert(sheet, row, 9, joist.TcxrQuantity.Value, joist.TcxrQuantity.IsUpdated);
+                    CellInsert(sheet, row, 10, joist.TcxrLengthFt.Value, joist.TcxrLengthFt.IsUpdated);
+                    CellInsert(sheet, row, 11, joist.TcxrLengthIn.Value, joist.TcxrLengthIn.IsUpdated);
+                    CellInsert(sheet, row, 12, joist.SeatDepthLE.Value, joist.SeatDepthLE.IsUpdated);
+                    CellInsert(sheet, row, 13, joist.SeatDepthRE.Value, joist.SeatDepthRE.IsUpdated);
+                    CellInsert(sheet, row, 14, joist.BcxQuantity.Value, joist.BcxQuantity.IsUpdated);
+                    CellInsert(sheet, row, 15, joist.Uplift.Value, joist.Uplift.IsUpdated);
+
+                    int loadRow = row;
+                    foreach (Load load in joist.Loads)
+                    {
+                        CellInsert(sheet, loadRow, 16, load.LoadInfoType.Text, load.LoadInfoType.IsUpdated);
+                        CellInsert(sheet, loadRow, 17, load.LoadInfoCategory.Text, load.LoadInfoCategory.IsUpdated);
+                        CellInsert(sheet, loadRow, 18, load.LoadInfoPosition.Text, load.LoadInfoPosition.IsUpdated);
+                        CellInsert(sheet, loadRow, 19, load.Load1Value.Value, load.Load1Value.IsUpdated);
+                        CellInsert(sheet, loadRow, 20, load.Load1DistanceFt.Value, load.Load1DistanceFt.IsUpdated);
+                        CellInsert(sheet, loadRow, 21, load.Load1DistanceIn.Value, load.Load1DistanceIn.IsUpdated);
+                        CellInsert(sheet, loadRow, 22, load.Load2Value.Value, load.Load2Value.IsUpdated);
+                        CellInsert(sheet, loadRow, 23, load.Load2DistanceFt.Value, load.Load2DistanceFt.IsUpdated);
+                        CellInsert(sheet, loadRow, 24, load.Load2DistanceIn.Value, load.Load2DistanceIn.IsUpdated);
+                        CellInsert(sheet, loadRow, 25, load.CaseNumber.Value, load.CaseNumber.IsUpdated);
+
+                        loadRow++;
+                    }
+
+                    int noteRow = row;
+                    foreach (StringWithUpdateCheck note in joist.Notes)
+                    {
+                        CellInsert(sheet, noteRow, 26, note.Text, note.IsUpdated);
+                        noteRow++;
+                    }
+
+                    markCounter++;
+                    row = row + Math.Max(Math.Max(joist.Loads.Count, joist.Notes.Count), 1) + 3;
+
+                SkipLoop:
+                    ;
                 }
-                CellInsert(sheet, row, 1, joist.Mark.Text, joist.Mark.IsUpdated);
-                CellInsert(sheet, row, 2, joist.Quantity.Value, joist.Quantity.IsUpdated);
-                CellInsert(sheet, row, 3, joist.DescriptionAdjusted.Text, joist.DescriptionAdjusted.IsUpdated);
-                CellInsert(sheet, row, 4, joist.BaseLengthFt.Value, joist.BaseLengthFt.IsUpdated);
-                CellInsert(sheet, row, 5, joist.BaseLengthIn.Value, joist.BaseLengthIn.IsUpdated);
-                CellInsert(sheet, row, 6, joist.TcxlQuantity.Value, joist.TcxlQuantity.IsUpdated);
-                CellInsert(sheet, row, 7, joist.TcxlLengthFt.Value, joist.TcxlLengthFt.IsUpdated);
-                CellInsert(sheet, row, 8, joist.TcxlLengthIn.Value, joist.TcxlLengthIn.IsUpdated);
-                CellInsert(sheet, row, 9, joist.TcxrQuantity.Value, joist.TcxrQuantity.IsUpdated);
-                CellInsert(sheet, row, 10, joist.TcxrLengthFt.Value, joist.TcxrLengthFt.IsUpdated);
-                CellInsert(sheet, row, 11, joist.TcxrLengthIn.Value, joist.TcxrLengthIn.IsUpdated);
-                CellInsert(sheet, row, 12, joist.SeatDepthLE.Value, joist.SeatDepthLE.IsUpdated);
-                CellInsert(sheet, row, 13, joist.SeatDepthRE.Value, joist.SeatDepthRE.IsUpdated);
-                CellInsert(sheet, row, 14, joist.BcxQuantity.Value, joist.BcxQuantity.IsUpdated);
-                CellInsert(sheet, row, 15, joist.Uplift.Value, joist.Uplift.IsUpdated);
-
-                int loadRow = row;
-                foreach(Load load in joist.Loads)
-                {
-                    CellInsert(sheet, loadRow, 16, load.LoadInfoType.Text, load.LoadInfoType.IsUpdated);
-                    CellInsert(sheet, loadRow, 17, load.LoadInfoCategory.Text, load.LoadInfoCategory.IsUpdated);
-                    CellInsert(sheet, loadRow, 18, load.LoadInfoPosition.Text, load.LoadInfoPosition.IsUpdated);
-                    CellInsert(sheet, loadRow, 19, load.Load1Value.Value, load.Load1Value.IsUpdated);
-                    CellInsert(sheet, loadRow, 20, load.Load1DistanceFt.Value, load.Load1DistanceFt.IsUpdated);
-                    CellInsert(sheet, loadRow, 21, load.Load1DistanceIn.Value, load.Load1DistanceIn.IsUpdated);
-                    CellInsert(sheet, loadRow, 22, load.Load2Value.Value, load.Load2Value.IsUpdated);
-                    CellInsert(sheet, loadRow, 23, load.Load2DistanceFt.Value, load.Load2DistanceFt.IsUpdated);
-                    CellInsert(sheet, loadRow, 24, load.Load2DistanceIn.Value, load.Load2DistanceIn.IsUpdated);
-                    CellInsert(sheet, loadRow, 25, load.CaseNumber.Value, load.CaseNumber.IsUpdated);
-
-                    loadRow++;
-                }
-
-                int noteRow = row;
-                foreach(StringWithUpdateCheck note in joist.Notes)
-                {
-                    CellInsert(sheet, noteRow, 26, note.Text, note.IsUpdated);
-                    noteRow++;
-                }
-
-                markCounter++;
-                row = row + Math.Max(Math.Max(joist.Loads.Count, joist.Notes.Count), 1) + 3;
-
-            SkipLoop:
-                ;
             }
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -490,12 +605,12 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 workbook.SaveAs(saveFileDialog.FileName);
             }
 
-            oXL.Visible = true;
+            oXL2.Visible = true;
             Marshal.ReleaseComObject(sheet);
             Marshal.ReleaseComObject(workbook);
             Marshal.ReleaseComObject(workbooks);
             Marshal.ReleaseComObject(oWB);
-            Marshal.ReleaseComObject(oXL);
+            Marshal.ReleaseComObject(oXL2);
             GC.Collect();
 
         }
@@ -509,7 +624,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
             if (isUpdated == true)
             {
-                oXL.ActiveWorkbook.Worksheets["HighlightedCell"].Range["A1"].Copy();
+                workbook.Worksheets["HighlightedCell"].Range["A1"].Copy();
                 sheet.Cells[row, column].PasteSpecial(Excel.XlPasteType.xlPasteFormats,
                                                       Excel.XlPasteSpecialOperation.xlPasteSpecialOperationNone, false, false);
 
@@ -518,11 +633,13 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
         public void SeperateSeismic(double sds = 0.00)
         {
-            foreach (Joist joist in Joists)
+            foreach (Sequence sequence in Sequences)
             {
+                foreach (Joist joist in sequence.Joists)
+                {
 
 
-                //Determine if joist has Seismic Loads
+                    //Determine if joist has Seismic Loads
 
                     var listOfLoadTypes = from load in joist.Loads
                                           select load.LoadInfoCategory.Text;
@@ -535,87 +652,88 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         }
                     }
 
-                if (hasSeismic)
-                {
-                    //DETERMINE IF JOIST IS LOAD OVER LOAD. If not then message saying that joist is not load over load and seismic cannot be seperated
-                    if (joist.IsLoadOverLoad == true)
+                    if (hasSeismic)
                     {
-
-                        // SET SEISMIC LC TO 6. 
-                        var listOfLCs = from load in joist.Loads
-                                        select Convert.ToInt32(load.CaseNumber.Value);
-
-                        int seismicLC = 3;
-                        if (listOfLCs.Contains(3) == true)
+                        //DETERMINE IF JOIST IS LOAD OVER LOAD. If not then message saying that joist is not load over load and seismic cannot be seperated
+                        if (joist.IsLoadOverLoad == true)
                         {
-                            MessageBox.Show(String.Format("MARK {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION; ENDING PROGRAM",
-                                joist.Mark.Text));
-                        }
 
-                        // Move seismic loads to seismic load case
+                            // SET SEISMIC LC TO 6. 
+                            var listOfLCs = from load in joist.Loads
+                                            select Convert.ToInt32(load.CaseNumber.Value);
 
-                        foreach (Load load in joist.Loads)
-                        {
-                            if (load.LoadInfoCategory.Text == "SM")
+                            int seismicLC = 3;
+                            if (listOfLCs.Contains(3) == true)
                             {
-                                load.CaseNumber.Value = seismicLC;
+                                MessageBox.Show(String.Format("MARK {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION; ENDING PROGRAM",
+                                    joist.Mark.Text));
                             }
-                        }
 
-                        // Copy all other positive loads from LC1 to LC3. 
-                        //ISSUES: no important loads can be in any other load case than LC1. 
-                        List<Load> newLoads = new List<Load>();
-                        Load copiedLoad = new Load();
-                        foreach (Load load in joist.Loads)
-                        {
-                            if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null) && load.Load1Value.Value >= 0)
+                            // Move seismic loads to seismic load case
+
+                            foreach (Load load in joist.Loads)
                             {
-
-                                copiedLoad = DeepClone(load);
-                                copiedLoad.CaseNumber.Value = seismicLC;
-                                newLoads.Add(copiedLoad);
+                                if (load.LoadInfoCategory.Text == "SM")
+                                {
+                                    load.CaseNumber.Value = seismicLC;
+                                }
                             }
+
+                            // Copy all other positive loads from LC1 to LC3. 
+                            //ISSUES: no important loads can be in any other load case than LC1. 
+                            List<Load> newLoads = new List<Load>();
+                            Load copiedLoad = new Load();
+                            foreach (Load load in joist.Loads)
+                            {
+                                if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null) && load.Load1Value.Value >= 0)
+                                {
+
+                                    copiedLoad = DeepClone(load);
+                                    copiedLoad.CaseNumber.Value = seismicLC;
+                                    newLoads.Add(copiedLoad);
+                                }
+                            }
+                            joist.Loads.AddRange(newLoads);
+
+                            //ADD JOIST U DL
+                            Load uDL = new Load();
+                            uDL.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
+                            uDL.LoadInfoCategory = new StringWithUpdateCheck { Text = "CL" };
+                            uDL.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
+                            uDL.Load1Value = new DoubleWithUpdateCheck { Value = joist.UDL };
+                            uDL.Load1DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                            uDL.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                            uDL.Load2Value = new DoubleWithUpdateCheck { Value = null };
+                            uDL.Load2DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                            uDL.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                            uDL.LoadNote = new StringWithUpdateCheck { Text = null };
+                            uDL.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
+                            joist.Loads.Add(uDL);
+
+                            //ADD JOIST U SM 
+                            Load uSM = new Load();
+                            uSM.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
+                            uSM.LoadInfoCategory = new StringWithUpdateCheck { Text = "SM" };
+                            uSM.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
+                            uSM.Load1Value = new DoubleWithUpdateCheck { Value = 0.14 * sds * joist.UDL };
+                            uSM.Load1DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                            uSM.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                            uSM.Load2Value = new DoubleWithUpdateCheck { Value = null };
+                            uSM.Load2DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                            uSM.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                            uSM.LoadNote = new StringWithUpdateCheck { Text = null };
+                            uSM.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
+                            joist.Loads.Add(uSM);
+
                         }
-                        joist.Loads.AddRange(newLoads);
-
-                        //ADD JOIST U DL
-                        Load uDL = new Load();
-                        uDL.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
-                        uDL.LoadInfoCategory = new StringWithUpdateCheck { Text = "CL" };
-                        uDL.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
-                        uDL.Load1Value = new DoubleWithUpdateCheck { Value = joist.UDL };
-                        uDL.Load1DistanceFt = new DoubleWithUpdateCheck { Value = null };
-                        uDL.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                        uDL.Load2Value = new DoubleWithUpdateCheck { Value = null };
-                        uDL.Load2DistanceFt = new DoubleWithUpdateCheck { Value = null };
-                        uDL.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                        uDL.LoadNote = new StringWithUpdateCheck { Text = null };
-                        uDL.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
-                        joist.Loads.Add(uDL);
-
-                        //ADD JOIST U SM 
-                        Load uSM = new Load();
-                        uSM.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
-                        uSM.LoadInfoCategory = new StringWithUpdateCheck { Text = "SM" };
-                        uSM.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
-                        uSM.Load1Value = new DoubleWithUpdateCheck { Value = 0.14 * sds * joist.UDL };
-                        uSM.Load1DistanceFt = new DoubleWithUpdateCheck { Value = null };
-                        uSM.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                        uSM.Load2Value = new DoubleWithUpdateCheck { Value = null };
-                        uSM.Load2DistanceFt = new DoubleWithUpdateCheck { Value = null };
-                        uSM.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                        uSM.LoadNote = new StringWithUpdateCheck { Text = null };
-                        uSM.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
-                        joist.Loads.Add(uSM);
-
+                        else
+                        {
+                            string message = String.Format("MARK {0} IS NOT GIVEN IN TL/LL FORMAT; SEISMIC LC WILL NOT BE SEPERTATED", joist.Mark.Text);
+                            MessageBox.Show(message);
+                        }
                     }
-                    else
-                    {
-                        string message = String.Format("MARK {0} IS NOT GIVEN IN TL/LL FORMAT; SEISMIC LC WILL NOT BE SEPERTATED", joist.Mark.Text);
-                        MessageBox.Show(message);
-                    }
+
                 }
-                
             }
         }
 
