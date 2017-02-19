@@ -26,10 +26,5 @@ namespace DESign_Sales_Excel_Add_in
             this.Close();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            var dfObjectArray = Deedle.Frame.ReadCsv("C:\\Users\\darien.shannon\\Desktop\\DECK\\Deck Tables.csv");
-            string s = "s";
-        }
     }
 }

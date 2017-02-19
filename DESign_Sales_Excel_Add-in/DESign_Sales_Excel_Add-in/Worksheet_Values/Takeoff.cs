@@ -147,10 +147,10 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 16], IsUpdated = isUpdated[rowCount + i - 1, 15] };
                         load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
                         load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
-                        load.Load1DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                        load.Load1DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
                         load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
                         load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
-                        load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                        load.Load2DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
                         load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
                         load.CaseNumber = new DoubleWithUpdateCheck { Value = ToNullableDouble((string)baseTypesCells[rowCount + i, 24]), IsUpdated = isUpdated[rowCount + i - 1, 23] };
                         load.LoadNote = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] };
@@ -290,12 +290,32 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
                     load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
                     load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
-                    load.Load1DistanceFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
+                    if(marksCells[rowCount + i, 21] is double)
+                    {
+                        load.Load1DistanceFt = new StringWithUpdateCheck { Text = Convert.ToString((double?)marksCells[rowCount + i, 21]), IsUpdated = isUpdated[rowCount + i - 1, 20] };
+                    }
+                    else
+                    {
+                        load.Load1DistanceFt = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
+                    }
                     load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
                     load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
-                    load.Load2DistanceFt = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] };
+                    if (marksCells[rowCount + i, 21] is double)
+                    {
+                        load.Load2DistanceFt = new StringWithUpdateCheck { Text = Convert.ToString((double?)marksCells[rowCount + i, 24]), IsUpdated = isUpdated[rowCount + i - 1, 23] };
+                    }
+                    else
+                    {
+                        load.Load2DistanceFt = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] };
+                    }
                     load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] };
-                    load.CaseNumber = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] };
+                    if (marksCells[rowCount + i, 26] is string)
+                    {
+                        load.CaseNumber = new DoubleWithUpdateCheck { Value = Convert.ToDouble(marksCells[rowCount + i, 26]), IsUpdated = isUpdated[rowCount + i - 1, 25] };
+                    }
+                    else {
+                        load.CaseNumber = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] };
+                    }
                     load.LoadNote = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 27], IsUpdated = isUpdated[rowCount + i - 1, 26] };
                     if (load.IsNull == false)
                     {
@@ -503,7 +523,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             System.IO.File.WriteAllBytes(excelPath, Properties.Resources.BLANK_SALES_BOM);
 
             Excel.Application oXL2 = new Excel.Application();
-            Excel.Workbooks workbooks = oXL2.Workbooks;
+            Excel.Workbooks workbooks = oXL.Workbooks;
             workbook = workbooks.Open(excelPath);
             Excel.Sheets sheets = workbook.Worksheets;
             Excel.Worksheet sheet = new Excel.Worksheet();
@@ -572,10 +592,10 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         CellInsert(sheet, loadRow, 17, load.LoadInfoCategory.Text, load.LoadInfoCategory.IsUpdated);
                         CellInsert(sheet, loadRow, 18, load.LoadInfoPosition.Text, load.LoadInfoPosition.IsUpdated);
                         CellInsert(sheet, loadRow, 19, load.Load1Value.Value, load.Load1Value.IsUpdated);
-                        CellInsert(sheet, loadRow, 20, load.Load1DistanceFt.Value, load.Load1DistanceFt.IsUpdated);
+                        CellInsert(sheet, loadRow, 20, load.Load1DistanceFt.Text, load.Load1DistanceFt.IsUpdated);
                         CellInsert(sheet, loadRow, 21, load.Load1DistanceIn.Value, load.Load1DistanceIn.IsUpdated);
                         CellInsert(sheet, loadRow, 22, load.Load2Value.Value, load.Load2Value.IsUpdated);
-                        CellInsert(sheet, loadRow, 23, load.Load2DistanceFt.Value, load.Load2DistanceFt.IsUpdated);
+                        CellInsert(sheet, loadRow, 23, load.Load2DistanceFt.Text, load.Load2DistanceFt.IsUpdated);
                         CellInsert(sheet, loadRow, 24, load.Load2DistanceIn.Value, load.Load2DistanceIn.IsUpdated);
                         CellInsert(sheet, loadRow, 25, load.CaseNumber.Value, load.CaseNumber.IsUpdated);
 
@@ -596,7 +616,18 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     ;
                 }
             }
+            Excel.Worksheet cover = oWB.Sheets["Cover"];
+            cover.Copy(Type.Missing, After: workbook.Sheets["Cover"]);
+            Excel.Worksheet oldCover = workbook.Sheets["Cover"];
+            oXL.DisplayAlerts = false;
+            oldCover.Delete();
+            oXL.DisplayAlerts = true;
+            Excel.Worksheet newCover = workbook.Sheets["Cover (2)"];
+            newCover.Name = "Cover";
 
+
+
+            
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Excel files (*.xlsm)|*.xlsm";
             saveFileDialog.ShowDialog();
@@ -631,7 +662,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             }
         }
 
-        public void SeperateSeismic(double sds = 0.00)
+        public void SeperateSeismic(double sds)
         {
             foreach (Sequence sequence in Sequences)
             {
@@ -665,7 +696,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                             int seismicLC = 3;
                             if (listOfLCs.Contains(3) == true)
                             {
-                                MessageBox.Show(String.Format("MARK {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION; ENDING PROGRAM",
+                                MessageBox.Show(String.Format("MARK {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION",
                                     joist.Mark.Text));
                             }
 
@@ -673,7 +704,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                             foreach (Load load in joist.Loads)
                             {
-                                if (load.LoadInfoCategory.Text == "SM")
+                                if (load.LoadInfoCategory.Text == "SM" && (load.CaseNumber.Value == null || load.CaseNumber.Value == 1) && load.LoadInfoCategory.Text != "WL" && load.LoadInfoCategory.Text != "IP")
                                 {
                                     load.CaseNumber.Value = seismicLC;
                                 }
@@ -701,10 +732,10 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                             uDL.LoadInfoCategory = new StringWithUpdateCheck { Text = "CL" };
                             uDL.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
                             uDL.Load1Value = new DoubleWithUpdateCheck { Value = joist.UDL };
-                            uDL.Load1DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                            uDL.Load1DistanceFt = new StringWithUpdateCheck { Text = null };
                             uDL.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
                             uDL.Load2Value = new DoubleWithUpdateCheck { Value = null };
-                            uDL.Load2DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                            uDL.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
                             uDL.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
                             uDL.LoadNote = new StringWithUpdateCheck { Text = null };
                             uDL.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
@@ -716,10 +747,10 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                             uSM.LoadInfoCategory = new StringWithUpdateCheck { Text = "SM" };
                             uSM.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
                             uSM.Load1Value = new DoubleWithUpdateCheck { Value = 0.14 * sds * joist.UDL };
-                            uSM.Load1DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                            uSM.Load1DistanceFt = new StringWithUpdateCheck{ Text = null };
                             uSM.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
                             uSM.Load2Value = new DoubleWithUpdateCheck { Value = null };
-                            uSM.Load2DistanceFt = new DoubleWithUpdateCheck { Value = null };
+                            uSM.Load2DistanceFt = new StringWithUpdateCheck { Text= null };
                             uSM.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
                             uSM.LoadNote = new StringWithUpdateCheck { Text = null };
                             uSM.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };

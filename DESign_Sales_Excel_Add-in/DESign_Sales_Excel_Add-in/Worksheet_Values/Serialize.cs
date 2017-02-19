@@ -37,6 +37,7 @@ namespace DESign_Sales_Excel_Add_in.Serialize
             catch (Exception ex)
             {
                 //Log exception here
+                ex.ToString();
             }
         }
 
@@ -76,6 +77,7 @@ namespace DESign_Sales_Excel_Add_in.Serialize
             catch (Exception ex)
             {
                 //Log exception here
+                ex.ToString();
             }
 
             return objectOut;

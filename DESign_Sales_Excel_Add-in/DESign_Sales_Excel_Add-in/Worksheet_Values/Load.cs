@@ -13,10 +13,10 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public StringWithUpdateCheck LoadInfoCategory { get; set; }
         public StringWithUpdateCheck LoadInfoPosition { get; set; }
         public DoubleWithUpdateCheck Load1Value { get; set; }
-        public DoubleWithUpdateCheck Load1DistanceFt { get; set; }
+        public StringWithUpdateCheck Load1DistanceFt { get; set; }
         public DoubleWithUpdateCheck Load1DistanceIn { get; set; }
         public DoubleWithUpdateCheck Load2Value { get; set; }
-        public DoubleWithUpdateCheck Load2DistanceFt { get; set; }
+        public StringWithUpdateCheck Load2DistanceFt { get; set; }
         public DoubleWithUpdateCheck Load2DistanceIn { get; set; }
         public DoubleWithUpdateCheck CaseNumber { get; set; }
         public StringWithUpdateCheck LoadNote { get; set; }
@@ -33,13 +33,13 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     LoadInfoPosition.IsUpdated == false &&
                     Load1Value.Value == null &&
                     Load1Value.IsUpdated == false &&
-                    Load1DistanceFt.Value == null &&
+                    Load1DistanceFt.Text == null &&
                     Load1DistanceFt.IsUpdated == false &&
                     Load1DistanceIn.Value == null &&
                     Load1DistanceIn.IsUpdated == false &&
                     Load2Value.Value == null &&
                     Load2Value.IsUpdated == false &&
-                    Load2DistanceFt.Value == null &&
+                    Load2DistanceFt.Text == null &&
                     Load2DistanceFt.IsUpdated == false &&
                     Load2DistanceIn.Value == null &&
                     Load2DistanceIn.IsUpdated == false &&
