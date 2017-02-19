@@ -236,7 +236,7 @@
       <SubType>Code</SubType>
     </Compile>
     <None Include="Resources\BLANK SALES BOM.xlsm" />
-    <None Include="Resources\TAKEOFF.xlsx" />
+    <None Include="Resources\TAKEOFF CONCEPT.xlsm" />
     <None Include="ThisAddIn.Designer.xml">
       <DependentUpon>ThisAddIn.cs</DependentUpon>
     </None>

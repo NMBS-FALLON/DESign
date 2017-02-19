@@ -67,7 +67,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             
             // Determine the row of the first baseType since estimators dont always place the first baseType at the top
             bool firstBaseTypeReached = false;
-            int firstBaseTypeRow = 0;
+            int firstBaseTypeRow = 4;
 
             int i = 4;
             while (firstBaseTypeReached == false && i < baseTypesCells.GetLength(0))
@@ -210,15 +210,18 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
             // Determine the row of the first mark or sequence since estimators dont always place it at the top
             bool firstLineReached = false;
-            int firstMarkRow = 0;
+            int firstMarkRow = 5;
 
-            i = 4;
-            while (firstLineReached == false)
+            i = 5;
+            while (firstLineReached == false && i < marksCells.GetLength(0))
             {
-                if (marksCells[i, 1] != null)
+                if (marksCells != null)
                 {
-                    firstLineReached = true;
-                    firstMarkRow = i;
+                    if (marksCells[i, 1] != null)
+                    {
+                        firstLineReached = true;
+                        firstMarkRow = i;
+                    }
                 }
                 i++;
             }
@@ -616,6 +619,8 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     ;
                 }
             }
+
+            //COPY COVER SHEET INTO NEW TAKEOFF
             Excel.Worksheet cover = oWB.Sheets["Cover"];
             cover.Copy(Type.Missing, After: workbook.Sheets["Cover"]);
             Excel.Worksheet oldCover = workbook.Sheets["Cover"];
@@ -625,15 +630,29 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             Excel.Worksheet newCover = workbook.Sheets["Cover (2)"];
             newCover.Name = "Cover";
 
+            //COPY NOTE AND BRIDGING SHEETS INTO NEW TAKEOFF
+            foreach(Excel.Worksheet s in oWB.Sheets)
+            {
+                if (s.Name.Contains("N (") && s.Name != "N (0)")
+                {
+                    s.Copy(Type.Missing, After: workbook.Sheets["Cover"]);
+                }
+                if (s.Name.Contains("B (") && s.Name != "B (0)")
+                {
+                    s.Copy(Before: workbook.Sheets["Check List"]);
+                }
+            }
 
 
-            
+
+
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Excel files (*.xlsm)|*.xlsm";
             saveFileDialog.ShowDialog();
             if (saveFileDialog.FileName != "")
-            {
-                workbook.SaveAs(saveFileDialog.FileName);
+            {  
+                workbook.CheckCompatibility = false;
+                workbook.SaveAs(saveFileDialog.FileName);      
             }
 
             oXL2.Visible = true;
