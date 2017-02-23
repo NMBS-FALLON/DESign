@@ -43,6 +43,21 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             //Create an object array containing all information from the 'Base Types' tab, in the form of a multidimensional array [row, column]
             object[,] baseTypesCells = (object[,])baseTypesRange.Value2;
 
+            //CHANGE ALL CELLS WITH "" TO NULL
+            for (int row = 1; row <= baseTypesCells.GetLength(0); row++)
+            {
+                for (int col = 1; col <= baseTypesCells.GetLength(1); col++)
+                {
+                    if (baseTypesCells[row, col] is string)
+                    {
+                        if ((string)baseTypesCells[row, col] == "")
+                        {
+                            baseTypesCells[row, col] = null;
+                        }
+                    }
+                }
+            }
+
             //Create a multidemnsional bool array that is true if the cell is highlighted (i.e. estimator marked it as updated) and false if it is not highlighted (i.e. cell has not been updated).
             int numRows = baseTypesRange.Rows.Count;
             int numColumns = baseTypesRange.Columns.Count;
@@ -147,10 +162,25 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 16], IsUpdated = isUpdated[rowCount + i - 1, 15] };
                         load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
                         load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
-                        load.Load1DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                        if (baseTypesCells[rowCount + i, 19] is double)
+                        {
+                            load.Load1DistanceFt = new StringWithUpdateCheck { Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 19]), IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                        }
+                        else
+                        {
+                            load.Load1DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                        }
+
                         load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
                         load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
-                        load.Load2DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                        if (baseTypesCells[rowCount + i, 22] is double)
+                        {
+                            load.Load2DistanceFt = new StringWithUpdateCheck { Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 22]), IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                        }
+                        else
+                        {
+                            load.Load2DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                        }
                         load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
                         load.CaseNumber = new DoubleWithUpdateCheck { Value = ToNullableDouble((string)baseTypesCells[rowCount + i, 24]), IsUpdated = isUpdated[rowCount + i - 1, 23] };
                         load.LoadNote = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] };
@@ -185,6 +215,21 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
             // Create an object array containing all information from the 'Marks' tab, in the form of a multidimensional array [rows, column]
             object[,] marksCells = (object[,])marksRange.Value2;
+
+            //CHANGE ALL CELLS WITH "" TO NULL
+            for (int row = 1; row <= marksCells.GetLength(0); row++)
+            {
+                for (int col = 1; col <= marksCells.GetLength(1); col++)
+                {
+                    if (marksCells[row, col] is string)
+                    {
+                        if ((string)marksCells[row, col] == "")
+                        {
+                            marksCells[row, col] = null;
+                        }
+                    }
+                }
+            }
 
             //Create a multidemnsional bool array that is true if the cell is highlighted (i.e. estimator marked it as updated) and false if it is not highlighted (i.e. cell has not been updated).
             numRows = marksRange.Rows.Count;
@@ -288,6 +333,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
 
 
+
                     Load load = new Load();
                     load.LoadInfoType = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
                     load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
@@ -334,9 +380,47 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     {
                         notes.Add(note);
                     }
-
-
                 }
+                
+                //ADD BASETYPES DESIGNATED [ALL], [ALL J] (ALL JOISTS), & [ALL G] (ALL GIRDERS). 
+
+                var all = from bT in baseTypes
+                          where bT.Name.Text == "[ALL]"
+                          select bT;
+
+                var allJoist = from bT in baseTypes
+                               where bT.Name.Text == "[ALL J]"
+                               select bT;
+
+                var allGirder = from bT in baseTypes
+                                where bT.Name.Text == "[ALL G]"
+                                select bT;
+
+                if (all.Any())
+                {
+                    foreach (BaseType bT in all)
+                    {
+                        baseTypesOnMark.Add(new StringWithUpdateCheck { Text = bT.Name.Text, IsUpdated = bT.Name.IsUpdated });
+                    }
+                }
+
+                if (allJoist.Any() && joist.IsGirder == false)
+                {
+                    foreach (BaseType bT in allJoist)
+                    {
+                        baseTypesOnMark.Add(new StringWithUpdateCheck { Text = bT.Name.Text, IsUpdated = bT.Name.IsUpdated });
+                    }
+                }
+                
+                if (allGirder.Any() && joist.IsGirder == true)
+                {
+                    foreach (BaseType bT in allGirder)
+                    {
+                        baseTypesOnMark.Add(new StringWithUpdateCheck { Text = bT.Name.Text, IsUpdated = bT.Name.IsUpdated });
+                    }
+                }
+
+
                 joist.BaseTypesOnMark = baseTypesOnMark;
                 joist.Loads = loads;
                 joist.Notes = notes;
@@ -505,6 +589,8 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                             {
                                 joist.Notes.Add(note);
                             }
+
+                            
                         }
                     }
                 }
