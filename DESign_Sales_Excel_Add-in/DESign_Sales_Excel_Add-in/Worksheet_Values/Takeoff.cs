@@ -809,7 +809,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                             foreach (Load load in joist.Loads)
                             {
-                                if (load.LoadInfoCategory.Text == "SM" && (load.CaseNumber.Value == null || load.CaseNumber.Value == 1) && load.LoadInfoCategory.Text != "WL" && load.LoadInfoCategory.Text != "IP")
+                                if (load.LoadInfoCategory.Text == "SM" && (load.CaseNumber.Value == null || load.CaseNumber.Value == 1))
                                 {
                                     load.CaseNumber.Value = seismicLC;
                                 }
@@ -821,7 +821,10 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                             Load copiedLoad = new Load();
                             foreach (Load load in joist.Loads)
                             {
-                                if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null) && load.Load1Value.Value >= 0)
+                                if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null)
+                                    && load.Load1Value.Value >= 0
+                                    && load.LoadInfoCategory.Text != "WL"
+                                    && load.LoadInfoCategory.Text != "IP")
                                 {
 
                                     copiedLoad = DeepClone(load);
