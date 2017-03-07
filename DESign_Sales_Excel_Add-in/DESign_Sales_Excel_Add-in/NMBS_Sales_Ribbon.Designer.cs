@@ -37,7 +37,6 @@
             this.nmbsTab = this.Factory.CreateRibbonTab();
             this.group1 = this.Factory.CreateRibbonGroup();
             this.button1 = this.Factory.CreateRibbonButton();
-            this.btnCreateBasetypeDropDown = this.Factory.CreateRibbonButton();
             this.nmbsTab.SuspendLayout();
             this.group1.SuspendLayout();
             this.SuspendLayout();
@@ -52,8 +51,7 @@
             // group1
             // 
             this.group1.Items.Add(this.button1);
-            this.group1.Items.Add(this.btnCreateBasetypeDropDown);
-            this.group1.Label = "Takeoff Conversion";
+            this.group1.Label = "TAKEOFF";
             this.group1.Name = "group1";
             // 
             // button1
@@ -61,12 +59,6 @@
             this.button1.Label = "Convert TO";
             this.button1.Name = "button1";
             this.button1.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button1_Click);
-            // 
-            // btnCreateBasetypeDropDown
-            // 
-            this.btnCreateBasetypeDropDown.Label = "Base Type Drop";
-            this.btnCreateBasetypeDropDown.Name = "btnCreateBasetypeDropDown";
-            this.btnCreateBasetypeDropDown.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnCreateBasetypeDropDown_Click);
             // 
             // NMBS_Sales_Ribbon
             // 
@@ -87,7 +79,6 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonTab nmbsTab;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnCreateBasetypeDropDown;
     }
 
     partial class ThisRibbonCollection

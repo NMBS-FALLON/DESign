@@ -32,12 +32,11 @@
             this.cbSeperateSeismic = new System.Windows.Forms.CheckBox();
             this.labelSDS = new System.Windows.Forms.Label();
             this.tbSDS = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnConvertTakeoff
             // 
-            this.btnConvertTakeoff.Location = new System.Drawing.Point(27, 216);
+            this.btnConvertTakeoff.Location = new System.Drawing.Point(12, 53);
             this.btnConvertTakeoff.Name = "btnConvertTakeoff";
             this.btnConvertTakeoff.Size = new System.Drawing.Size(89, 34);
             this.btnConvertTakeoff.TabIndex = 0;
@@ -48,7 +47,7 @@
             // cbSeperateSeismic
             // 
             this.cbSeperateSeismic.AutoSize = true;
-            this.cbSeperateSeismic.Location = new System.Drawing.Point(27, 24);
+            this.cbSeperateSeismic.Location = new System.Drawing.Point(12, 12);
             this.cbSeperateSeismic.Name = "cbSeperateSeismic";
             this.cbSeperateSeismic.Size = new System.Drawing.Size(108, 17);
             this.cbSeperateSeismic.TabIndex = 1;
@@ -58,7 +57,7 @@
             // labelSDS
             // 
             this.labelSDS.AutoSize = true;
-            this.labelSDS.Location = new System.Drawing.Point(47, 44);
+            this.labelSDS.Location = new System.Drawing.Point(136, 13);
             this.labelSDS.Name = "labelSDS";
             this.labelSDS.Size = new System.Drawing.Size(41, 13);
             this.labelSDS.TabIndex = 2;
@@ -66,21 +65,16 @@
             // 
             // tbSDS
             // 
-            this.tbSDS.Location = new System.Drawing.Point(94, 41);
+            this.tbSDS.Location = new System.Drawing.Point(174, 9);
             this.tbSDS.Name = "tbSDS";
             this.tbSDS.Size = new System.Drawing.Size(41, 20);
             this.tbSDS.TabIndex = 3;
-            // 
-            // button1
-            // 
-
             // 
             // Convert_Takeoff_Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 262);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(263, 104);
             this.Controls.Add(this.tbSDS);
             this.Controls.Add(this.labelSDS);
             this.Controls.Add(this.cbSeperateSeismic);
@@ -98,6 +92,5 @@
         private System.Windows.Forms.CheckBox cbSeperateSeismic;
         private System.Windows.Forms.Label labelSDS;
         private System.Windows.Forms.TextBox tbSDS;
-        private System.Windows.Forms.Button button1;
     }
 }

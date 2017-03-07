@@ -944,7 +944,7 @@ namespace DESign_WordAddIn
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
-                        thisHCSeatInfo.paMat = "P0604";
+                        thisHCSeatInfo.paMat = "P0608";
                         diffInHCandTC = -3;
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) / 12.0 - 0.5 / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) / 12.0 - 0.5 / 12.0);
@@ -1242,7 +1242,7 @@ namespace DESign_WordAddIn
                 else if (overiddenSeatType == "Butted") { thisHCSeatInfo.buttedSeat = true; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = false; }
                 else if (overiddenSeatType == "Gapped") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = true; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = false; }
                 else if (overiddenSeatType == "1/4\" Plate") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = true; thisHCSeatInfo.plateSeatP08 = false; }
-                else if (overiddenSeatType == "1/2\" Plate") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = true; }
+                else if (overiddenSeatType == "1/2\" Plate") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = true; thisHCSeatInfo.paMat = "P0608"; }
                 else { }
                 /////////////
                 if (thisHCSeatInfo.gappedSeat == true)

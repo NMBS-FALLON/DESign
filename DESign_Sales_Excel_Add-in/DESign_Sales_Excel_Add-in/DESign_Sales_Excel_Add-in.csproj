@@ -31,16 +31,16 @@
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\darien.shannon\Desktop\Excel Test\</PublishUrl>
-    <InstallUrl />
+    <PublishUrl>\\nmbsfaln-fs\sales\tools\Excel Add-In\</PublishUrl>
+    <InstallUrl>\\nmbsfaln-fs\sales\tools\Excel Add-In\</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.1</ApplicationVersion>
+    <ApplicationVersion>1.0.0.3</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateInterval>7</UpdateInterval>
+    <UpdateInterval>0</UpdateInterval>
     <UpdateIntervalUnits>days</UpdateIntervalUnits>
     <ProductName>DESign_Sales_Excel_Add-in</ProductName>
-    <PublisherName />
+    <PublisherName>DESign</PublisherName>
     <SupportUrl />
     <FriendlyName>DESign_Sales_Excel_Add-in</FriendlyName>
     <OfficeApplicationDescription />
