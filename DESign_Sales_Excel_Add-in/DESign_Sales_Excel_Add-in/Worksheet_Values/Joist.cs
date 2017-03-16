@@ -66,7 +66,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         {
             get
             {
-                if (Description.Text.Contains("G") == true)
+                if (Description.Text != null && Description.Text.Contains("G") == true)
                 {
                     isGirder = true;
                 }
