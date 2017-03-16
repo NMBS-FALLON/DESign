@@ -117,4 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="sequence.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="seperateSeismic.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="sds.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="richTextBox1.Text" xml:space="preserve">
+    <value>RULES FOR SEPERATING SEISMIC:
+   - SEPERATION IS ONLY ALLOWED ON ROOFS.
+   - IF THE JOIST DESIGNATION LL IS FROM
+      SNOW, THE FLAT ROOF SNOW LOAD (Pf)
+      MUST BE LESS THAN 30 PSF.
+   - FOR SEPERATION TO OCCUR ON GIRDERS,
+      THE DESIGNATION MUST BE IN TL/LL FORM
+      (i.e. 54G7N12.5/5.8K).</value>
+  </data>
 </root>

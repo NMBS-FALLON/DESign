@@ -19,6 +19,19 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             public StringWithUpdateCheck Name { get; set; }
             public List<Joist> Joists { get; set; }
             public List<Bridging> Bridging { get; set; }
+            private bool seperateSeismic = false;
+            public bool SeperateSeismic
+            {
+                get
+                {
+                    return seperateSeismic;
+                }
+                set
+                {
+                    seperateSeismic = value;
+                }
+            }
+            public double? SDS { get; set; }
         }
         public List<BaseType> BaseTypes { get; set; }
 
@@ -767,111 +780,114 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             }
         }
 
-        public void SeperateSeismic(double sds)
+        public void SeperateSeismic()
         {
             foreach (Sequence sequence in Sequences)
             {
-                foreach (Joist joist in sequence.Joists)
+                if (sequence.SeperateSeismic == true)
                 {
-
-
-                    //Determine if joist has Seismic Loads
-
-                    var listOfLoadTypes = from load in joist.Loads
-                                          select load.LoadInfoCategory.Text;
-                    bool hasSeismic = false;
-                    foreach (string type in listOfLoadTypes)
+                    foreach (Joist joist in sequence.Joists)
                     {
-                        if (type == "SM")
+
+
+                        //Determine if joist has Seismic Loads
+
+                        var listOfLoadTypes = from load in joist.Loads
+                                              select load.LoadInfoCategory.Text;
+                        bool hasSeismic = false;
+                        foreach (string type in listOfLoadTypes)
                         {
-                            hasSeismic = true;
-                        }
-                    }
-
-                    if (hasSeismic)
-                    {
-                        //DETERMINE IF JOIST IS LOAD OVER LOAD. If not then message saying that joist is not load over load and seismic cannot be seperated
-                        if (joist.IsLoadOverLoad == true)
-                        {
-
-                            // SET SEISMIC LC TO 6. 
-                            var listOfLCs = from load in joist.Loads
-                                            select Convert.ToInt32(load.CaseNumber.Value);
-
-                            int seismicLC = 3;
-                            if (listOfLCs.Contains(3) == true)
+                            if (type == "SM")
                             {
-                                MessageBox.Show(String.Format("MARK {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION",
-                                    joist.Mark.Text));
+                                hasSeismic = true;
                             }
+                        }
 
-                            // Move seismic loads to seismic load case
-
-                            foreach (Load load in joist.Loads)
+                        if (hasSeismic)
+                        {
+                            //DETERMINE IF JOIST IS LOAD OVER LOAD. If not then message saying that joist is not load over load and seismic cannot be seperated
+                            if (joist.IsLoadOverLoad == true)
                             {
-                                if (load.LoadInfoCategory.Text == "SM" && (load.CaseNumber.Value == null || load.CaseNumber.Value == 1))
+
+                                // SET SEISMIC LC TO 6. 
+                                var listOfLCs = from load in joist.Loads
+                                                select Convert.ToInt32(load.CaseNumber.Value);
+
+                                int seismicLC = 3;
+                                if (listOfLCs.Contains(3) == true)
                                 {
-                                    load.CaseNumber.Value = seismicLC;
+                                    MessageBox.Show(String.Format("MARK {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION",
+                                        joist.Mark.Text));
                                 }
-                            }
 
-                            // Copy all other positive loads from LC1 to LC3. 
-                            //ISSUES: no important loads can be in any other load case than LC1. 
-                            List<Load> newLoads = new List<Load>();
-                            Load copiedLoad = new Load();
-                            foreach (Load load in joist.Loads)
-                            {
-                                if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null)
-                                    && load.Load1Value.Value >= 0
-                                    && load.LoadInfoCategory.Text != "WL"
-                                    && load.LoadInfoCategory.Text != "IP")
+                                // Move seismic loads to seismic load case
+
+                                foreach (Load load in joist.Loads)
                                 {
-
-                                    copiedLoad = DeepClone(load);
-                                    copiedLoad.CaseNumber.Value = seismicLC;
-                                    newLoads.Add(copiedLoad);
+                                    if (load.LoadInfoCategory.Text == "SM" && (load.CaseNumber.Value == null || load.CaseNumber.Value == 1))
+                                    {
+                                        load.CaseNumber.Value = seismicLC;
+                                    }
                                 }
+
+                                // Copy all other positive loads from LC1 to LC3. 
+                                //ISSUES: no important loads can be in any other load case than LC1. 
+                                List<Load> newLoads = new List<Load>();
+                                Load copiedLoad = new Load();
+                                foreach (Load load in joist.Loads)
+                                {
+                                    if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null)
+                                        && load.Load1Value.Value >= 0
+                                        && load.LoadInfoCategory.Text != "WL"
+                                        && load.LoadInfoCategory.Text != "IP")
+                                    {
+
+                                        copiedLoad = DeepClone(load);
+                                        copiedLoad.CaseNumber.Value = seismicLC;
+                                        newLoads.Add(copiedLoad);
+                                    }
+                                }
+                                joist.Loads.AddRange(newLoads);
+
+                                //ADD JOIST U DL
+                                Load uDL = new Load();
+                                uDL.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
+                                uDL.LoadInfoCategory = new StringWithUpdateCheck { Text = "CL" };
+                                uDL.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
+                                uDL.Load1Value = new DoubleWithUpdateCheck { Value = joist.UDL };
+                                uDL.Load1DistanceFt = new StringWithUpdateCheck { Text = null };
+                                uDL.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                                uDL.Load2Value = new DoubleWithUpdateCheck { Value = null };
+                                uDL.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
+                                uDL.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                                uDL.LoadNote = new StringWithUpdateCheck { Text = null };
+                                uDL.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
+                                joist.Loads.Add(uDL);
+
+                                //ADD JOIST U SM 
+                                Load uSM = new Load();
+                                uSM.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
+                                uSM.LoadInfoCategory = new StringWithUpdateCheck { Text = "SM" };
+                                uSM.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
+                                uSM.Load1Value = new DoubleWithUpdateCheck { Value = 0.14 * sequence.SDS * joist.UDL };
+                                uSM.Load1DistanceFt = new StringWithUpdateCheck { Text = null };
+                                uSM.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                                uSM.Load2Value = new DoubleWithUpdateCheck { Value = null };
+                                uSM.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
+                                uSM.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
+                                uSM.LoadNote = new StringWithUpdateCheck { Text = null };
+                                uSM.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
+                                joist.Loads.Add(uSM);
+
                             }
-                            joist.Loads.AddRange(newLoads);
-
-                            //ADD JOIST U DL
-                            Load uDL = new Load();
-                            uDL.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
-                            uDL.LoadInfoCategory = new StringWithUpdateCheck { Text = "CL" };
-                            uDL.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
-                            uDL.Load1Value = new DoubleWithUpdateCheck { Value = joist.UDL };
-                            uDL.Load1DistanceFt = new StringWithUpdateCheck { Text = null };
-                            uDL.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                            uDL.Load2Value = new DoubleWithUpdateCheck { Value = null };
-                            uDL.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
-                            uDL.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                            uDL.LoadNote = new StringWithUpdateCheck { Text = null };
-                            uDL.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
-                            joist.Loads.Add(uDL);
-
-                            //ADD JOIST U SM 
-                            Load uSM = new Load();
-                            uSM.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
-                            uSM.LoadInfoCategory = new StringWithUpdateCheck { Text = "SM" };
-                            uSM.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
-                            uSM.Load1Value = new DoubleWithUpdateCheck { Value = 0.14 * sds * joist.UDL };
-                            uSM.Load1DistanceFt = new StringWithUpdateCheck{ Text = null };
-                            uSM.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                            uSM.Load2Value = new DoubleWithUpdateCheck { Value = null };
-                            uSM.Load2DistanceFt = new StringWithUpdateCheck { Text= null };
-                            uSM.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                            uSM.LoadNote = new StringWithUpdateCheck { Text = null };
-                            uSM.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
-                            joist.Loads.Add(uSM);
-
+                            else
+                            {
+                                string message = String.Format("MARK {0} IS NOT GIVEN IN TL/LL FORMAT; SEISMIC LC WILL NOT BE SEPERTATED", joist.Mark.Text);
+                                MessageBox.Show(message);
+                            }
                         }
-                        else
-                        {
-                            string message = String.Format("MARK {0} IS NOT GIVEN IN TL/LL FORMAT; SEISMIC LC WILL NOT BE SEPERTATED", joist.Mark.Text);
-                            MessageBox.Show(message);
-                        }
+
                     }
-
                 }
             }
         }
