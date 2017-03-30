@@ -28,23 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Convert_Takeoff_Form));
             this.btnConvertTakeoff = new System.Windows.Forms.Button();
             this.dataGridSeperateSeismic = new System.Windows.Forms.DataGridView();
             this.sequence = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.seperateSeismic = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.sds = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.btnRules = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridSeperateSeismic)).BeginInit();
             this.SuspendLayout();
             // 
             // btnConvertTakeoff
             // 
+            this.btnConvertTakeoff.AutoSize = true;
             this.btnConvertTakeoff.Location = new System.Drawing.Point(12, 12);
             this.btnConvertTakeoff.Name = "btnConvertTakeoff";
-            this.btnConvertTakeoff.Size = new System.Drawing.Size(95, 26);
+            this.btnConvertTakeoff.Size = new System.Drawing.Size(125, 26);
             this.btnConvertTakeoff.TabIndex = 0;
-            this.btnConvertTakeoff.Text = "Convert Takeoff";
+            this.btnConvertTakeoff.Text = "CONVERT TAKEOFF";
             this.btnConvertTakeoff.UseVisualStyleBackColor = true;
             this.btnConvertTakeoff.Click += new System.EventHandler(this.btnConvertTakeoff_Click);
             // 
@@ -64,7 +64,7 @@
             this.dataGridSeperateSeismic.Location = new System.Drawing.Point(12, 44);
             this.dataGridSeperateSeismic.Name = "dataGridSeperateSeismic";
             this.dataGridSeperateSeismic.RowHeadersVisible = false;
-            this.dataGridSeperateSeismic.Size = new System.Drawing.Size(279, 115);
+            this.dataGridSeperateSeismic.Size = new System.Drawing.Size(279, 132);
             this.dataGridSeperateSeismic.TabIndex = 1;
             this.dataGridSeperateSeismic.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridSeperateSeismic_CellContentClick);
             // 
@@ -91,29 +91,30 @@
             this.sds.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.sds.Width = 54;
             // 
-            // richTextBox1
+            // btnRules
             // 
-            this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBox1.Location = new System.Drawing.Point(12, 165);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.Size = new System.Drawing.Size(278, 110);
-            this.richTextBox1.TabIndex = 2;
-            this.richTextBox1.Text = resources.GetString("richTextBox1.Text");
+            this.btnRules.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRules.Location = new System.Drawing.Point(248, 12);
+            this.btnRules.Name = "btnRules";
+            this.btnRules.Size = new System.Drawing.Size(42, 26);
+            this.btnRules.TabIndex = 3;
+            this.btnRules.Text = "INFO";
+            this.btnRules.UseVisualStyleBackColor = true;
+            this.btnRules.Click += new System.EventHandler(this.btnRules_Click);
             // 
             // Convert_Takeoff_Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(303, 287);
-            this.Controls.Add(this.richTextBox1);
+            this.ClientSize = new System.Drawing.Size(303, 188);
+            this.Controls.Add(this.btnRules);
             this.Controls.Add(this.dataGridSeperateSeismic);
             this.Controls.Add(this.btnConvertTakeoff);
             this.Name = "Convert_Takeoff_Form";
             this.Text = "Convert_Takeoff_Form";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridSeperateSeismic)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -124,6 +125,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn sequence;
         private System.Windows.Forms.DataGridViewCheckBoxColumn seperateSeismic;
         private System.Windows.Forms.DataGridViewTextBoxColumn sds;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.Button btnRules;
     }
 }

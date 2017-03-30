@@ -16,6 +16,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
     {
         public class Sequence
         {
+
             public StringWithUpdateCheck Name { get; set; }
             public List<Joist> Joists { get; set; }
             public List<Bridging> Bridging { get; set; }
@@ -268,9 +269,9 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
             // Determine the row of the first mark or sequence since estimators dont always place it at the top
             bool firstLineReached = false;
-            int firstMarkRow = 5;
+            int firstMarkRow = 4;
 
-            i = 5;
+            i = 4;
             while (firstLineReached == false && i < marksCells.GetLength(0))
             {
                 if (marksCells != null)
@@ -395,43 +396,6 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     }
                 }
                 
-                //ADD BASETYPES DESIGNATED [ALL], [ALL J] (ALL JOISTS), & [ALL G] (ALL GIRDERS). 
-
-                var all = from bT in baseTypes
-                          where bT.Name.Text == "[ALL]"
-                          select bT;
-
-                var allJoist = from bT in baseTypes
-                               where bT.Name.Text == "[ALL J]"
-                               select bT;
-
-                var allGirder = from bT in baseTypes
-                                where bT.Name.Text == "[ALL G]"
-                                select bT;
-
-                if (all.Any())
-                {
-                    foreach (BaseType bT in all)
-                    {
-                        baseTypesOnMark.Add(new StringWithUpdateCheck { Text = bT.Name.Text, IsUpdated = bT.Name.IsUpdated });
-                    }
-                }
-
-                if (allJoist.Any() && joist.IsGirder == false)
-                {
-                    foreach (BaseType bT in allJoist)
-                    {
-                        baseTypesOnMark.Add(new StringWithUpdateCheck { Text = bT.Name.Text, IsUpdated = bT.Name.IsUpdated });
-                    }
-                }
-                
-                if (allGirder.Any() && joist.IsGirder == true)
-                {
-                    foreach (BaseType bT in allGirder)
-                    {
-                        baseTypesOnMark.Add(new StringWithUpdateCheck { Text = bT.Name.Text, IsUpdated = bT.Name.IsUpdated });
-                    }
-                }
 
 
                 joist.BaseTypesOnMark = baseTypesOnMark;
@@ -445,7 +409,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             //Seperate Sequences
             List<Sequence> sequences = new List<Sequence>();
             var sequenceQuery = from jst in joistLines
-                                where jst.BaseTypesOnMark.Count == 0 && jst.Quantity.Value == null && jst.Description.Text == null
+                                where jst.Mark.Text.Contains("{") && jst.Mark.Text.Contains("}")
                                 select jst;
             if (!sequenceQuery.Any()) //No named sequences on takeoff
             {
@@ -458,7 +422,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             {
                 
 
-                if (joistLines[0].Quantity.Value != null || joistLines[0].Description.Text != null || joistLines[0].BaseTypesOnMark.Count != 0)
+                if (joistLines[0].Quantity.Value != null || joistLines[0].Description.Text != null )
                 {
                     MessageBox.Show("Please name your first sequence");
                 }
@@ -472,7 +436,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                     for(int joistIndex = jstIndex; joistIndex<joistLines.Count; joistIndex ++)
                     {
-                        if(joistLines[joistIndex].Quantity.Value == null && joistLines[joistIndex].Description.Text == null && joistLines[joistIndex].BaseTypesOnMark.Count == 0)
+                        if(joistLines[joistIndex].Quantity.Value == null && joistLines[joistIndex].Description.Text == null)
                         {
                             sequence.Joists = new List<Joist>();
                             sequence.Name.Text = joistLines[joistIndex].Mark.Text;
@@ -548,62 +512,46 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                                               where bT.Name.Text == baseType.Text
                                               select bT;
 
-
-                        //ADD THE LOADS
                         foreach (var bT in matchedBaseType)
                         {
                             //ADD VALUES    ???DO I NEED TO CHECK ANYTHING THAT MAY BE UPDATED??? IF SO HOW TO IMPLEMENT?
+                            AddBaseType(joist, bT);
+                        }
+                        //ADD BASETYPES DESIGNATED [ALL], [ALL J] (ALL JOISTS), & [ALL G] (ALL GIRDERS). 
+                        var all = from bT1 in takeoff.BaseTypes
+                                  where bT1.Name.Text.Contains("[ALL]")
+                                  select bT1;
 
-                            if (joist.Description.Text != null && bT.Description.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type description interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.Description.Text == null && bT.Description.Text != null) { joist.Description = bT.Description; }
-                            if (joist.BaseLengthFt.Value != null && bT.BaseLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type base length ft. interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.BaseLengthFt.Value == null && bT.BaseLengthFt.Value != null) { joist.BaseLengthFt = bT.BaseLengthFt; }
-                            if (joist.BaseLengthIn.Value != null && bT.BaseLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type base length in. interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.BaseLengthIn.Value == null && bT.BaseLengthIn.Value != null) { joist.BaseLengthIn = bT.BaseLengthIn; }
-                            if (joist.TcxlQuantity.Value != null && bT.TcxlQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL quantity interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.TcxlQuantity.Value == null && bT.TcxlQuantity.Value != null) { joist.TcxlQuantity = bT.TcxlQuantity; }
-                            if (joist.TcxlLengthFt.Value != null && bT.TcxlLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL length ft. interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.TcxlLengthFt.Value == null && bT.TcxlLengthFt.Value != null) { joist.TcxlLengthFt = bT.TcxlLengthFt; }
-                            if (joist.TcxlLengthIn.Value != null && bT.TcxlLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL length in. interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.TcxlLengthIn.Value == null && bT.TcxlLengthIn.Value != null) { joist.TcxlLengthIn = bT.TcxlLengthIn; }
-                            if (joist.TcxrQuantity.Value != null && bT.TcxrQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR quantity interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.TcxrQuantity.Value == null && bT.TcxrQuantity.Value != null) { joist.TcxrQuantity = bT.TcxrQuantity; }
-                            if (joist.TcxrLengthFt.Value != null && bT.TcxrLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR length ft. interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.TcxrLengthFt.Value == null && bT.TcxrLengthFt.Value != null) { joist.TcxrLengthFt = bT.TcxrLengthFt; }
-                            if (joist.TcxrLengthIn.Value != null && bT.TcxrLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR length in. interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.TcxrLengthIn.Value == null && bT.TcxrLengthIn.Value != null) { joist.TcxrLengthIn = bT.TcxrLengthIn; }
-                            if (joist.SeatDepthLE.Value != null && bT.SeatDepthLE.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type LE seat depth interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.SeatDepthLE.Value == null && bT.SeatDepthLE.Value != null) { joist.SeatDepthLE = bT.SeatDepthLE; }
-                            if (joist.SeatDepthRE.Value != null && bT.SeatDepthRE.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type RE seat depth interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.SeatDepthRE.Value == null && bT.SeatDepthRE.Value != null) { joist.SeatDepthRE = bT.SeatDepthRE; }
-                            if (joist.BcxQuantity.Value != null && bT.BcxQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type BCX quantity interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.BcxQuantity.Value == null && bT.BcxQuantity.Value != null) { joist.BcxQuantity = bT.BcxQuantity; }
-                            if (joist.Uplift.Value != null && bT.Uplift.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type uplift interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.Uplift.Value == null && bT.Uplift.Value != null) { joist.Uplift = bT.Uplift; }
-                            if (joist.Erfos.Text != null && bT.Erfos.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type erfos interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.Erfos.Text == null && bT.Erfos.Text != null) { joist.Erfos = bT.Erfos; }
-                            if (joist.DeflectionTL.Value != null && bT.DeflectionTL.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TL deflection interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.DeflectionTL.Value == null && bT.DeflectionTL.Value != null) { joist.DeflectionTL = bT.DeflectionTL; }
-                            if (joist.DeflectionLL.Value != null && bT.DeflectionLL.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type LL deflection interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.DeflectionLL.Value == null && bT.DeflectionLL.Value != null) { joist.DeflectionLL = bT.DeflectionLL; }
-                            if (joist.WnSpacing.Text != null && bT.WnSpacing.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type WN spacing interferes with original; using original ", joist.Mark.Text)); }
-                            if (joist.WnSpacing.Text == null && bT.WnSpacing.Text != null) { joist.WnSpacing = bT.WnSpacing; }
+                        var allJoist = from bT1 in baseTypes
+                                       where bT1.Name.Text.Contains("[ALL J]")
+                                       select bT1;
 
+                        var allGirder = from bT1 in baseTypes
+                                        where bT1.Name.Text.Contains("[ALL G]")
+                                        select bT1;
 
-
-                            //ADD THE LOADS
-                            foreach (Load load in bT.Loads)
+                        if (all.Any())
+                        {
+                            foreach (BaseType bT1 in all)
                             {
-                                joist.Loads.Add(load);
-
+                                AddBaseType(joist, bT1);
                             }
-                            //ADD THE NOTES
-                            foreach (StringWithUpdateCheck note in bT.Notes)
+                        }
+
+                        if (allJoist.Any() && joist.IsGirder == false)
+                        {
+                            foreach (BaseType bT1 in allJoist)
                             {
-                                joist.Notes.Add(note);
+                                AddBaseType(joist, bT1);
                             }
+                        }
 
-                            
+                        if (allGirder.Any() && joist.IsGirder == true)
+                        {
+                            foreach (BaseType bT1 in allGirder)
+                            {
+                                AddBaseType(joist, bT1);
+                            }
                         }
                     }
                 }
@@ -786,6 +734,25 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             {
                 if (sequence.SeperateSeismic == true)
                 {
+                    bool lc3Taken = false;
+                    foreach (Joist joist in sequence.Joists)
+                    {
+                        var listOfLCs = from load in joist.Loads
+                                        select Convert.ToInt32(load.CaseNumber.Value);
+
+                        if (listOfLCs.Contains(3) == true)
+                        {
+                            lc3Taken = true;
+                        }
+                    }
+                    if (lc3Taken == true)
+                    {
+                        MessageBox.Show(String.Format("Sequence {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION",
+                                        sequence.Name.Text));
+                        throw new SystemException();
+                    }
+
+                    
                     foreach (Joist joist in sequence.Joists)
                     {
 
@@ -809,16 +776,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                             if (joist.IsLoadOverLoad == true)
                             {
 
-                                // SET SEISMIC LC TO 6. 
-                                var listOfLCs = from load in joist.Loads
-                                                select Convert.ToInt32(load.CaseNumber.Value);
 
-                                int seismicLC = 3;
-                                if (listOfLCs.Contains(3) == true)
-                                {
-                                    MessageBox.Show(String.Format("MARK {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION",
-                                        joist.Mark.Text));
-                                }
 
                                 // Move seismic loads to seismic load case
 
@@ -826,7 +784,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                                 {
                                     if (load.LoadInfoCategory.Text == "SM" && (load.CaseNumber.Value == null || load.CaseNumber.Value == 1))
                                     {
-                                        load.CaseNumber.Value = seismicLC;
+                                        load.CaseNumber.Value = 3;
                                     }
                                 }
 
@@ -843,7 +801,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                                     {
 
                                         copiedLoad = DeepClone(load);
-                                        copiedLoad.CaseNumber.Value = seismicLC;
+                                        copiedLoad.CaseNumber.Value = 3;
                                         newLoads.Add(copiedLoad);
                                     }
                                 }
@@ -861,7 +819,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                                 uDL.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
                                 uDL.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
                                 uDL.LoadNote = new StringWithUpdateCheck { Text = null };
-                                uDL.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
+                                uDL.CaseNumber = new DoubleWithUpdateCheck { Value = 3 };
                                 joist.Loads.Add(uDL);
 
                                 //ADD JOIST U SM 
@@ -876,7 +834,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                                 uSM.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
                                 uSM.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
                                 uSM.LoadNote = new StringWithUpdateCheck { Text = null };
-                                uSM.CaseNumber = new DoubleWithUpdateCheck { Value = seismicLC };
+                                uSM.CaseNumber = new DoubleWithUpdateCheck { Value = 3 };
                                 joist.Loads.Add(uSM);
 
                             }
@@ -903,5 +861,58 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 return (T)formatter.Deserialize(ms);
             }
         }
+        private void AddBaseType(Joist joist, BaseType bT1)
+        {
+            if (joist.Description.Text != null && bT1.Description.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type description interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.Description.Text == null && bT1.Description.Text != null) { joist.Description = bT1.Description; }
+            if (joist.BaseLengthFt.Value != null && bT1.BaseLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type base length ft. interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.BaseLengthFt.Value == null && bT1.BaseLengthFt.Value != null) { joist.BaseLengthFt = bT1.BaseLengthFt; }
+            if (joist.BaseLengthIn.Value != null && bT1.BaseLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type base length in. interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.BaseLengthIn.Value == null && bT1.BaseLengthIn.Value != null) { joist.BaseLengthIn = bT1.BaseLengthIn; }
+            if (joist.TcxlQuantity.Value != null && bT1.TcxlQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL quantity interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.TcxlQuantity.Value == null && bT1.TcxlQuantity.Value != null) { joist.TcxlQuantity = bT1.TcxlQuantity; }
+            if (joist.TcxlLengthFt.Value != null && bT1.TcxlLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL length ft. interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.TcxlLengthFt.Value == null && bT1.TcxlLengthFt.Value != null) { joist.TcxlLengthFt = bT1.TcxlLengthFt; }
+            if (joist.TcxlLengthIn.Value != null && bT1.TcxlLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXL length in. interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.TcxlLengthIn.Value == null && bT1.TcxlLengthIn.Value != null) { joist.TcxlLengthIn = bT1.TcxlLengthIn; }
+            if (joist.TcxrQuantity.Value != null && bT1.TcxrQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR quantity interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.TcxrQuantity.Value == null && bT1.TcxrQuantity.Value != null) { joist.TcxrQuantity = bT1.TcxrQuantity; }
+            if (joist.TcxrLengthFt.Value != null && bT1.TcxrLengthFt.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR length ft. interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.TcxrLengthFt.Value == null && bT1.TcxrLengthFt.Value != null) { joist.TcxrLengthFt = bT1.TcxrLengthFt; }
+            if (joist.TcxrLengthIn.Value != null && bT1.TcxrLengthIn.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TCXR length in. interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.TcxrLengthIn.Value == null && bT1.TcxrLengthIn.Value != null) { joist.TcxrLengthIn = bT1.TcxrLengthIn; }
+            if (joist.SeatDepthLE.Value != null && bT1.SeatDepthLE.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type LE seat depth interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.SeatDepthLE.Value == null && bT1.SeatDepthLE.Value != null) { joist.SeatDepthLE = bT1.SeatDepthLE; }
+            if (joist.SeatDepthRE.Value != null && bT1.SeatDepthRE.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type RE seat depth interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.SeatDepthRE.Value == null && bT1.SeatDepthRE.Value != null) { joist.SeatDepthRE = bT1.SeatDepthRE; }
+            if (joist.BcxQuantity.Value != null && bT1.BcxQuantity.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type BCX quantity interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.BcxQuantity.Value == null && bT1.BcxQuantity.Value != null) { joist.BcxQuantity = bT1.BcxQuantity; }
+            if (joist.Uplift.Value != null && bT1.Uplift.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type uplift interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.Uplift.Value == null && bT1.Uplift.Value != null) { joist.Uplift = bT1.Uplift; }
+            if (joist.Erfos.Text != null && bT1.Erfos.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type erfos interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.Erfos.Text == null && bT1.Erfos.Text != null) { joist.Erfos = bT1.Erfos; }
+            if (joist.DeflectionTL.Value != null && bT1.DeflectionTL.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type TL deflection interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.DeflectionTL.Value == null && bT1.DeflectionTL.Value != null) { joist.DeflectionTL = bT1.DeflectionTL; }
+            if (joist.DeflectionLL.Value != null && bT1.DeflectionLL.Value != null) { MessageBox.Show(string.Format("Mark {0}: Base Type LL deflection interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.DeflectionLL.Value == null && bT1.DeflectionLL.Value != null) { joist.DeflectionLL = bT1.DeflectionLL; }
+            if (joist.WnSpacing.Text != null && bT1.WnSpacing.Text != null) { MessageBox.Show(string.Format("Mark {0}: Base Type WN spacing interferes with original; using original ", joist.Mark.Text)); }
+            if (joist.WnSpacing.Text == null && bT1.WnSpacing.Text != null) { joist.WnSpacing = bT1.WnSpacing; }
+
+
+
+            //ADD THE LOADS
+            foreach (Load load in bT1.Loads)
+            {
+                joist.Loads.Add(load);
+            }
+
+
+            //ADD THE NOTES
+            foreach (StringWithUpdateCheck note in bT1.Notes)
+            {
+                joist.Notes.Add(note);
+            }
+        }
     }
+
 }
