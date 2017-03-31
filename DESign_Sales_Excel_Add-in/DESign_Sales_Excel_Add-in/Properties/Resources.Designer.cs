@@ -69,5 +69,15 @@ namespace DESign_Sales_Excel_Add_in.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TAKEOFF_CONCEPT {
+            get {
+                object obj = ResourceManager.GetObject("TAKEOFF_CONCEPT", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

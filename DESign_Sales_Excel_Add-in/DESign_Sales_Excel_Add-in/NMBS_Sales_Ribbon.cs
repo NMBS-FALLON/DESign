@@ -23,5 +23,31 @@ namespace DESign_Sales_Excel_Add_in
             convert_Takeoff_Form.Show();
         }
 
+        private void btnNewTakeoff_Click(object sender, RibbonControlEventArgs e)
+        {
+
+            string excelPath = System.IO.Path.GetTempFileName();
+            System.IO.File.WriteAllBytes(excelPath, Properties.Resources.TAKEOFF_CONCEPT);
+
+            Excel.Application oXL = Globals.ThisAddIn.Application;
+            Excel.Workbooks workbooks = oXL.Workbooks;
+            Excel.Workbook workbook;
+            workbook = workbooks.Open(excelPath);
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Excel files (*.xlsm)|*.xlsm";
+            saveFileDialog.ShowDialog();
+            if (saveFileDialog.FileName != "")
+            {
+                workbook.CheckCompatibility = false;
+                workbook.SaveAs(saveFileDialog.FileName);
+            }
+
+            Marshal.ReleaseComObject(workbook);
+            Marshal.ReleaseComObject(workbooks);
+            Marshal.ReleaseComObject(oXL);
+            GC.Collect();
+
+        }
     }
 }
