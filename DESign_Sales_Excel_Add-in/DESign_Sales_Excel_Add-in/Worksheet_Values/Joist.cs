@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
@@ -160,7 +158,42 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             string girderLoad = girderLoad = descriptionSplit[1];
             return girderLoad;
         }
-        
+
+        public List<string> ImportErrors
+        {
+            get
+            {
+                List<string> importErrors = new List<string>();
+                if (Mark.HasNoText == true) { importErrors.Add("Un-named mark."); }
+                if (Quantity.Value == null) { importErrors.Add("No quantity."); }
+                if (Description.HasNoText == true) { importErrors.Add("No Description."); }
+                if (BaseLengthFt.Value == null) { importErrors.Add("No Base Length."); }
+                foreach (Load load in Loads)
+                {
+                    importErrors.AddRange(load.Errors);
+                }
+                return importErrors;
+            }
+        }
+
+        private bool errorsHaveBeenAdded = false;
+        private List<string> errors = new List<string>();
+        public List<string> Errors
+        {
+            get
+            {
+                if (errorsHaveBeenAdded == false)
+                {
+                    errors.AddRange(ImportErrors);
+                    errorsHaveBeenAdded = true;
+                }
+                return errors;
+            }
+        }
+        public void AddError(string error)
+        {
+            errors.Add(error);
+        }
 
     }
     

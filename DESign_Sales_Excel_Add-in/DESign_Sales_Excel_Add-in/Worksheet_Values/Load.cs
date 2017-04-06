@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
@@ -57,6 +55,40 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 return isNull;
             }
   
+        }
+        public List<string> Errors
+        {
+            get
+            {
+                List<string> errors = new List<string>();
+                string[] concentratedLoads = { "C", "CB", "CZ", "C3" };
+                if (concentratedLoads.Contains(LoadInfoType.Text) && Load1DistanceFt.HasNoText == true)
+                {
+                    errors.Add("Concentated load without a distance.");
+                }
+                if (LoadInfoType.HasNoText == true || LoadInfoCategory.HasNoText == true || LoadInfoPosition.HasNoText == true)
+                {
+                    errors.Add("'Load Info.' column is incomplete.");
+                }
+                if (Load1Value.Value == null)
+                {
+                    errors.Add("No value given in 'Load 1' column.");
+                }
+                if (Load2Value.Value == null && Load2DistanceFt.HasNoText == false)
+                {
+                    errors.Add("Value missing in 'Load 2' column.");
+                }
+                if (Load2Value.Value != null && Load2DistanceFt.HasNoText == true)
+                {
+                    errors.Add("Distance missing in 'Load 2' column.");
+                }
+                if (LoadInfoCategory.Text != "WL" && Load1Value.Value < 0.0)
+                {
+                    errors.Add("Non-WL negative value in LC1; Please confirm.");
+                }
+                return errors;
+            }
+            
         }
 
     }
