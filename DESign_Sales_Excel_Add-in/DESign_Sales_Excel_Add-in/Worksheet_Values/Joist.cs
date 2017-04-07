@@ -141,11 +141,19 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     }
                     else
                     {
-                            string[] seperators = { "G", "N", "K" };
-                            string[] descriptionSplit = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
-                            double? spaces = Convert.ToDouble(descriptionSplit[1]);
-                            double? joistSpace = (BaseLengthFt.Value + BaseLengthIn.Value / 12.0) / spaces;
+                        string[] seperators = { "G", "N", "K" };
+                        string[] descriptionSplit = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+                        double? spaces = Convert.ToDouble(descriptionSplit[1]);
+                        double? joistSpace = (BaseLengthFt.Value + BaseLengthIn.Value / 12.0) / spaces;
+                        if (TL == null || LL == null)
+                        {
+                            uDL = null;
+                        }
+                        else
+                        {
                             uDL = ((TL - LL) * 1000.0) / joistSpace;
+                            uDL = 5 * (int)Math.Ceiling((float)(uDL / 5.0));
+                        }
                     }
                 }
                 return uDL;

@@ -883,7 +883,21 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                                 uSM.LoadInfoType = new StringWithUpdateCheck { Text = "U" };
                                 uSM.LoadInfoCategory = new StringWithUpdateCheck { Text = "SM" };
                                 uSM.LoadInfoPosition = new StringWithUpdateCheck { Text = "TC" };
-                                uSM.Load1Value = new DoubleWithUpdateCheck { Value = 0.14 * sequence.SDS * joist.UDL };
+                                if (joist.UDL == null || sequence.SDS == null)
+                                {
+                                    uSM.Load1Value = new DoubleWithUpdateCheck { Value = null };
+                                }
+                                else
+                                {
+                                    if (joist.IsGirder == false)
+                                    {
+                                        uSM.Load1Value = new DoubleWithUpdateCheck { Value = Math.Ceiling((float)(0.14 * sequence.SDS * joist.UDL)) };
+                                    }
+                                    else
+                                    {
+                                        uSM.Load1Value = new DoubleWithUpdateCheck { Value = 5 * (int)Math.Ceiling((float)((0.14 * sequence.SDS * joist.UDL)/5.0)) };
+                                    }
+                                }
                                 uSM.Load1DistanceFt = new StringWithUpdateCheck { Text = null };
                                 uSM.Load1DistanceIn = new DoubleWithUpdateCheck { Value = null };
                                 uSM.Load2Value = new DoubleWithUpdateCheck { Value = null };
