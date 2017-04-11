@@ -10,7 +10,38 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public StringWithUpdateCheck LoadInfoType { get; set; }
         public StringWithUpdateCheck LoadInfoCategory { get; set; }
         public StringWithUpdateCheck LoadInfoPosition { get; set; }
-        public DoubleWithUpdateCheck Load1Value { get; set; }
+        private DoubleWithUpdateCheck load1Value = null;
+        private bool hasBeenReduced = false;
+        public DoubleWithUpdateCheck Load1Value
+        {
+            get
+            {
+                if (hasBeenReduced == false)
+                {
+                    if (load1Value == null || load1Value.Value == null) { }
+                    else
+                    {
+                        if (LoadInfoCategory.Text == "SMU")
+                        {
+                            load1Value.Value = 1 * (int)Math.Ceiling((decimal)(load1Value.Value * 0.7 / 1.0));
+                            hasBeenReduced = true;
+                            LoadInfoCategory.Text = "SM";
+                        }
+                        if(LoadInfoCategory.Text == "WLU")
+                        {
+                            load1Value.Value = 1 * (int)Math.Ceiling((decimal)(load1Value.Value * 0.6 / 1.0));
+                            hasBeenReduced = true;
+                            LoadInfoCategory.Text = "WL";
+                        }
+                    }
+                }
+                return load1Value;
+            }
+            set
+            {
+                load1Value = value;
+            }
+        }
         public StringWithUpdateCheck Load1DistanceFt { get; set; }
         public DoubleWithUpdateCheck Load1DistanceIn { get; set; }
         public DoubleWithUpdateCheck Load2Value { get; set; }
@@ -82,7 +113,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 {
                     errors.Add("Distance missing in 'Load 2' column.");
                 }
-                if (LoadInfoCategory.Text != "WL" && Load1Value.Value < 0.0)
+                if (LoadInfoCategory.Text != "WL" && Load1Value.Value < 0.0 && (CaseNumber.Value == 1 || CaseNumber.Value == null))
                 {
                     errors.Add("Non-WL negative value in LC1; Please confirm.");
                 }

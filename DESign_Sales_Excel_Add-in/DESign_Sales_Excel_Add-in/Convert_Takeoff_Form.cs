@@ -42,16 +42,5 @@ namespace DESign_Sales_Excel_Add_in
 
         }
 
-        private void btnRules_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("RULES FOR SEPERATING SEISMIC:\r\n" +
-                            "   - SEPERATION IS ONLY ALLOWED ON ROOFS.\r\n" +
-                            "   - IF THE JOIST DESIGNATION LL IS FROM\r\n" +
-                            "     SNOW, THE FLAT ROOF SNOW LOAD(Pf)\r\n" +
-                            "     MUST BE LESS THAN 30 PSF.\r\n" +
-                            "   - FOR SEPERATION TO OCCUR ON GIRDERS,\r\n" +
-                            "     THE DESIGNATION MUST BE IN TL/LL FORM\r\n" +
-                            "     (i.e. 54G7N12.5/5.8K).");
-        }
     }
 }

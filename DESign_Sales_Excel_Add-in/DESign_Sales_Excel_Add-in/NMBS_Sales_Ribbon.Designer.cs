@@ -38,6 +38,7 @@
             this.group1 = this.Factory.CreateRibbonGroup();
             this.button1 = this.Factory.CreateRibbonButton();
             this.btnNewTakeoff = this.Factory.CreateRibbonButton();
+            this.btnInfo = this.Factory.CreateRibbonButton();
             this.nmbsTab.SuspendLayout();
             this.group1.SuspendLayout();
             this.SuspendLayout();
@@ -53,6 +54,7 @@
             // 
             this.group1.Items.Add(this.button1);
             this.group1.Items.Add(this.btnNewTakeoff);
+            this.group1.Items.Add(this.btnInfo);
             this.group1.Label = "TAKEOFF";
             this.group1.Name = "group1";
             // 
@@ -67,6 +69,12 @@
             this.btnNewTakeoff.Label = "New Takeoff";
             this.btnNewTakeoff.Name = "btnNewTakeoff";
             this.btnNewTakeoff.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnNewTakeoff_Click);
+            // 
+            // btnInfo
+            // 
+            this.btnInfo.Label = "INFO";
+            this.btnInfo.Name = "btnInfo";
+            this.btnInfo.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnInfo_Click);
             // 
             // NMBS_Sales_Ribbon
             // 
@@ -88,6 +96,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnNewTakeoff;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnInfo;
     }
 
     partial class ThisRibbonCollection

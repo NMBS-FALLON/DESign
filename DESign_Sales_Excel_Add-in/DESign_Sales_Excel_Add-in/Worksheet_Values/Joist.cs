@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 
 namespace DESign_Sales_Excel_Add_in.Worksheet_Values
@@ -101,6 +102,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                     else
                     {
+
                         tl = Convert.ToDouble(GirderLoad().Split('/')[0]);
                     }
                 }
@@ -118,11 +120,14 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     if (isGirder == false)
                     {
                         string[] seperators = { "K", "LH", "DLH" };
+
                         ll = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[1]);
+
                     }
                     else
                     {
                         ll = Convert.ToDouble(GirderLoad().Split('/')[1]);
+
                     }
                 }
                 return ll;
@@ -180,6 +185,64 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 {
                     importErrors.AddRange(load.Errors);
                 }
+                ////
+                double? ll;
+                if (IsLoadOverLoad == true)
+                {
+                    if (isGirder == false)
+                    {
+                        string[] seperators = { "K", "LH", "DLH" };
+                        try
+                        {
+                            ll = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[1]);
+                        }
+                        catch (Exception ex)
+                        {
+                            importErrors.Add("There is an issue with the description");
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            ll = Convert.ToDouble(GirderLoad().Split('/')[1]);
+                        }
+                        catch (Exception ex)
+                        {
+                            importErrors.Add("There is an issue with the description");
+                        }
+                    }
+                }
+                double? tl;
+                if (IsLoadOverLoad == true)
+                {
+                    if (isGirder == false)
+                    {
+                        string[] seperators = { "K", "LH", "DLH" };
+                        try
+                        {
+                            tl = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[0]);
+                        }
+                        catch (Exception ex)
+                        {
+                            importErrors.Add("There is an issue with the description");
+                        }
+                    }
+
+                    else
+                    {
+                        try
+                        {
+                            tl = Convert.ToDouble(GirderLoad().Split('/')[0]);
+                        }
+                        catch (Exception ex)
+                        {
+                            importErrors.Add("There is an issue with the description");
+
+                        }
+                    }
+                }
+                ////
                 return importErrors;
             }
         }

@@ -33,7 +33,6 @@
             this.sequence = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.seperateSeismic = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.sds = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.btnRules = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridSeperateSeismic)).BeginInit();
             this.SuspendLayout();
             // 
@@ -91,23 +90,11 @@
             this.sds.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.sds.Width = 54;
             // 
-            // btnRules
-            // 
-            this.btnRules.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRules.Location = new System.Drawing.Point(248, 12);
-            this.btnRules.Name = "btnRules";
-            this.btnRules.Size = new System.Drawing.Size(42, 26);
-            this.btnRules.TabIndex = 3;
-            this.btnRules.Text = "INFO";
-            this.btnRules.UseVisualStyleBackColor = true;
-            this.btnRules.Click += new System.EventHandler(this.btnRules_Click);
-            // 
             // Convert_Takeoff_Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(303, 188);
-            this.Controls.Add(this.btnRules);
             this.Controls.Add(this.dataGridSeperateSeismic);
             this.Controls.Add(this.btnConvertTakeoff);
             this.Name = "Convert_Takeoff_Form";
@@ -125,6 +112,5 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn sequence;
         private System.Windows.Forms.DataGridViewCheckBoxColumn seperateSeismic;
         private System.Windows.Forms.DataGridViewTextBoxColumn sds;
-        private System.Windows.Forms.Button btnRules;
     }
 }
