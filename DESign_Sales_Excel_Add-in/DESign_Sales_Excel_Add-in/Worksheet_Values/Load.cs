@@ -113,7 +113,12 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 {
                     errors.Add("Distance missing in 'Load 2' column.");
                 }
-                if (LoadInfoCategory.Text != "WL" && Load1Value.Value < 0.0 && (CaseNumber.Value == 1 || CaseNumber.Value == null))
+                bool isWL = LoadInfoCategory.Text == "WL";
+                bool isNegative = Load1Value.Value < 0.0;
+                bool isBackedOutLoad = (LoadInfoType.Text == "CP" && LoadInfoCategory.Text == "CL" && isNegative == true);
+                bool isInLC1 = (CaseNumber.Value == 1 || CaseNumber.Value == null);
+                
+                if (isWL == false && isNegative == true && isInLC1 == true && isBackedOutLoad == false)
                 {
                     errors.Add("Non-WL negative value in LC1; Please confirm.");
                 }

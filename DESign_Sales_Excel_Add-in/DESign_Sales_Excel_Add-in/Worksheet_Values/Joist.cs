@@ -78,10 +78,12 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             get
             {
 
-
-                if (Description.Text.Contains("/") == true)
+                if (Description.Text != null)
                 {
-                    isLoadOverLoad = true;
+                    if (Description.Text.Contains("/") == true)
+                    {
+                        isLoadOverLoad = true;
+                    }
                 }
 
                 return isLoadOverLoad;
@@ -243,6 +245,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     }
                 }
                 ////
+
                 return importErrors;
             }
         }
@@ -258,6 +261,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     errors.AddRange(ImportErrors);
                     errorsHaveBeenAdded = true;
                 }
+
                 return errors;
             }
         }

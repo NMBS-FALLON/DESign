@@ -28,6 +28,19 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public DoubleWithUpdateCheck DeflectionLL { get; set; }
         public StringWithUpdateCheck WnSpacing { get; set; }
         public List<StringWithUpdateCheck> Notes { get; set; }
+
+        private List<string> errors = new List<string>();
+        public List<string> Errors
+        {
+            get
+            {
+                return errors;
+            }
+        }
+        public void AddError(string error)
+        {
+            errors.Add(error);
+        }
     }
 
 
