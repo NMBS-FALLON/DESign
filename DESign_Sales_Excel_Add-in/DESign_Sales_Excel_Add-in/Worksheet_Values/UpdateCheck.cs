@@ -19,7 +19,23 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
     [Serializable]
     public class StringWithUpdateCheck : UpdateCheck
     {
-        public string Text { get; set; }
+        private string text = null;
+        public string Text
+        {
+            get
+            {
+                
+                if (text != null)
+                {
+                    text = text.Trim();
+                }
+                return text;
+            }
+            set
+            {
+                text = value;
+            }
+        }
         private bool hasNoText = false;
         public bool HasNoText
         {

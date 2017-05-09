@@ -11,7 +11,42 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public StringWithUpdateCheck Mark { get; set; }
         public List<StringWithUpdateCheck> BaseTypesOnMark { get; set; }
         public IntWithUpdateCheck Quantity { get; set; }
-        public StringWithUpdateCheck Description { get; set; }
+        private bool geometryAdded = false;
+        private StringWithUpdateCheck description = new StringWithUpdateCheck { };
+        public StringWithUpdateCheck Description
+        {
+            get
+            {
+                if (geometryAdded == false && description.Text != null && description.Text.Contains("<"))
+                {
+                    string[] seperators = { "<", ">", "-" };
+                    string[] geometryValues = description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+                    string geometryNote = "";
+                    string depth = "";
+                    if (geometryValues.Length == 3) // single pitch
+                    {
+                        double leDepth = Convert.ToDouble(geometryValues[0]);
+                        double reDepth = Convert.ToDouble(geometryValues[1]);
+                        double centerDepth = (leDepth + reDepth) / 2.0;
+                        depth = centerDepth.ToString("0.#");
+                        geometryNote = string.Format("SP: {0}/{1}", geometryValues[0], geometryValues[1]);
+                    }
+                    if (geometryValues.Length == 4) // double pitch
+                    {
+                        depth = geometryValues[1];
+                        geometryNote = string.Format("DP: {0}/{1}/{2}", geometryValues[0], geometryValues[1], geometryValues[2]);
+                    }
+                    description.Text = depth + description.Text.Substring(description.Text.IndexOf('>') + 1);
+                    Notes.Add(new StringWithUpdateCheck { Text = geometryNote, IsUpdated = Description.IsUpdated });
+                    geometryAdded = true;
+                }
+                return description;
+            }
+            set
+            {
+                description = value;
+            }
+        }
         private StringWithUpdateCheck descriptionAdjusted;
         public StringWithUpdateCheck DescriptionAdjusted
         {
@@ -149,6 +184,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     else
                     {
                         string[] seperators = { "G", "N", "K" };
+
                         string[] descriptionSplit = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
                         double? spaces = Convert.ToDouble(descriptionSplit[1]);
                         double? joistSpace = (BaseLengthFt.Value + BaseLengthIn.Value / 12.0) / spaces;
@@ -166,6 +202,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 return uDL;
             }
         }
+
         private string GirderLoad()
         {
             string[] seperators = { "N", "K" };

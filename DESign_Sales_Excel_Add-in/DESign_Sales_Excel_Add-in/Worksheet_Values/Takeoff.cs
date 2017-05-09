@@ -828,6 +828,12 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 workbook.Worksheets["HighlightedCell"].Range["A1"].Copy();
                 sheet.Cells[row, column].PasteSpecial(Excel.XlPasteType.xlPasteFormats,
                                                       Excel.XlPasteSpecialOperation.xlPasteSpecialOperationNone, false, false);
+                
+                if (column == 26)
+                {
+                    sheet.Range[sheet.Cells[row, 26], sheet.Cells[row, 29]].Merge();
+                    sheet.Cells[row, 26].HorizontalAlignment = Excel.XlHAlign.xlHAlignLeft;
+                }
 
             }
         }
