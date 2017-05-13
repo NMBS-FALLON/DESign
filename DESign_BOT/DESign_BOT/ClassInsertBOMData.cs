@@ -610,35 +610,36 @@ namespace DESign_BOT
 
             if (nucorBOMdata[0].Count() != 0)
             {
+                
 
-                List<object[]> nucorJoistData = nucorBOMdata[0];
                 Excel.Application oXL;
                 Excel._Workbook oWB;
                 Excel._Worksheet oSheet;
                 Excel.Range oRng;
-                //            try
-                //            {
+
+
                 //Start Excel and get Application object.
                 oXL = new Excel.Application();
                 oXL.Visible = false;
 
                 //Get a new workbook.
 
-                oWB = oXL.Workbooks.Add(Excel.XlWBATemplate.xlWBATWorksheet);
+                string excelPath = System.IO.Path.GetTempFileName();
+
+                System.IO.File.WriteAllBytes(excelPath, Properties.Resources.BLANK_AB_SHEET);
+
+                oWB = oXL.Workbooks.Open(excelPath);
+
+
                 oSheet = (Excel._Worksheet)oWB.ActiveSheet;
-                oRng = oSheet.get_Range("B3", Missing.Value);
+                oRng = oSheet.get_Range("B5", Missing.Value);
 
-                oSheet.get_Range("B2", Missing.Value).Value = "MARKS:";
-                oSheet.get_Range("C2", Missing.Value).Value = "A:";
-                oSheet.get_Range("D2", Missing.Value).Value = "B:";
 
-                oSheet.get_Range("B2", Missing.Value).Font.Bold = true;
-                oSheet.get_Range("C2", Missing.Value).Font.Bold = true;
-                oSheet.get_Range("D2", Missing.Value).Font.Bold = true;
-
+                List<object[]> nucorJoistData = nucorBOMdata[0];
                 object[,] Marks = new object[nucorJoistData.Count(), 1];
                 object[,] Nailer_A_Array = new object[nucorJoistData.Count(), 1];
                 object[,] Nailer_B_Array = new object[nucorJoistData.Count(), 1];
+                object[,] Nailer_Space_Array = new object[nucorJoistData.Count(), 1];
 
                 for (int i = 0; i < nucorJoistData.Count(); i++)
                 {
@@ -661,16 +662,37 @@ namespace DESign_BOT
                     {
                         Nailer_B_Array[i, 0] = nucorJoistData[i][27];
                     }
+                    if (nucorJoistData[i][28] == null | (nucorJoistData[i][28] ?? String.Empty).ToString() == "")
+                    {
+                        Nailer_Space_Array[i, 0] = 0;
+                    }
+                    else
+                    {
+                        Nailer_Space_Array[i, 0] = (object)(Convert.ToDouble(nucorJoistData[i][28])*2);
+                    }
 
 
                 }
 
-                int lastRow = 2 + Nailer_A_Array.Length;
-                oSheet.get_Range("B3", "B" + lastRow).Value2 = Marks;
-                oSheet.get_Range("C3", "C" + lastRow).Value2 = Nailer_A_Array;
-                oSheet.get_Range("D3", "D" + lastRow).Value2 = Nailer_B_Array;
+                int lastRow = 5 + Nailer_A_Array.Length;
+                oSheet.get_Range("B6", "B" + lastRow).Value2 = Marks;
+                oSheet.get_Range("C6", "C" + lastRow).Value2 = Nailer_A_Array;
+                oSheet.get_Range("D6", "D" + lastRow).Value2 = Nailer_B_Array;
+                oSheet.get_Range("E6", "E" + lastRow).Value2 = Nailer_Space_Array;
 
                 oXL.Visible = true;
+
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx";
+                saveFileDialog.ShowDialog();
+                if (saveFileDialog.FileName != "")
+                {
+                    oWB.CheckCompatibility = false;
+                    oWB.SaveAs(saveFileDialog.FileName);
+                }
+
+
+                
 
 
 

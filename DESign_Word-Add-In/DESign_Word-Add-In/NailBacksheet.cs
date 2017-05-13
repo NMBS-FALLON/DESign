@@ -17,6 +17,7 @@ using System.Drawing.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using DESign_BASE;
+using DESign_WordAddIn;
 
 
 namespace DESign_WordAddIn
@@ -174,8 +175,10 @@ namespace DESign_WordAddIn
 
         }
 
-        public List<string> woodLengths()
+
+        internal ExcelDataExtraction.NailerInformation GetNailerInformation()
         {
+            ExcelDataExtraction.NailerInformation nailerInformation = new ExcelDataExtraction.NailerInformation();
             string clipboard = Clipboard.GetText();
 
             List<string> shopOrderjoistMarks = joistData[0];
@@ -184,15 +187,21 @@ namespace DESign_WordAddIn
             List<string> excelJoistMarks = null;
             List<string> excelAs = null;
             List<string> excelBs = null;
+            List<string> excelSpacing = null;
+            string excelInitials = null;
+            string excelPattern = null;
+
             if (checkBoxExcelData.Checked)
             {
-                List<List<string>> excelJoistData = excelDataExtraction.exlNailerValues();
-
                 try
                 {
-                    excelJoistMarks = excelJoistData[0];
-                    excelAs = excelJoistData[1];
-                    excelBs = excelJoistData[2];
+                    ExcelDataExtraction.NailerInformation excelJoistData = excelDataExtraction.exlNailerValues();
+                    excelJoistMarks = excelJoistData.Marks;
+                    excelAs = excelJoistData.As;
+                    excelBs = excelJoistData.Bs;
+                    excelSpacing = excelJoistData.Spacing;
+                    excelInitials = excelJoistData.Initials;
+                    excelPattern = excelJoistData.Pattern;
                 }
                 catch
                 {
@@ -249,14 +258,39 @@ namespace DESign_WordAddIn
                 stringListLengthA.Add(stringLengthA);
             }
 
+            List<string> spacingList = new List<string>();
+            for (int i = 0; i < shopOrdernumberOfMarks; i ++)
+            {
+                string sOjoistMark = shopOrderjoistMarks[i];
+                string thisSpace = null;
+                if (checkBoxExcelData.Checked)
+                {
+                    try
+                    {
+                        int SOJoistMarkIndex = Array.FindIndex(excelJoistMarks.ToArray(), t => t.Equals(sOjoistMark, StringComparison.InvariantCultureIgnoreCase));
+                        thisSpace = excelSpacing[SOJoistMarkIndex];
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show("ISSUE WITH EXCEL SHEET AT MARK: " + sOjoistMark + ";" + Environment.NewLine + "PLEASE UPDATE");
+
+                    }
+
+                }
+                else
+                {
+                    thisSpace = tBoxScrewSpacing.Text;
+                }
+                spacingList.Add(thisSpace);
+            }
+
+
+
             List<double> doubleListLengthB = new List<double>();
 
             for (int i = 0; i < shopOrdernumberOfMarks; i++)
             {
                 string stringLengthB = null;
-
-
-
                 string sOjoistMark = shopOrderjoistMarks[i];
 
 
@@ -271,9 +305,7 @@ namespace DESign_WordAddIn
                     {
                         MessageBox.Show("ISSUE WITH EXCEL SHEET AT MARK: " + sOjoistMark + ";" + Environment.NewLine + "PLEASE UPDATE");
                         
-                    }
-
-                    
+                    }        
 
                 }
                 else
@@ -349,11 +381,27 @@ namespace DESign_WordAddIn
             catch { }
 
 
+            string pattern = "Staggered";
+            string initials = "";
+            string spacing = "";
+            if (checkBoxExcelData.Checked)
+            {
+                pattern = excelPattern;
+                initials = excelInitials;
+            }
+            else
+            {
+                pattern = comboBoxNailPlacement.Text;
+                initials = comboBoxNailPlacement.Text;
+                spacing = tBoxScrewSpacing.Text;
+            }
 
-            return listStringWoodLength;
+            nailerInformation.WoodLengths = listStringWoodLength;
+            nailerInformation.Spacing = spacingList;
+            nailerInformation.Pattern = pattern;
+            nailerInformation.Initials = initials;
 
-
-
+            return nailerInformation;
 
 
         }
@@ -369,7 +417,8 @@ namespace DESign_WordAddIn
             List<string> Qtys = joistData[1];
             List<string> TCs = joistData[4];
             List<string> BCs = joistData[5];
-            List<string> woodLengths1 = woodLengths();
+            ExcelDataExtraction.NailerInformation nailerInfo = GetNailerInformation();
+            List<string> woodLengths1 = nailerInfo.WoodLengths;
             List<string> woodWidths = new List<string>(TCs.Count);
             DESign_BASE.QueryAngleData queryAngleData = new DESign_BASE.QueryAngleData();
             for (int i = 0; i <= TCs.Count - 1; i++)
@@ -455,7 +504,7 @@ namespace DESign_WordAddIn
 
 
             tableNailBackSheetTitle.Cell(1, 3).Range.Text = "DWG. BY:";
-            tableNailBackSheetTitle.Cell(2, 3).Range.Text = tBoxDWGBY.Text;
+            tableNailBackSheetTitle.Cell(2, 3).Range.Text = nailerInfo.Initials;
 
             tableNailBackSheetTitle.Cell(1, 4).Range.Text = "CHK'D BY:";
 
@@ -512,20 +561,42 @@ namespace DESign_WordAddIn
 
             Image NailPlacement = Properties.Resources.StaggeredManual;
 
-            if (comboBoxNailPlacement.Text == "Staggered") { NailPlacement = Properties.Resources.StaggeredManual; }
-            else if (comboBoxNailPlacement.Text == "Non-Staggered") { NailPlacement = Properties.Resources.NonStaggeredManual; }
+
+            if (nailerInfo.Pattern == "Staggered") { NailPlacement = Properties.Resources.StaggeredManual; }
+            else if (nailerInfo.Pattern == "Non-Staggered") { NailPlacement = Properties.Resources.NonStaggeredManual; }
             else { }
 
-            string nailSpacing = tBoxScrewSpacing.Text + "\" MAX";
-
+            string nailSpacing = null;
             string screwSpacing = null;
+            if (checkBoxExcelData.Checked)
+            {
+                var spacings = nailerInfo.Spacing.Distinct();
+                if (spacings.Count() > 1)
+                {
+                    MessageBox.Show("Joists in this shoporder have varrying spacings (in excel);\n Please fix or re-shoporder accordingly. ");
+                    throw new System.Exception();   
+                }
+                else
+                {
+                    nailSpacing = spacings.First() + "\" MAX";
+                    screwSpacing = spacings.First();
+                }
+            }
+            else
+            {
+                nailSpacing = tBoxScrewSpacing.Text + "\" MAX";
+                screwSpacing = tBoxScrewSpacing.Text;
+            }
+
+
+
             string hyphenScrewSpacing = null;
             double dblScrewSpacing = 0.0;
             double dblHalfScrewSpace = 0.0;
             string hyphenHalfScrewSpace = null;
             string halfScrewSpace_Inch = null;
 
-            screwSpacing = tBoxScrewSpacing.Text;
+
             hyphenScrewSpacing = StringManipulation.convertLengthStringtoHyphenLength(screwSpacing);
             dblScrewSpacing = StringManipulation.ConvertLengthtoDecimal(hyphenScrewSpacing);
             dblHalfScrewSpace = dblScrewSpacing / 2.0;
@@ -534,7 +605,7 @@ namespace DESign_WordAddIn
 
             List<Tuple<string, int, int, int>> listOfText = new List<Tuple<string, int, int, int>>();
 
-            if (comboBoxNailPlacement.Text == "Non-Staggered")
+            if (nailerInfo.Pattern == "Non-Staggered")
             {
 
                 var text1 = new Tuple<string, int, int, int>(nailSpacing, 22, 252, 150);
@@ -548,7 +619,7 @@ namespace DESign_WordAddIn
                 NailPlacement = textOnImage(NailPlacement, listOfText);
 
             }
-            else if (comboBoxNailPlacement.Text == "Staggered")
+            else if (nailerInfo.Pattern == "Staggered")
             {
                 var text1 = new Tuple<string, int, int, int>(nailSpacing, 22, 253, 140);
                 var text2 = new Tuple<string, int, int, int>(nailSpacing, 22, 1073, 140);

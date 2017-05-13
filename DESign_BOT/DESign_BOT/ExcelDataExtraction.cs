@@ -180,11 +180,12 @@ namespace DESign_BOT
                          }
                      }
 
-                     oWB.Close(0);
-                     oXL.Quit();
+                    oSheet = null;
+                    Marshal.ReleaseComObject(sheet);
                      Marshal.ReleaseComObject(oWB);
                      Marshal.ReleaseComObject(oXL);
-                     Marshal.ReleaseComObject(sheet);
+                    System.GC.Collect();
+ 
                    }
 
                   catch (Exception theException)

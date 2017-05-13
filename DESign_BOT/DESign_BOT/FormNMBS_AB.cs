@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.ComponentModel;
-//using System.Data;
-//using System.Drawing;
+
 using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.IO;
 using System.Reflection;
-//using System.Threading;
-//using System.Collections.Concurrent;
-//using NMBS_2;
+
 using System.Runtime.InteropServices;
 
 
@@ -22,6 +17,7 @@ namespace DESign_BOT
     public partial class FormNMBS_AB : Form
     {
         ExcelDataExtraction ExcelDataExtraction = new ExcelDataExtraction();
+        StringManipulation sm = new StringManipulation();
 
         public FormNMBS_AB()
         {
@@ -41,6 +37,7 @@ namespace DESign_BOT
             List<string> formNotes = new List<string>();
             List<string> formAs = new List<string>();
             List<string> formBs = new List<string>();
+            List<string> formSpacings = new List<string>();
 
 
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
@@ -63,6 +60,14 @@ namespace DESign_BOT
                     {
                         formBs.Add("");
                     }
+                    if (dataGridView1.Rows[i].Cells[3].Value != null)
+                    {
+                        formSpacings.Add(dataGridView1.Rows[i].Cells[3].Value.ToString());
+                    }
+                    else if (dataGridView1.Rows[i].Cells[3].Value == null)
+                    {
+                        formSpacings.Add("");
+                    }
 
                 }
 
@@ -74,41 +79,45 @@ namespace DESign_BOT
             Excel.Range oRng;
             try
             {
+
+
                 //Start Excel and get Application object.
                 oXL = new Excel.Application();
                 oXL.Visible = true;
 
                 //Get a new workbook.
 
-                oWB = oXL.Workbooks.Add(Excel.XlWBATemplate.xlWBATWorksheet);
+                string excelPath = System.IO.Path.GetTempFileName();
+
+                System.IO.File.WriteAllBytes(excelPath, Properties.Resources.BLANK_AB_SHEET);
+
+                oWB = oXL.Workbooks.Open(excelPath);
+
+
                 oSheet = (Excel._Worksheet)oWB.ActiveSheet;
-                oRng = oSheet.get_Range("B3", Missing.Value);
+                oRng = oSheet.get_Range("B5", Missing.Value);
 
-                oSheet.get_Range("B2", Missing.Value).Value = "MARKS:";
-                oSheet.get_Range("C2", Missing.Value).Value = "A:";
-                oSheet.get_Range("D2", Missing.Value).Value = "B:";
 
-                oSheet.get_Range("B2", Missing.Value).Font.Bold = true;
-                oSheet.get_Range("C2", Missing.Value).Font.Bold = true;
-                oSheet.get_Range("D2", Missing.Value).Font.Bold = true;
+                //Get a new workbook.
+
 
                 for (int i = 0; i < BOMMarks.Count; i++)
                 {
-                    int cellNumber = 3 + i;
+                    int cellNumber = 6 + i;
                     oRng = oSheet.get_Range("B" + cellNumber, Missing.Value);
-
                     oRng.Value = BOMMarks[i];
                 }
-
                 Excel.Range oRngAs;
                 Excel.Range oRngBs;
+                Excel.Range oRngSpacing;
 
                 for (int i = 0; i < BOMMarks.Count; i++)
                 {
 
-                    int cellNumber = 3 + i;
+                    int cellNumber = 6 + i;
                     oRngAs = oSheet.get_Range("C" + cellNumber, Missing.Value);
                     oRngBs = oSheet.get_Range("D" + cellNumber, Missing.Value);
+                    oRngSpacing = oSheet.get_Range("E" + cellNumber, Missing.Value);
 
                     string[] alpha = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S" };
 
@@ -116,7 +125,9 @@ namespace DESign_BOT
                     string[] BOMNotesArray = BOMNotes[i].Split(delimChars, StringSplitOptions.RemoveEmptyEntries);
                     for (int k = 0; k < formNotes.Count; k++)
                     {
-                        int alphaIndex = 5;
+                        int alphaIndexA = 5;
+                        int alphaIndexB = 5;
+                        int alphaIndexSpace = 5;
                         if (BOMNotesArray.Contains(formNotes[k]))
                         {
                             if (formAs[k].ToString() != "")
@@ -128,9 +139,9 @@ namespace DESign_BOT
                                 }
                                 else
                                 {
-                                    oRngAs = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
+                                    oRngAs = oSheet.get_Range(alpha[alphaIndexA] + cellNumber, Missing.Value);
                                     oRngAs.Value = "'" + formAs[k].ToString();
-                                    alphaIndex++;
+                                    alphaIndexA++;
                                 }
                             }
                             if (formBs[k].ToString() != "")
@@ -141,9 +152,23 @@ namespace DESign_BOT
                                 }
                                 else
                                 {
-                                    oRngBs = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
+                                    oRngBs = oSheet.get_Range(alpha[alphaIndexB] + cellNumber, Missing.Value);
                                     oRngBs.Value = "'" + formBs[k].ToString();
-                                    alphaIndex++;
+                                    alphaIndexB++;
+                                }
+
+                            }
+                            if (formSpacings[k].ToString() != "")
+                            {
+                                if ((string)oRngSpacing.Text == "")
+                                {
+                                    oRngSpacing.Value = "'" + formSpacings[k].ToString();
+                                }
+                                else
+                                {
+                                    oRngSpacing = oSheet.get_Range(alpha[alphaIndexSpace] + cellNumber, Missing.Value);
+                                    oRngSpacing.Value = "'" + formSpacings[k].ToString();
+                                    alphaIndexSpace++;
                                 }
 
                             }
@@ -154,7 +179,7 @@ namespace DESign_BOT
 
                 Excel.Range last = oSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
                 int lastUsedRow = last.Row;
-                oRng = oSheet.get_Range("B3", "D" + lastUsedRow);
+                oRng = oSheet.get_Range("B6", "E" + lastUsedRow);
 
                 object[,] stringJoistMarks = (object[,])oRng.Value2;
 
@@ -166,19 +191,37 @@ namespace DESign_BOT
                         {
                             if (stringJoistMarks[row, 2] == null)
                             {
-                                stringJoistMarks[row, 2] = formAs[0];
+                                stringJoistMarks[row, 2] = "'" + formAs[0];
                             }
                         }
                         if (formBs[0] != null)
                         {
                             if (stringJoistMarks[row, 3] == null)
                             {
-                                stringJoistMarks[row, 3] = formBs[0];
+                                stringJoistMarks[row, 3] = "'" + formBs[0];
+                            }
+                        }
+                        if (formSpacings[0] != null)
+                        {
+                            if (stringJoistMarks[row, 4] == null)
+                            {
+                                    stringJoistMarks[row, 4] = "'" + formSpacings[0];                                
                             }
                         }
                     }
                 }
                 oRng.Value2 = stringJoistMarks;
+
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx";
+                saveFileDialog.ShowDialog();
+                if (saveFileDialog.FileName != "")
+                {
+                    oWB.CheckCompatibility = false;
+                    oWB.SaveAs(saveFileDialog.FileName);
+                }
+
+
             }
 
             catch (Exception theException)
@@ -192,7 +235,6 @@ namespace DESign_BOT
                 MessageBox.Show(errorMessage, "Error");
 
             }
-
 
         }
 

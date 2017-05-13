@@ -150,6 +150,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Resources\BLANK_AB_SHEET.xlsm" />
     <None Include="Resources\BLANK_AB_SHEET.xlsx" />
     <None Include="Resources\DesignTCWidths.xlsx" />
     <None Include="Resources\NMBS BOM_EMPTY.xlsx" />

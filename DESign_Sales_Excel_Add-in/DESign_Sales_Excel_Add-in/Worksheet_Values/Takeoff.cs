@@ -863,7 +863,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     {
                         MessageBox.Show(string.Format("Sequence {0}: LC 3 MUST BE AVAILABLE FOR SEISMIC SEPERATION",
                                         sequence.Name.Text));
-                        throw new SystemException();
+                        //throw new SystemException();
                     }
 
                     

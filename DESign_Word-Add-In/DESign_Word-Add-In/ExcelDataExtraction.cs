@@ -19,8 +19,23 @@ namespace DESign_WordAddIn
 
         StringManipulation StringManipulation = new StringManipulation();
 
-         public List<List<string>> exlNailerValues ()
+        public class NailerInformation
         {
+            
+            internal List<string> As { get; set; }
+            internal List<string> Bs { get; set; }
+            internal List<string> Marks { get; set; }
+            private string pattern = "Staggered";
+            internal string Pattern { get { return pattern; } set { pattern = value; } }
+            internal string Initials { get; set; }
+            internal List<string> Spacing { get; set; }
+            internal List<string> WoodLengths { get; set; }
+            
+        }
+
+        public NailerInformation exlNailerValues ()
+        {
+            NailerInformation nailerInformation = new NailerInformation();
             object[,] stringJoistMarks = null;
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -38,7 +53,7 @@ namespace DESign_WordAddIn
                 Excel.Range oRng;
 
                 try
-                   {
+                {
                     //Start Excel and get Application object.
                     oXL = new Excel.Application();
                     oXL.Visible = false;
@@ -48,30 +63,31 @@ namespace DESign_WordAddIn
 
                     oWB = oXL.Workbooks.Open(excelFileName);
                     oSheet = (Excel._Worksheet)oWB.ActiveSheet;
-                    oRng = oSheet.UsedRange;
+                    oSheet = oWB.ActiveSheet;
 
-       
-                oRng.get_Range("B3", Missing.Value);
-                oRng = oRng.get_End(Excel.XlDirection.xlToRight);
-                oRng = oRng.get_End(Excel.XlDirection.xlDown);
-                string downJoistMarks = oRng.get_Address(Excel.XlReferenceStyle.xlA1, Type.Missing);
-                oRng = oSheet.get_Range("B3", downJoistMarks);
-                stringJoistMarks = (object[,])oRng.Value2;
 
-                oWB.Close(0);
-                oXL.Quit();
-                Marshal.ReleaseComObject(oWB);
-                Marshal.ReleaseComObject(oXL);
-                Marshal.ReleaseComObject(oSheet);
+                    Excel.Range last = oSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
+
+                    stringJoistMarks = oSheet.get_Range("B6", "E" + last.Row).Value2;
+
+                    nailerInformation.Initials = Convert.ToString(oSheet.Cells[2, 3].Value2);
+                    nailerInformation.Pattern = Convert.ToString(oSheet.Cells[3, 3].Value2);
+
+
+                    oWB.Close(0);
+                    oXL.Quit();
+                    Marshal.ReleaseComObject(oWB);
+                    Marshal.ReleaseComObject(oXL);
+                    Marshal.ReleaseComObject(oSheet);
 
                 }
 
-                catch(Exception theException)
+                catch (Exception theException)
                 {
                     String errorMessage;
                     errorMessage = "Error: ";
-                    errorMessage=String.Concat(errorMessage, theException.Message);
-                    errorMessage=String.Concat(errorMessage, "Line:");
+                    errorMessage = String.Concat(errorMessage, theException.Message);
+                    errorMessage = String.Concat(errorMessage, "Line:");
                     errorMessage = String.Concat(errorMessage, theException.Source);
 
                     MessageBox.Show(errorMessage, "Error");
@@ -83,6 +99,7 @@ namespace DESign_WordAddIn
              List<string> AsfromExcel = new List<string>();
              List<string> BsfromExcel = new List<string>();
              List<string> JoistMarksfromExcel = new List<string>();
+            List<string> spacings = new List<string>();
 
                                       
 
@@ -90,20 +107,24 @@ namespace DESign_WordAddIn
              {
                  string stringA = StringManipulation.convertLengthStringtoHyphenLength(stringJoistMarks[i, 2].ToString());
                  string stringB = StringManipulation.convertLengthStringtoHyphenLength(stringJoistMarks[i, 3].ToString());
+                string spacing = stringJoistMarks[i, 4].ToString();
+                 
                  JoistMarksfromExcel.Add(stringJoistMarks[i,1].ToString());
+                spacings.Add(spacing);
                  AsfromExcel.Add(stringA);
                  BsfromExcel.Add(stringB);
              }
 
-             List<List<string>> exlNailerData = new List<List<string>>();
+            
 
-             exlNailerData.Add(JoistMarksfromExcel);
-             exlNailerData.Add(AsfromExcel);
-             exlNailerData.Add(BsfromExcel);
+            nailerInformation.Marks = JoistMarksfromExcel;
+            nailerInformation.As = AsfromExcel;
+            nailerInformation.Bs = BsfromExcel;
+            nailerInformation.Spacing = spacings;
 
-             
 
-             return exlNailerData;
+
+            return nailerInformation;
 
 
          

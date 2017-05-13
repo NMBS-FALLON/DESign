@@ -98,10 +98,10 @@ namespace DESign_BOT
                 {
                     object mark, quantity, designation, overallLengthFeet, overallLengthInches, TCXLfeet, TCXLinches, TCXLtype, TCXRfeet, TCXRinches,
                            TCXRtype, BCXLfeet, BCXLinches, BCXLtype, BCXRfeet, BCXRinches, BCXRtype, bearingDepthL, bearingDepthR, baySlope, baySlopeHE, LEseatSlope, LEseatHL,
-                           REseatSlope, REseatHL, holeLeftFeet, holeLeftInches, holeRightFeet, holeRightInches, holeSize, holeGage, NailerHoldBackLE, NailerHoldBackRE;
+                           REseatSlope, REseatHL, holeLeftFeet, holeLeftInches, holeRightFeet, holeRightInches, holeSize, holeGage, NailerHoldBackLE, NailerHoldBackRE, NailerSpacing;
                     mark = quantity = designation = overallLengthFeet = overallLengthInches = TCXLfeet = TCXLinches = TCXLtype = TCXRfeet = TCXRinches =
                            TCXRtype = BCXLfeet = BCXLinches = BCXLtype = BCXRfeet = BCXRinches = BCXRtype = bearingDepthL = bearingDepthR = baySlope = baySlopeHE = LEseatSlope = LEseatHL =
-                           REseatSlope = REseatHL = holeLeftFeet = holeLeftInches = holeRightFeet = holeRightInches = holeSize = holeGage = NailerHoldBackLE = NailerHoldBackRE =null;
+                           REseatSlope = REseatHL = holeLeftFeet = holeLeftInches = holeRightFeet = holeRightInches = holeSize = holeGage = NailerHoldBackLE = NailerHoldBackRE = NailerSpacing =null;
 
                     oSheet = (Excel._Worksheet)sheet.get_Item(joistWorksheetIndices[i]);
 
@@ -152,6 +152,7 @@ namespace DESign_BOT
 
                             NailerHoldBackLE = joistSheetMultiArray[j + 102, 169];
                             NailerHoldBackRE = joistSheetMultiArray[j + 102, 174];
+                            NailerSpacing = joistSheetMultiArray[j + 102, 179];
 
 
                             // hole size is actually L= [i+13,57] +"X" + [i+13,64] w/ gage = [i+13,70]
@@ -200,7 +201,7 @@ namespace DESign_BOT
                             nucorJoistDataLine = new object[] {mark, quantity, designation, overallLengthFeet, overallLengthInches,TCXLfeet,TCXLinches,TCXLtype,
                                                             TCXRfeet,TCXRinches,TCXRtype, bearingDepthL, bearingDepthR, BCXLfeet,BCXLinches,BCXLtype,BCXRfeet,BCXRinches,BCXRtype,
                                                             holeLeftFeet,holeLeftInches,holeRightFeet,holeRightInches,holeGage,
-                                                           LEseatSlope,REseatSlope, NailerHoldBackLE, NailerHoldBackRE};
+                                                           LEseatSlope,REseatSlope, NailerHoldBackLE, NailerHoldBackRE, NailerSpacing};
 
                             nucorJoistData.Add(nucorJoistDataLine);
 
