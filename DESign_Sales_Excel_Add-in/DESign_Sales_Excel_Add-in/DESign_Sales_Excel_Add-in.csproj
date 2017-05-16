@@ -186,6 +186,7 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="BlueBeam\ExtractBlueBeamMarkups.cs" />
     <Compile Include="Convert_Takeoff_Form.cs">
       <SubType>Form</SubType>
     </Compile>

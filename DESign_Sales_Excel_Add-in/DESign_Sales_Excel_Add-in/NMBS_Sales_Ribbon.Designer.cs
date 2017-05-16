@@ -37,6 +37,7 @@
             this.nmbsTab = this.Factory.CreateRibbonTab();
             this.group1 = this.Factory.CreateRibbonGroup();
             this.button1 = this.Factory.CreateRibbonButton();
+            this.btnJobCheck = this.Factory.CreateRibbonButton();
             this.btnNewTakeoff = this.Factory.CreateRibbonButton();
             this.btnInfo = this.Factory.CreateRibbonButton();
             this.nmbsTab.SuspendLayout();
@@ -53,6 +54,7 @@
             // group1
             // 
             this.group1.Items.Add(this.button1);
+            this.group1.Items.Add(this.btnJobCheck);
             this.group1.Items.Add(this.btnNewTakeoff);
             this.group1.Items.Add(this.btnInfo);
             this.group1.Label = "TAKEOFF";
@@ -63,6 +65,12 @@
             this.button1.Label = "Convert TO";
             this.button1.Name = "button1";
             this.button1.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button1_Click);
+            // 
+            // btnJobCheck
+            // 
+            this.btnJobCheck.Label = "Job Check";
+            this.btnJobCheck.Name = "btnJobCheck";
+            this.btnJobCheck.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnJobCheck_Click);
             // 
             // btnNewTakeoff
             // 
@@ -97,6 +105,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnNewTakeoff;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnInfo;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnJobCheck;
     }
 
     partial class ThisRibbonCollection
