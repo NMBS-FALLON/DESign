@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 
 
 namespace DESign_WordAddIn
@@ -33,8 +34,10 @@ namespace DESign_WordAddIn
             
         }
 
-        public NailerInformation exlNailerValues ()
+        public NailerInformation exlNailerValues (string fileName, string Jobname)
         {
+
+            
             NailerInformation nailerInformation = new NailerInformation();
             object[,] stringJoistMarks = null;
 
@@ -42,11 +45,76 @@ namespace DESign_WordAddIn
 
             openFileDialog.Filter = "|*.xlsx;*.xlsm";
 
-          
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (fileName == "")
             {
-                string excelFileName = openFileDialog.FileName;
-                
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string excelFileName = openFileDialog.FileName;
+
+                    Dictionary<string, string> dict = new Dictionary<string, string>();
+
+                    string dictStream = File.ReadAllText(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt");
+
+                    dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(dictStream);
+                   
+                    dict.Add(Jobname, openFileDialog.FileName);
+
+                    string json = JsonConvert.SerializeObject(dict, Formatting.Indented);
+                    
+                    File.WriteAllText(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt", json);
+
+                    Excel.Application oXL;
+                    Excel._Workbook oWB;
+                    Excel._Worksheet oSheet;
+                    Excel.Range oRng;
+
+                    try
+                    {
+                        //Start Excel and get Application object.
+                        oXL = new Excel.Application();
+                        oXL.Visible = false;
+
+                        //Get a new workbook.
+
+
+                        oWB = oXL.Workbooks.Open(excelFileName);
+                        oSheet = (Excel._Worksheet)oWB.ActiveSheet;
+                        oSheet = oWB.ActiveSheet;
+
+
+                        Excel.Range last = oSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
+
+                        stringJoistMarks = oSheet.get_Range("B6", "E" + last.Row).Value2;
+
+                        nailerInformation.Initials = Convert.ToString(oSheet.Cells[2, 3].Value2);
+                        nailerInformation.Pattern = Convert.ToString(oSheet.Cells[3, 3].Value2);
+
+
+                        oWB.Close(0);
+                        oXL.Quit();
+                        Marshal.ReleaseComObject(oWB);
+                        Marshal.ReleaseComObject(oXL);
+                        Marshal.ReleaseComObject(oSheet);
+
+                    }
+
+                    catch (Exception theException)
+                    {
+                        String errorMessage;
+                        errorMessage = "Error: ";
+                        errorMessage = String.Concat(errorMessage, theException.Message);
+                        errorMessage = String.Concat(errorMessage, "Line:");
+                        errorMessage = String.Concat(errorMessage, theException.Source);
+
+                        MessageBox.Show(errorMessage, "Error");
+                    }
+
+                }
+            }
+            else
+            {
+                string excelFileName = fileName;
+
                 Excel.Application oXL;
                 Excel._Workbook oWB;
                 Excel._Worksheet oSheet;
@@ -92,7 +160,6 @@ namespace DESign_WordAddIn
 
                     MessageBox.Show(errorMessage, "Error");
                 }
-              
             }
 
           

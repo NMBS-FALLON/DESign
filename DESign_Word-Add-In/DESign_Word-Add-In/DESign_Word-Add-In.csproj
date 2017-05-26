@@ -32,8 +32,8 @@
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <TargetFrameworkProfile />
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>Q:\Designer Aid\DESign\DESign WORD ADD-IN\</PublishUrl>
-    <InstallUrl>\\nmbsfaln-fs\engr\designer aid\design\design word add-in\</InstallUrl>
+    <PublishUrl>Q:\Designer Aid\DESign\Testing\DESign WORD ADD-IN\</PublishUrl>
+    <InstallUrl>\\nmbsfaln-fs\engr\designer aid\design\Testing\design word add-in\</InstallUrl>
     <TargetCulture>en</TargetCulture>
     <ApplicationVersion>1.0.0.38</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
@@ -140,9 +140,9 @@
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="PdfSharp">
       <HintPath>..\..\..\..\..\.nuget\packages\PDFsharp\1.32.3057\lib\net20\PdfSharp.dll</HintPath>
@@ -217,6 +217,12 @@
       <DependentUpon>FormSOtoRISA.cs</DependentUpon>
     </Compile>
     <Compile Include="ImageOperations.cs" />
+    <Compile Include="Insert Blank Sheets\FormInsertBlankSheets.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Insert Blank Sheets\FormInsertBlankSheets.Designer.cs">
+      <DependentUpon>FormInsertBlankSheets.cs</DependentUpon>
+    </Compile>
     <Compile Include="JoistCoverSheet.cs" />
     <Compile Include="msWordOperations.cs" />
     <Compile Include="NailBacksheet.cs">
@@ -237,6 +243,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormSOtoRISA.resx">
       <DependentUpon>FormSOtoRISA.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Insert Blank Sheets\FormInsertBlankSheets.resx">
+      <DependentUpon>FormInsertBlankSheets.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NailBacksheet.resx">
       <DependentUpon>NailBacksheet.cs</DependentUpon>
@@ -315,6 +324,12 @@
     <EmbeddedResource Include="Resources\blank.bmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blankBirdCage.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blankTPlate.bmp" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

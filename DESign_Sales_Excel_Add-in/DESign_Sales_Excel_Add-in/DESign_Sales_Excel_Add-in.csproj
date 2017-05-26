@@ -34,7 +34,7 @@
     <PublishUrl>\\nmbsfaln-fs\sales\tools\Excel Add-In\</PublishUrl>
     <InstallUrl>\\nmbsfaln-fs\sales\tools\Excel Add-In\</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.19</ApplicationVersion>
+    <ApplicationVersion>1.0.0.23</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
@@ -194,6 +194,12 @@
       <DependentUpon>Convert_Takeoff_Form.cs</DependentUpon>
     </Compile>
     <Compile Include="Deck\DiaphragmTable.cs" />
+    <Compile Include="Tools\FormSprinklerLoading.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Tools\FormSprinklerLoading.Designer.cs">
+      <DependentUpon>FormSprinklerLoading.cs</DependentUpon>
+    </Compile>
     <Compile Include="Worksheet_Values\Serialize.cs" />
     <Compile Include="Worksheet_Values\BaseType.cs" />
     <Compile Include="Worksheet_Values\Load.cs" />
@@ -227,6 +233,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Tools\FormSprinklerLoading.resx">
+      <DependentUpon>FormSprinklerLoading.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="DESign_Sales_Excel_Add-in_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

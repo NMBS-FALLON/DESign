@@ -18,6 +18,9 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using DESign_BASE;
 using DESign_WordAddIn;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
+
 
 
 namespace DESign_WordAddIn
@@ -195,7 +198,21 @@ namespace DESign_WordAddIn
             {
                 try
                 {
-                    ExcelDataExtraction.NailerInformation excelJoistData = excelDataExtraction.exlNailerValues();
+                    Dictionary<string, string> dict = new Dictionary<string, string>();
+                    string excelFilePath = "";
+                    string[] jobNumberComponents = Convert.ToString(joistData[7][0]).Split('-');
+                    string jobNumber = jobNumberComponents[0] + "-" + jobNumberComponents[1];
+
+                    try
+                    {
+                        string dictStream = File.ReadAllText(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt");
+                        dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(dictStream);
+                        excelFilePath = dict[jobNumber];
+
+                    }
+                    catch { }
+
+                    ExcelDataExtraction.NailerInformation excelJoistData = excelDataExtraction.exlNailerValues(excelFilePath, jobNumber);
                     excelJoistMarks = excelJoistData.Marks;
                     excelAs = excelJoistData.As;
                     excelBs = excelJoistData.Bs;
@@ -407,8 +424,6 @@ namespace DESign_WordAddIn
         }
         private void btnCreateTable_Click(object sender, EventArgs e)
         {
-
-
             string clipboard = Clipboard.GetText();
 
             int numberOfMarks = joistData[0].Count;

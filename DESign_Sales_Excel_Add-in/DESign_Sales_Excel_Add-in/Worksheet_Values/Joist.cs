@@ -87,7 +87,22 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public DoubleWithUpdateCheck TcxrLengthIn { get; set; }
         public DoubleWithUpdateCheck SeatDepthLE { get; set; }
         public DoubleWithUpdateCheck SeatDepthRE { get; set; }
-        public IntWithUpdateCheck BcxQuantity { get; set; }
+        private IntWithUpdateCheck bcxQuantity = new IntWithUpdateCheck {Value = null, IsUpdated = false };
+        public IntWithUpdateCheck BcxQuantity
+        {
+            get
+            {
+                if (bcxQuantity.Value == -1)
+                {
+                    bcxQuantity.Value = this.Quantity.Value * 2;
+                }
+                return bcxQuantity;
+            }
+            set
+            {
+                bcxQuantity = value;
+            }
+        }
         public DoubleWithUpdateCheck Uplift { get; set; }
         public List<Load> Loads { get; set; }
         public StringWithUpdateCheck Erfos { get; set; }

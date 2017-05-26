@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-
+using System.Text.RegularExpressions;
 
 namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
@@ -62,7 +62,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 {
                     if (baseTypesCells[row, col] is string)
                     {
-                        if ((string)baseTypesCells[row, col] == "")
+                        if (Regex.Replace((string)baseTypesCells[row, col], @"\s+", "") == "")
                         {
                             baseTypesCells[row, col] = null;
                         }
@@ -157,7 +157,14 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         baseType.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] };
                         baseType.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] };
                         baseType.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
-                        baseType.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
+                        if (Convert.ToString(baseTypesCells[rowCount, 13]) == "<ALL>")
+                        {
+                            baseType.BcxQuantity = new IntWithUpdateCheck { Value = -1, IsUpdated = isUpdated[rowCount - 1, 12] };
+                        }
+                        else
+                        {
+                            baseType.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
+                        }
                         baseType.Uplift = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
                         baseType.Erfos = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 26], IsUpdated = isUpdated[rowCount - 1, 25] };
                         baseType.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 27], IsUpdated = isUpdated[rowCount - 1, 26] };
@@ -220,7 +227,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                         baseTypes.Add(baseType);
                         rowCount = rowCount + rowsForThisBaseType;
-                    }
+                  }
                     catch
                     {
                         if (errorMessageShown2 == false)
@@ -250,7 +257,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 {
                     if (marksCells[row, col] is string)
                     {
-                        if ((string)marksCells[row, col] == "")
+                        if (Regex.Replace((string)marksCells[row, col], @"\s+", "") == "")
                         {
                             marksCells[row, col] = null;
                         }
@@ -342,7 +349,14 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     joist.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
                     joist.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
                     joist.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
-                    joist.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] };
+                    if (Convert.ToString(marksCells[rowCount, 15]) == "<ALL>")
+                    {
+                        joist.BcxQuantity = new IntWithUpdateCheck { Value = joist.Quantity.Value * 2, IsUpdated = isUpdated[rowCount - 1, 14] };
+                    }
+                    else
+                    {
+                        joist.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] };
+                    }
                     joist.Uplift = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 16], IsUpdated = isUpdated[rowCount - 1, 15] };
                     joist.Erfos = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 28], IsUpdated = isUpdated[rowCount - 1, 27] };
                     joist.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 29], IsUpdated = isUpdated[rowCount - 1, 28] };
@@ -552,17 +566,17 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                     var all = from bT1 in baseTypes
                               where bT1.Name.Text != null
-                              where bT1.Name.Text.Contains("[ALL]")
+                              where bT1.Name.Text.ToUpper().Contains("[ALL]")
                               select bT1;
 
                     var allJoist = from bT1 in baseTypes
                                    where bT1.Name.Text != null
-                                   where bT1.Name.Text.Contains("[ALL J]")
+                                   where bT1.Name.Text.ToUpper().Contains("[ALL J]")
                                    select bT1;
 
                     var allGirder = from bT1 in baseTypes
                                     where bT1.Name.Text != null
-                                    where bT1.Name.Text.Contains("[ALL G]")
+                                    where bT1.Name.Text.ToUpper().Contains("[ALL G]")
                                     select bT1;
 
                     if (all.Any())
@@ -707,6 +721,15 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 for (int markCounter = 0; markCounter < sequence.Joists.Count;)
                 {
                     Joist joist = sequence.Joists[markCounter];
+
+                    int maxRows = Math.Max(joist.Loads.Count, joist.Notes.Count);
+                    if (maxRows > 32)
+                    {
+                        MessageBox.Show(String.Format("Mark {0} has too many loads on it.\r\n NOTE THAT THIS JOIST WILL NOT BE ADDED TO THE TAKEOFFF!\r\n Either add this joist manually or send to Darien to convert.",
+                                                      joist.Mark.Text));
+                        markCounter++;
+                        goto SkipLoop;
+                    }
 
 
                     pageRowCounter = pageRowCounter + Math.Max(Math.Max(joist.Loads.Count, joist.Notes.Count), 1) + 3;
@@ -1041,6 +1064,51 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             {
                 joist.Notes.Add(note);
             }
+        }
+
+        public void AddQuantitiesFromBB(Takeoff bbTakeoff)
+        {
+            var blueBeamJoists =
+                from s in bbTakeoff.Sequences
+                from j in s.Joists
+                select j;
+
+
+            Regex rg = new Regex(@"\d+");
+
+            var bbJoistTups =
+                blueBeamJoists
+                .GroupBy(x => x.Mark.Text)
+                .Select(g => new Tuple<string, int?>(rg.Match(g.Key).Value, g.Sum(x => x.Quantity.Value)));
+
+
+            Excel.Worksheet marksSheet = Globals.ThisAddIn.Application.ActiveWorkbook.Sheets["Marks"];
+            int lastUsedRow = marksSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing).Row;
+            object[,] array = marksSheet.get_Range("A6", "C" + lastUsedRow).Value2;
+
+            for (int i = 1; i <= array.GetLength(0); i++)
+            {
+                object marksColValue = array[i, 1];
+                if (marksColValue != null)
+                {
+                    string mark = (string)marksColValue;
+                    var bbMatchedJoists = bbJoistTups.Where(joist => joist.Item1 == mark);
+                    if (bbMatchedJoists.Any())
+                    {
+                        var bbJoist = bbMatchedJoists.First();
+                        var bbQty = bbJoist.Item2;
+                        array[i, 3] = bbQty;
+                    }
+                    else
+                    {
+                        MessageBox.Show(String.Format("Takeoff Mark {0} is not in the BlueBeam markups.\r\n\r\n", mark));
+                    }
+                }
+            }
+
+            marksSheet.get_Range("A6", "C" + lastUsedRow).Value2 = array;
+
+
         }
     }
 

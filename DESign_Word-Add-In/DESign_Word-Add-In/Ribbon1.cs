@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Office.Tools.Ribbon;
 using Word = Microsoft.Office.Interop.Word;
 using System.IO;
+using DESign_WordAddIn.Insert_Blank_Sheets;
 
 namespace DESign_WordAddIn
 {
@@ -47,6 +48,11 @@ namespace DESign_WordAddIn
         private void btnSinglePrintShopCopy_Click(object sender, RibbonControlEventArgs e)
         {
             print.SinglePrintShopCopies();
+        }
+
+        private void btnBlankWorksheets_Click(object sender, RibbonControlEventArgs e)
+        {
+            new FormInsertBlankSheets().Show();
         }
     }
 

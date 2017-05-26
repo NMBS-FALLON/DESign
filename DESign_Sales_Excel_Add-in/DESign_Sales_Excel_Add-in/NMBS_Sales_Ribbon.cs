@@ -13,14 +13,47 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Text.RegularExpressions;
 using System.IO;
+using Microsoft.Office.Core;
 
 namespace DESign_Sales_Excel_Add_in
 {
     public partial class NMBS_Sales_Ribbon
     {
+        CommandBar cb = null;
+        CommandBarButton button = null;
         private void NMBS_Sales_Ribbon_Load(object sender, RibbonUIEventArgs e)
         {
+            var app = Globals.ThisAddIn.Application;
+            cb = app.CommandBars["Cell"];
+            button = cb.Controls.Add(MsoControlType.msoControlButton, Type.Missing, Type.Missing, Type.Missing, true) as CommandBarButton;
+            button.Tag = "Sprinkler Form";
+            button.Caption = "Add Sprinkler Load";
+            button.Style = MsoButtonStyle.msoButtonCaption;
+            button.Click += new _CommandBarButtonEvents_ClickEventHandler(addSprinklerButton_Click);
+            app.SheetBeforeRightClick += new Excel.AppEvents_SheetBeforeRightClickEventHandler(app_SheetBeforeRightClick);
+        }
 
+        void app_SheetBeforeRightClick(object Sh, Microsoft.Office.Interop.Excel.Range Target, ref bool Cancel)
+        {
+            var app = Globals.ThisAddIn.Application;
+            Excel.Worksheet ws = app.ActiveSheet as Excel.Worksheet;
+            if (ws.Name == "Marks" || ws.Name == "Base Types")
+            {
+                var rowsNotAllowed = new List<int> { 1, 2, 3, 4};
+                if ((Target.Column == 17) && (rowsNotAllowed.Contains(Target.Row) == false))
+                {
+                    button.Visible = true;
+                    return;
+                }
+            }
+
+            button.Visible = false;
+        }
+
+
+        private void addSprinklerButton_Click(CommandBarButton Ctrl, ref bool CancelDefault)
+        {
+            new DESign_Sales_Excel_Add_in.Tools.FormSprinklerLoading().Show();
         }
 
         private void button1_Click(object sender, RibbonControlEventArgs e)
@@ -159,9 +192,17 @@ namespace DESign_Sales_Excel_Add_in
                     string filePath = Path.GetTempPath() + "Errors.txt";
                     File.WriteAllText(filePath, "MISMATCHES:\r\n\r\n\r\n" + errors);
                     System.Diagnostics.Process.Start(filePath);
+
+                    DialogResult dialogResult2 = System.Windows.Forms.MessageBox.Show("Would you like to transpose BlueBeam quantities onto Takeoff?", "OPTIONS", MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        thisTakeoff.AddQuantitiesFromBB(blueBeamTakeoff);
+                    }
                 }
 
+                
             }
+        
             else if (dialogResult == DialogResult.No)
             {
                 Takeoff thisTakeoff = new Takeoff();
