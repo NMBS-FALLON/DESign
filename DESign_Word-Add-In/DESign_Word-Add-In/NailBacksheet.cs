@@ -436,23 +436,18 @@ namespace DESign_WordAddIn
             List<string> woodLengths1 = nailerInfo.WoodLengths;
             List<string> woodWidths = new List<string>(TCs.Count);
             DESign_BASE.QueryAngleData queryAngleData = new DESign_BASE.QueryAngleData();
+            List<double> horizontalLegs = new List<double>();
+
             for (int i = 0; i <= TCs.Count - 1; i++)
             {
-               // string firstTwoChar = TCs[i].Substring(0, 2);
-               // bool contains18 = TCs[i].Contains("1.8");
-
-               // if (TCs[i].Contains("18") == true | TCs[i].Contains("A30") == true) { woodWiths.Add("5\""); }
-               // else if (TCs[i].Contains("29") == true) { woodWiths.Add("7 1/8\""); }
-               // else if (TCs[i].Contains("A44") == true) { woodWiths.Add("7\""); }
-               // else if (TCs[i] != "A28" && TCs[i].Contains("A28") == true) { woodWiths.Add("7\""); }
-               // else if (firstTwoChar.Contains("30")) { woodWiths.Add("7\""); }
-               // else if (firstTwoChar.Contains("35")) { woodWiths.Add("8\""); }
-               // else if (firstTwoChar.Contains("40")) { woodWiths.Add("9\""); }
-               // else if (firstTwoChar.Contains("50")) { woodWiths.Add("11\""); }
-               // else if (firstTwoChar.Contains("60")) { woodWiths.Add("13\""); }
-               // else { woodWiths.Add(" "); }
-               
                 woodWidths.Add(queryAngleData.WNtcWidth(TCs[i]) + "\"");
+            }
+
+            if ((TCs.Contains("A50A28") || TCs.Contains("A48A28")) &&
+                (TCs.Contains("A42A28") || TCs.Contains("A44A") || TCs.Contains("A46A28")))
+            {
+                MessageBox.Show("Shop Order must be split due to TC sizes");
+                throw new System.Exception();
             }
 
 
@@ -460,23 +455,25 @@ namespace DESign_WordAddIn
 
             Word.Selection selection = Globals.ThisAddIn.Application.Selection;
 
-            selection.HomeKey(Word.WdUnits.wdStory, 0);
+            selection.HomeKey(Word.WdUnits.wdStory);
+
+            if ((woodWidths.Contains("5\"") == false) &&
+                (TCs.Contains("A42A28") == false && TCs.Contains("A44A") == false && TCs.Contains("A46A28") == false))
+            {
+                if (Globals.ThisAddIn.Application.ActiveDocument.Words.ToString().Contains("GAP BETWEEN TOP CHORD") == false)
+                {
+                    addTextBox(selection, 250, 650, 120, 70, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
+                }
+                selection.Find.Execute("WEB CUT SHEET");
+
+                addTextBox(selection, 460, 135, 120, 70, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
+            }
+
 
             selection.Find.Execute("CHORD CUT SHEET");
-            selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
-            Word.Shape wdNailerTextBox = Globals.ThisAddIn.Application.ActiveDocument.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 420, 135, 120, 20);
-            wdNailerTextBox.TextFrame.TextRange.Bold = 1;
-            wdNailerTextBox.TextFrame.TextRange.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter; 
-            wdNailerTextBox.TextFrame.ContainingRange.Text = "WOODNAILER; SEE N1";
+            addTextBox(selection, 420, 135, 120, 20, "WOODNAILER; SEE N1");
 
-            wdNailerTextBox.TextFrame.MarginTop = 3;
-            wdNailerTextBox.TextFrame.MarginLeft = 3;
-            wdNailerTextBox.TextFrame.MarginBottom = 3;
-            wdNailerTextBox.TextFrame.MarginRight= 3;
-
-
-            selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
 
             selection.EndKey(Word.WdUnits.wdStory, 1);
@@ -589,7 +586,7 @@ namespace DESign_WordAddIn
                 if (spacings.Count() > 1)
                 {
                     MessageBox.Show("Joists in this shoporder have varrying spacings (in excel);\n Please fix or re-shoporder accordingly. ");
-                    throw new System.Exception();   
+                    throw new System.Exception();
                 }
                 else
                 {
@@ -859,6 +856,26 @@ namespace DESign_WordAddIn
             bitMapImage = BitmapTo1Bpp(bitMapImage);
 
             return bitMapImage;
+        }
+
+        private void addTextBox(Word.Selection selection, float left, float top, float width, float height, string text)
+        {
+            selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+            Word.Shape wdNailerTextBox = Globals.ThisAddIn.Application.ActiveDocument.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, left, top, width, height);
+            wdNailerTextBox.TextFrame.TextRange.Bold = 1;
+            wdNailerTextBox.TextFrame.TextRange.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+            wdNailerTextBox.TextFrame.ContainingRange.Text = text;
+
+            wdNailerTextBox.TextFrame.MarginTop = 3;
+            wdNailerTextBox.TextFrame.MarginLeft = 3;
+            wdNailerTextBox.TextFrame.MarginBottom = 3;
+            wdNailerTextBox.TextFrame.MarginRight = 3;
+
+
+            selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+            selection.HomeKey(Word.WdUnits.wdStory);
+            selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
         }
     }
 }
