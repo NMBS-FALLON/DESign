@@ -508,5 +508,52 @@ namespace DESign_AutoCAD
             }
         }
 
+        [CommandMethod("MyCommandGroup", "TCWIDTHS_CLEAR", CommandFlags.Modal)]
+        public void tcWidths_clear()
+        {
+
+            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                BlockTableRecord btr = (BlockTableRecord)tr.GetObject
+                    (SymbolUtilityServices.GetBlockModelSpaceId(db), OpenMode.ForRead);
+
+                foreach (ObjectId id in btr)
+                {
+                    Entity currentEntity = tr.GetObject(id, OpenMode.ForWrite, false) as Entity;
+                    if (currentEntity == null)
+                    {
+                        continue;
+                    }
+                    if (currentEntity.GetType() == typeof(MText))
+                    {
+                        ((MText)currentEntity).Contents = removeTCWidths(((MText)currentEntity).Contents);
+                    }
+                    if (currentEntity.GetType() == typeof(DBText))
+                    {
+                        ((DBText)currentEntity).TextString = removeTCWidths(((DBText)currentEntity).TextString);
+                    }
+                    if (currentEntity.GetType() == typeof(RotatedDimension))
+                    {
+                        ((RotatedDimension)currentEntity).DimensionText = removeTCWidths(((RotatedDimension)currentEntity).DimensionText);
+                    }
+                }
+                tr.Commit();
+            }
+
+        }
+
+        private string removeTCWidths(string text)
+        {
+            if (text.Contains("("))
+            {
+                text = text.Substring(0, text.IndexOf('('));
+            }
+
+            return text;
+
+        }
+
     }
 }

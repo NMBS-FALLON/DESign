@@ -125,9 +125,7 @@ namespace DESign_BOT
                     string[] BOMNotesArray = BOMNotes[i].Split(delimChars, StringSplitOptions.RemoveEmptyEntries);
                     for (int k = 0; k < formNotes.Count; k++)
                     {
-                        int alphaIndexA = 5;
-                        int alphaIndexB = 5;
-                        int alphaIndexSpace = 5;
+                        int alphaIndex = 5;
                         if (BOMNotesArray.Contains(formNotes[k]))
                         {
                             if (formAs[k].ToString() != "")
@@ -139,9 +137,9 @@ namespace DESign_BOT
                                 }
                                 else
                                 {
-                                    oRngAs = oSheet.get_Range(alpha[alphaIndexA] + cellNumber, Missing.Value);
+                                    oRngAs = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
                                     oRngAs.Value = "'" + formAs[k].ToString();
-                                    alphaIndexA++;
+                                    alphaIndex++;
                                 }
                             }
                             if (formBs[k].ToString() != "")
@@ -152,9 +150,9 @@ namespace DESign_BOT
                                 }
                                 else
                                 {
-                                    oRngBs = oSheet.get_Range(alpha[alphaIndexB] + cellNumber, Missing.Value);
+                                    oRngBs = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
                                     oRngBs.Value = "'" + formBs[k].ToString();
-                                    alphaIndexB++;
+                                    alphaIndex++;
                                 }
 
                             }
@@ -166,9 +164,9 @@ namespace DESign_BOT
                                 }
                                 else
                                 {
-                                    oRngSpacing = oSheet.get_Range(alpha[alphaIndexSpace] + cellNumber, Missing.Value);
+                                    oRngSpacing = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
                                     oRngSpacing.Value = "'" + formSpacings[k].ToString();
-                                    alphaIndexSpace++;
+                                    alphaIndex++;
                                 }
 
                             }

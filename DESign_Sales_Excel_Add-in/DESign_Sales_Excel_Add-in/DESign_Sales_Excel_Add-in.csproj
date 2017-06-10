@@ -34,7 +34,7 @@
     <PublishUrl>\\nmbsfaln-fs\sales\tools\Excel Add-In\</PublishUrl>
     <InstallUrl>\\nmbsfaln-fs\sales\tools\Excel Add-In\</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.23</ApplicationVersion>
+    <ApplicationVersion>1.0.0.25</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
@@ -129,10 +129,6 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="Deedle, Version=1.2.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Deedle.1.2.5\lib\net40\Deedle.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.Office.Interop.Word, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -237,7 +233,6 @@
       <DependentUpon>FormSprinklerLoading.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="DESign_Sales_Excel_Add-in_TemporaryKey.pfx" />
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

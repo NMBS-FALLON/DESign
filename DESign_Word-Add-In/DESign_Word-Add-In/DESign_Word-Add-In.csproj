@@ -32,10 +32,10 @@
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <TargetFrameworkProfile />
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>Q:\Designer Aid\DESign\Testing\DESign WORD ADD-IN\</PublishUrl>
-    <InstallUrl>\\nmbsfaln-fs\engr\designer aid\design\Testing\design word add-in\</InstallUrl>
+    <PublishUrl>Q:\Designer Aid\DESign\DESign WORD ADD-IN\</PublishUrl>
+    <InstallUrl>\\nmbsfaln-fs\engr\designer aid\design\design word add-in\</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.38</ApplicationVersion>
+    <ApplicationVersion>1.0.0.41</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>

@@ -202,7 +202,6 @@ namespace DESign_WordAddIn
                     string excelFilePath = "";
                     string[] jobNumberComponents = Convert.ToString(joistData[7][0]).Split('-');
                     string jobNumber = jobNumberComponents[0] + "-" + jobNumberComponents[1];
-
                     try
                     {
                         string dictStream = File.ReadAllText(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt");
@@ -409,7 +408,7 @@ namespace DESign_WordAddIn
             else
             {
                 pattern = comboBoxNailPlacement.Text;
-                initials = comboBoxNailPlacement.Text;
+                initials = tBoxDWGBY.Text;
                 spacing = tBoxScrewSpacing.Text;
             }
 
@@ -443,7 +442,7 @@ namespace DESign_WordAddIn
                 woodWidths.Add(queryAngleData.WNtcWidth(TCs[i]) + "\"");
             }
 
-            if ((TCs.Contains("A50A28") || TCs.Contains("A48A28")) &&
+            if ((TCs.Contains("A50A28") || TCs.Contains("A48A28") || TCs.Contains("A48A29")) &&
                 (TCs.Contains("A42A28") || TCs.Contains("A44A") || TCs.Contains("A46A28")))
             {
                 MessageBox.Show("Shop Order must be split due to TC sizes");
@@ -460,13 +459,30 @@ namespace DESign_WordAddIn
             if ((woodWidths.Contains("5\"") == false) &&
                 (TCs.Contains("A42A28") == false && TCs.Contains("A44A") == false && TCs.Contains("A46A28") == false))
             {
-                if (Globals.ThisAddIn.Application.ActiveDocument.Words.ToString().Contains("GAP BETWEEN TOP CHORD") == false)
-                {
-                    addTextBox(selection, 250, 650, 120, 70, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
-                }
-                selection.Find.Execute("WEB CUT SHEET");
+                addTextBox(selection, 60, 40, 350, 20, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
 
-                addTextBox(selection, 460, 135, 120, 70, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
+                //selection.Find.Execute("WEB CUT SHEET");
+
+                //addTextBox(selection, 460, 135, 120, 70, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
+
+                //selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+
+                selection.Find.Execute("WEB CUT SHEET");
+                selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                Globals.ThisAddIn.Application.ActiveDocument.Bookmarks.Add("WebCutStart", selection.Range);
+                selection.Find.Execute("\f");
+                Globals.ThisAddIn.Application.ActiveDocument.Bookmarks.Add("WebCutEnd", selection.Range);
+
+                int webCutStart = Globals.ThisAddIn.Application.ActiveDocument.Bookmarks["WebCutStart"].Range.Information[Word.WdInformation.wdActiveEndAdjustedPageNumber];
+                int webCutEnd = Globals.ThisAddIn.Application.ActiveDocument.Bookmarks["WebCutEnd"].Range.Information[Word.WdInformation.wdActiveEndAdjustedPageNumber];
+
+                for (int page = webCutStart; page <= webCutEnd; page++)
+                {
+                    selection.GoTo(Word.WdGoToItem.wdGoToPage, Word.WdGoToDirection.wdGoToAbsolute, page);
+                    addTextBox(selection, 460, 135, 120, 70, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
+                    selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                }
+                
             }
 
 
@@ -585,7 +601,7 @@ namespace DESign_WordAddIn
                 var spacings = nailerInfo.Spacing.Distinct();
                 if (spacings.Count() > 1)
                 {
-                    MessageBox.Show("Joists in this shoporder have varrying spacings (in excel);\n Please fix or re-shoporder accordingly. ");
+                    MessageBox.Show("Shop Order must be split due to varying screw spacings");
                     throw new System.Exception();
                 }
                 else

@@ -448,9 +448,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
     PLEASE CHECK THAT COLUMNS ARE FILLED IN CORRECTLY.
     THIS MUST BE FIXED BEFORE CONVERTING THE TAKEOFF.", joist.Mark.Text));
                         errorMessageShown = true;
-                    }
-                    
-                    
+                    }      
                 }
             }
 

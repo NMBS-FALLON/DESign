@@ -34,7 +34,7 @@ namespace DESign_WordAddIn
             
         }
 
-        public NailerInformation exlNailerValues (string fileName, string Jobname)
+        public NailerInformation exlNailerValues (string fileName, string jobNumber)
         {
 
             
@@ -45,23 +45,35 @@ namespace DESign_WordAddIn
 
             openFileDialog.Filter = "|*.xlsx;*.xlsm";
 
-            if (fileName == "")
+
+            if (File.Exists(fileName) == false)
             {
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string excelFileName = openFileDialog.FileName;
 
-                    Dictionary<string, string> dict = new Dictionary<string, string>();
+                    if (File.Exists(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt"))
+                    {
+                        Dictionary<string, string> dict = new Dictionary<string, string>();
 
-                    string dictStream = File.ReadAllText(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt");
 
-                    dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(dictStream);
-                   
-                    dict.Add(Jobname, openFileDialog.FileName);
 
-                    string json = JsonConvert.SerializeObject(dict, Formatting.Indented);
-                    
-                    File.WriteAllText(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt", json);
+                        string dictStream = File.ReadAllText(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt");
+
+                        dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(dictStream);
+
+                        if (dict.ContainsKey(jobNumber))
+                        {
+                            dict.Remove(jobNumber);
+                        }
+
+
+                        dict.Add(jobNumber, openFileDialog.FileName);
+
+                        string json = JsonConvert.SerializeObject(dict, Formatting.Indented);
+
+                        File.WriteAllText(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt", json);
+                    }
 
                     Excel.Application oXL;
                     Excel._Workbook oWB;
