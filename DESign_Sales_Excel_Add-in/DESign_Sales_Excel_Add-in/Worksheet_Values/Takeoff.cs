@@ -564,18 +564,36 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                     var all = from bT1 in baseTypes
                               where bT1.Name.Text != null
-                              where bT1.Name.Text.ToUpper().Contains("[ALL]")
+                              where bT1.Name.Text.ToUpper().Replace(" ", string.Empty).Contains("[ALL]")
                               select bT1;
 
                     var allJoist = from bT1 in baseTypes
                                    where bT1.Name.Text != null
-                                   where bT1.Name.Text.ToUpper().Contains("[ALL J]")
+                                   where bT1.Name.Text.ToUpper().Replace(" ", string.Empty).Contains("[ALLJ]")
                                    select bT1;
 
                     var allGirder = from bT1 in baseTypes
                                     where bT1.Name.Text != null
-                                    where bT1.Name.Text.ToUpper().Contains("[ALL G]")
+                                    where bT1.Name.Text.ToUpper().Replace(" ", string.Empty).Contains("[ALLG]")
                                     select bT1;
+
+                    var allSequence = from bT1 in baseTypes
+                                      where bT1.Name.Text != null
+                                      where bT1.Name.Text.ToUpper().Replace(" ", string.Empty).Contains("[ALL:" + 
+                                             seq.Name.Text.ToUpper().Replace(" ", string.Empty) +"]")
+                                      select bT1;
+
+                    var allJoistSequence = from bT1 in baseTypes
+                                           where bT1.Name.Text != null
+                                           where bT1.Name.Text.ToUpper().Replace(" ", string.Empty).Contains("[ALLJ:" +
+                                                  seq.Name.Text.ToUpper().Replace(" ", string.Empty) + "]")
+                                           select bT1;
+
+                    var allGirderSequence = from bT1 in baseTypes
+                                            where bT1.Name.Text != null
+                                            where bT1.Name.Text.ToUpper().Replace(" ", string.Empty).Contains("[ALLG:" +
+                                                  seq.Name.Text.ToUpper().Replace(" ", string.Empty) + "]")
+                                            select bT1;
 
                     if (all.Any())
                     {
@@ -600,6 +618,31 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                             AddBaseType(joist, bT1);
                         }
                     }
+
+                    if (allSequence.Any())
+                    {
+                        foreach (BaseType bT1 in allSequence)
+                        {
+                            AddBaseType(joist, bT1);
+                        }
+                    }
+
+                    if (allJoistSequence.Any() && joist.IsGirder == false)
+                    {
+                        foreach (BaseType bT1 in allJoistSequence)
+                        {
+                            AddBaseType(joist, bT1);
+                        }
+                    }
+
+                    if (allGirderSequence.Any() && joist.IsGirder == true)
+                    {
+                        foreach (BaseType bT1 in allGirderSequence)
+                        {
+                            AddBaseType(joist, bT1);
+                        }
+                    }
+
 
                 }
             }

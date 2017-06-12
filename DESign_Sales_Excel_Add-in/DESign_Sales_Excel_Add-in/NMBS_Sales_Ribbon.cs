@@ -99,6 +99,10 @@ namespace DESign_Sales_Excel_Add_in
                 "   - [ALL]   : BRINGS INFO ONTO ALL MARKS\r\n" +
                 "   - [ALL J] : BRINGS INFO ONTO ALL JOISTS\r\n" +
                 "   - [ALL G] : BRINGS INFO ONTO ALL GIRDERS\r\n" +
+                "   - [ALL: {SEQ.}] : ALL MARKS IN SPECIFIED SEQUENCE\r\n" +
+                "   - [ALL J: {SEQ.}] : ALL JOISTS IN SPECIFIED SEQUENCE\r\n" +
+                "   - [ALL G: {SEQ.}] : ALL GIRDERS IN SPECIFIED SEQUENCE\r\n" +
+                "   - NOTE: DO NOT USE [ALL J] OR [ALL G] FOR DESIGNATIONS\r\n" +
                 "RULES FOR SEPERATING SEISMIC:\r\n" +
                 "   - MAKE SURE THERE ARE NO LOADS IN LC3\r\n" +
                 "   - ADD LOADS AND BEND CHECKS SHOULD BE ADDED\r\n" +
