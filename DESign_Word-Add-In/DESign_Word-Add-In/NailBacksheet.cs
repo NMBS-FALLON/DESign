@@ -437,6 +437,7 @@ namespace DESign_WordAddIn
             DESign_BASE.QueryAngleData queryAngleData = new DESign_BASE.QueryAngleData();
             List<double> horizontalLegs = new List<double>();
 
+
             for (int i = 0; i <= TCs.Count - 1; i++)
             {
                 woodWidths.Add(queryAngleData.WNtcWidth(TCs[i]) + "\"");
@@ -449,7 +450,7 @@ namespace DESign_WordAddIn
                 throw new System.Exception();
             }
 
-
+                        
 
 
             Word.Selection selection = Globals.ThisAddIn.Application.Selection;
@@ -459,13 +460,21 @@ namespace DESign_WordAddIn
             if ((woodWidths.Contains("5\"") == false) &&
                 (TCs.Contains("A42A28") == false && TCs.Contains("A44A") == false && TCs.Contains("A46A28") == false))
             {
+
+                var docWords = Globals.ThisAddIn.Application.ActiveDocument.Words;
+
+                foreach (Word.Range word in docWords)
+                {
+                    if (word.Text.Contains("R112"))
+                    {
+                        MessageBox.Show("Shop-Order Contains \"R112\";\r\n Please confirm that this is OK since the gap will be 1\".");
+                    }
+                }
+
+               
+                
+
                 addTextBox(selection, 60, 40, 350, 20, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
-
-                //selection.Find.Execute("WEB CUT SHEET");
-
-                //addTextBox(selection, 460, 135, 120, 70, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
-
-                //selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
 
                 selection.Find.Execute("WEB CUT SHEET");
                 selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
@@ -483,6 +492,44 @@ namespace DESign_WordAddIn
                     selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                 }
                 
+            }
+
+            foreach (string mark in Marks)
+            {
+                Word.Range range = Globals.ThisAddIn.Application.ActiveDocument.Range(0, 0);
+
+                range.Find.Execute("Color Code");
+                range.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+
+                range.Find.Execute(mark + "    ");
+                range.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+                range.Find.Execute("W2L");
+                range.MoveStart(Word.WdUnits.wdWord, -1);
+
+                string[] w2LText = range.Text.Split(new string[] { "  " }, StringSplitOptions.RemoveEmptyEntries);
+                string w2LMaterial = w2LText[0].Trim();
+                range.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+
+                range.Find.Execute("W2R");
+                range.MoveStart(Word.WdUnits.wdWord, -1);
+
+                string[] w2Rtext = range.Text.Split(new string[] { "  " }, StringSplitOptions.RemoveEmptyEntries);
+                string w2RMaterial = w2Rtext[0].Trim();
+
+                string[] unacceptableW2s = new string[] { "C32BA", "C34AA", "C36BA", "C38BA", "C40BA", "CW40BA" };
+
+                bool badW2L = unacceptableW2s.Contains(w2LMaterial);
+                bool badW2R = unacceptableW2s.Contains(w2RMaterial);
+
+                string message = mark + ":\r\n";
+                if (badW2L) { message = message + "Check W2L Material\r\n"; }
+                if (badW2R) { message = message + "Check W2R Material\r\n"; }
+
+                if (badW2L || badW2R)
+                {
+                    MessageBox.Show(message);
+                }
+
             }
 
 

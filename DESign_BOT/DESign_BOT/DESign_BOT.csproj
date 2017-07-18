@@ -12,7 +12,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>Q:\Designer Aid\Design\Testing\design bot\</PublishUrl>
+    <PublishUrl>Q:\Designer Aid\Design\design bot\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Unc</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -22,12 +22,12 @@
     <UpdatePeriodically>true</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>\\nmbsfaln-fs\engr\Designer Aid\Design\Testing\design bot\</InstallUrl>
+    <InstallUrl>\\nmbsfaln-fs\engr\Designer Aid\Design\design bot\</InstallUrl>
     <UpdateUrl>\\nmbsfaln-fs\Engr\Designer Aid\Design\Testing\design bot\</UpdateUrl>
     <ProductName>DESign BOT</ProductName>
     <PublisherName>DESign</PublisherName>
-    <ApplicationRevision>13</ApplicationRevision>
-    <ApplicationVersion>1.0.0.13</ApplicationVersion>
+    <ApplicationRevision>14</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>

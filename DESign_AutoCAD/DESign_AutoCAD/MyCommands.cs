@@ -71,7 +71,8 @@ namespace DESign_AutoCAD
                         {
                             string dimText = ((RotatedDimension)currentEntity).DimensionText;
 
-                            if (dimText.Contains(string.Format("-{0}\\X",joist.Mark)) == true)
+                            if (dimText.Contains(string.Format("-{0}\\X",joist.Mark)) == true ||
+                                dimText.Contains(string.Format("-{0} ", joist.Mark)))
                             {
                                 string replace = string.Format("-{0}", joist.Mark);
                                 string replacement = string.Format("-{0}", markWithWidth);
@@ -153,7 +154,8 @@ namespace DESign_AutoCAD
                         {
                             string dimText = ((RotatedDimension)currentEntity).DimensionText;
 
-                            if (dimText.Contains(string.Format("-{0}\\X", girder.Mark)) == true)
+                            if (dimText.Contains(string.Format("-{0}\\X", girder.Mark)) == true ||
+                                dimText.Contains(string.Format("-{0} ", girder.Mark)))
                             {
                                 string replace = string.Format("-{0}", girder.Mark);
                                 string replacement = string.Format("-{0}", markWithWidth);
@@ -243,7 +245,8 @@ namespace DESign_AutoCAD
                             {
                                 string dimText = ((RotatedDimension)currentEntity).DimensionText;
 
-                                if (dimText.Contains(string.Format("-{0}\\X", joist.Mark)) == true)
+                                if (dimText.Contains(string.Format("-{0}\\X", joist.Mark)) == true ||
+                                    dimText.Contains(string.Format("-{0} ", joist.Mark)))
                                 {
                                     string replace = string.Format("-{0}", joist.Mark);
                                     string replacement = string.Format("-{0}", markWithWidth);
@@ -327,7 +330,8 @@ namespace DESign_AutoCAD
                             {
                                 string dimText = ((RotatedDimension)currentEntity).DimensionText;
 
-                                if (dimText.Contains(string.Format("-{0}\\X", joist.Mark)) == true)
+                                if (dimText.Contains(string.Format("-{0}\\X", joist.Mark)) == true ||
+                                    dimText.Contains(string.Format("-{0} ", joist.Mark)))
                                 {
                                     string replace = string.Format("-{0}", joist.Mark);
                                     string replacement = string.Format("-{0}", markWithWidth);
@@ -409,7 +413,8 @@ namespace DESign_AutoCAD
                         {
                             string dimText = ((RotatedDimension)currentEntity).DimensionText;
 
-                            if (dimText.Contains(string.Format("-{0}\\X", joist.Mark)) == true)
+                            if (dimText.Contains(string.Format("-{0}\\X", joist.Mark)) == true ||
+                                dimText.Contains(string.Format("-{0} ", joist.Mark)))
                             {
                                 string replace = string.Format("-{0}", joist.Mark);
                                 string replacement = string.Format("-{0}", markWithWidth);
@@ -481,7 +486,8 @@ namespace DESign_AutoCAD
                         {
                             string dimText = ((RotatedDimension)currentEntity).DimensionText;
 
-                            if (dimText.Contains(string.Format("-{0}\\X", girder.Mark)) == true)
+                            if (dimText.Contains(string.Format("-{0}\\X", girder.Mark)) == true ||
+                                dimText.Contains(string.Format("-{0} ", girder.Mark)))
                             {
                                 string replace = string.Format("-{0}", girder.Mark);
                                 string replacement = string.Format("-{0}", markWithWidth);

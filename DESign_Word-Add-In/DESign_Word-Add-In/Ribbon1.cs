@@ -6,6 +6,7 @@ using Microsoft.Office.Tools.Ribbon;
 using Word = Microsoft.Office.Interop.Word;
 using System.IO;
 using DESign_WordAddIn.Insert_Blank_Sheets;
+using System.Windows;
 
 namespace DESign_WordAddIn
 {
@@ -27,6 +28,12 @@ namespace DESign_WordAddIn
       
         private void btnHoldClear_Click(object sender, RibbonControlEventArgs e)
         {
+            Word.Range range = Globals.ThisAddIn.Application.ActiveDocument.Range(0, 0);
+            if (range.Find.Execute("COLOR CODE") == false)
+            {
+                MessageBox.Show("S.O. is missing a color code. Please fix and try again");
+                return;
+            }
             new FormHoldClear2().Show();
         }
 

@@ -1384,6 +1384,7 @@ namespace DESign_WordAddIn
                 for (int i = 0; i < HCSeatInfo.Count; i++)
                 {
                     Word.Range range = Globals.ThisAddIn.Application.ActiveDocument.Range(0, 0);
+
                     range.Find.Execute("COLOR CODE");
                     range.Collapse(Word.WdCollapseDirection.wdCollapseStart);
                     range.Find.Execute(HCSeatInfo[i].mark + "    ");
@@ -1487,6 +1488,7 @@ namespace DESign_WordAddIn
                                 lengthString = lengthString + " ";
                             }
 
+                            range.Text = lengthString;
                             range.Font.Bold = 1;
                             range.Underline = Word.WdUnderline.wdUnderlineSingle;
                             range.Collapse(Word.WdCollapseDirection.wdCollapseStart);
@@ -1516,6 +1518,7 @@ namespace DESign_WordAddIn
                                 lengthString = lengthString + " ";
                             }
 
+                            range.Text = lengthString;
                             range.Font.Bold = 1;
                             range.Underline = Word.WdUnderline.wdUnderlineSingle;
                             range.Collapse(Word.WdCollapseDirection.wdCollapseStart);

@@ -146,7 +146,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             {
                 if (IsLoadOverLoad == true)
                 {
-                    if (isGirder == false)
+                    if (IsGirder == false)
                     {
                         string[] seperators = { "K", "LH", "DLH" };
                         tl = Convert.ToDouble(Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[1].Split('/')[0]);
@@ -169,7 +169,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             {
                 if (IsLoadOverLoad == true)
                 {
-                    if (isGirder == false)
+                    if (IsGirder == false)
                     {
                         string[] seperators = { "K", "LH", "DLH" };
 
@@ -235,6 +235,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 if (Quantity.Value == null) { importErrors.Add("No quantity."); }
                 if (Description.HasNoText == true) { importErrors.Add("No Description."); }
                 if (BaseLengthFt.Value == null) { importErrors.Add("No Base Length."); }
+                if (IsGirder == true && Description.Text.Contains("K")== false) { importErrors.Add("Girder designation is missing a 'K'"); }
                 foreach (Load load in Loads)
                 {
                     importErrors.AddRange(load.Errors);
@@ -243,7 +244,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 double? ll;
                 if (IsLoadOverLoad == true)
                 {
-                    if (isGirder == false)
+                    if (IsGirder == false)
                     {
                         string[] seperators = { "K", "LH", "DLH" };
                         try
@@ -260,6 +261,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                         try
                         {
                             ll = Convert.ToDouble(GirderLoad().Split('/')[1]);
+                            
                         }
                         catch (Exception ex)
                         {
@@ -270,7 +272,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 double? tl;
                 if (IsLoadOverLoad == true)
                 {
-                    if (isGirder == false)
+                    if (IsGirder == false)
                     {
                         string[] seperators = { "K", "LH", "DLH" };
                         try
