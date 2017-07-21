@@ -449,7 +449,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
     THIS MUST BE FIXED BEFORE CONVERTING THE TAKEOFF.", joist.Mark.Text));
                         errorMessageShown = true;
                     }      
-                }
+                } 
             }
 
             //Seperate Sequences
