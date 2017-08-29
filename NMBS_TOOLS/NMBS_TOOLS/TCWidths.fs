@@ -70,6 +70,8 @@ module CreateReport =
             let joistCount =
                     (joistsOnly |> Stats.sum).Get "Quantity"
 
+
+
             let woodLength =
                 let quantity = (joistsOnly.GetColumn<double> "Quantity").Values |> List.ofSeq
                 let length = (joistsOnly.GetColumn<double> "Base Length").Values |> List.ofSeq
@@ -88,8 +90,11 @@ module CreateReport =
 
             summedByTC
             |> Frame.colCalcedFromCol "Quantity" (fun quantity -> quantity / joistCount) "% TC"
-            |> Frame.whereRowValuesInColEqual "TC" ["A42A28"; "A44A"; "A46A28"; "A48A29"; "A48B28"; "3028"; "3031"]
-            |> Frame.indexRows "TC"  
+            |> Frame.whereRowValuesInColEqual "TC" ["A42A28"; "A44A"; "A46A28"; "A48A29"; "A48B28"; "3028"; "3031"; "A45B18"]
+            |> Frame.indexRows "TC" 
+
+        if (snd (getValues "A45B18" df) <> 0.0) then
+            printfn "A45B18 @ Job # %s" jobNumber
 
         {
         JobNumber = jobNumber        

@@ -12,6 +12,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         public List<StringWithUpdateCheck> BaseTypesOnMark { get; set; }
         public IntWithUpdateCheck Quantity { get; set; }
         private bool geometryAdded = false;
+        private bool compositeJoist = false;
         private StringWithUpdateCheck description = new StringWithUpdateCheck { };
         public StringWithUpdateCheck Description
         {
@@ -39,6 +40,20 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     description.Text = depth + description.Text.Substring(description.Text.IndexOf('>') + 1);
                     Notes.Add(new StringWithUpdateCheck { Text = geometryNote, IsUpdated = Description.IsUpdated });
                     geometryAdded = true;
+                }
+
+                if (description.Text != null && description.Text.Contains("CJ"))
+                {
+                    string[] seperators = { "CJ", "/" };
+                    string[] descriptionArray = description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+                    string depth = descriptionArray[0];
+                    double factoredTL = Convert.ToDouble(descriptionArray[1]);
+                    double factoredLL = Convert.ToDouble(descriptionArray[2]);
+                    string cjLoading = description.Text.Split(new string[] { "CJ" }, StringSplitOptions.RemoveEmptyEntries)[1];             
+                    double DL = Math.Ceiling(((factoredTL - factoredLL) / 1.2)/5.0) * 5;
+                    double LL = Math.Ceiling((factoredLL / 1.6)/5.0) * 5;
+                    description.Text = depth + "LH" + (DL + LL).ToString() + "/" + LL.ToString();
+                    Notes.Add(new StringWithUpdateCheck { Text = "CJ SERIES: " + cjLoading, IsUpdated = Description.IsUpdated });
                 }
                 return description;
             }
@@ -198,19 +213,27 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     }
                     else
                     {
-                        string[] seperators = { "G", "N", "K" };
+                        try
+                        {
+                            string[] seperators = { "G", "N", "K" };
 
-                        string[] descriptionSplit = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
-                        double? spaces = Convert.ToDouble(descriptionSplit[1]);
-                        double? joistSpace = (BaseLengthFt.Value + BaseLengthIn.Value / 12.0) / spaces;
-                        if (TL == null || LL == null)
-                        {
-                            uDL = null;
+                            string[] descriptionSplit = Description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+                            double? spaces = Convert.ToDouble(descriptionSplit[1]);
+                            double? joistSpace = (BaseLengthFt.Value + BaseLengthIn.Value / 12.0) / spaces;
+                            if (TL == null || LL == null)
+                            {
+                                uDL = null;
+                            }
+                            else
+                            {
+                                uDL = ((TL - LL) * 1000.0) / joistSpace;
+                                uDL = 5 * (int)Math.Ceiling((float)(uDL / 5.0));
+                            }
                         }
-                        else
+                        catch
                         {
-                            uDL = ((TL - LL) * 1000.0) / joistSpace;
-                            uDL = 5 * (int)Math.Ceiling((float)(uDL / 5.0));
+                            MessageBox.Show(String.Format("Mark {0}: Error processing description.", Mark.Text));
+                            throw;
                         }
                     }
                 }
