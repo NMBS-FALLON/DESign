@@ -8,11 +8,12 @@
     <ProjectGuid>83a1def9-eaa8-4e02-b12c-4908c2fc5661</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>NMBS_TOOLS</RootNamespace>
-    <AssemblyName>List Converter</AssemblyName>
+    <AssemblyName>Seismic Seperator</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <Name>NMBS_TOOLS</Name>
+    <Win32Resource>C:\Users\darien.shannon\Desktop\DESign\DESign\design.res</Win32Resource>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,7 +36,7 @@
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\NMBS_TOOLS.XML</DocumentationFile>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
