@@ -184,14 +184,17 @@ namespace DESign_WordAddIn
 
              for (int i = 1; i <= stringJoistMarks.GetLength(0); i++)
              {
-                 string stringA = StringManipulation.convertLengthStringtoHyphenLength(stringJoistMarks[i, 2].ToString());
-                 string stringB = StringManipulation.convertLengthStringtoHyphenLength(stringJoistMarks[i, 3].ToString());
-                string spacing = stringJoistMarks[i, 4].ToString();
-                 
-                 JoistMarksfromExcel.Add(stringJoistMarks[i,1].ToString());
-                spacings.Add(spacing);
-                 AsfromExcel.Add(stringA);
-                 BsfromExcel.Add(stringB);
+                if (stringJoistMarks[i, 2] != null)
+                {
+                    string stringA = StringManipulation.convertLengthStringtoHyphenLength(stringJoistMarks[i, 2].ToString());
+                    string stringB = StringManipulation.convertLengthStringtoHyphenLength(stringJoistMarks[i, 3].ToString());
+                    string spacing = stringJoistMarks[i, 4].ToString();
+
+                    JoistMarksfromExcel.Add(stringJoistMarks[i, 1].ToString());
+                    spacings.Add(spacing);
+                    AsfromExcel.Add(stringA);
+                    BsfromExcel.Add(stringB);
+                }
              }
 
             

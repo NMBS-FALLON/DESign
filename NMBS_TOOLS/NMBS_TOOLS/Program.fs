@@ -17,7 +17,7 @@ let main argv =
 
     //CustomerReports.createCustomerAnalysis()
     
-    
+    (*
     printfn "Please enter Sds (then click enter): "
     let sds = float (System.Console.ReadLine())
 
@@ -54,13 +54,14 @@ let main argv =
                          ()
     | None -> printfn "No BOM Selected."
         
-    
+    *)
 
     //CreateReport.TCAnalysis()
 
-    //Run.InputAllInfo()
+    Run.InputAllInfo()
 
-    //printfn "Click enter to exit."
+    printfn "Complete!"
+    printfn "Click enter to exit."
 
     let s = System.Console.ReadLine()
     0 // return an integer exit code

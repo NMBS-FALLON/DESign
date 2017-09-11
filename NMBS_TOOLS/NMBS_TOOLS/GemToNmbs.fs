@@ -197,7 +197,7 @@ module Run =
         let reportPath =
             let openFile = new System.Windows.Forms.OpenFileDialog()
             openFile.Filter <- "Excel files|*.xls;*.xlsx;*.xlsm"
-            openFile.Title <- "Select BOM"
+            openFile.Title <- "Select Takeoff"
             if (openFile.ShowDialog())= (System.Windows.Forms.DialogResult.OK) then
                 Some openFile.FileName
             else
