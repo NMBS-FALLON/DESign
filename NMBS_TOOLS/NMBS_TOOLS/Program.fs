@@ -13,7 +13,7 @@ let main argv =
 
     //FeedbackReport.sendAllFeedbackToExcel()
 
-    //EmployeeReport.createEmployeeReport()
+    EmployeeReport.createEmployeeReport()
 
     //CustomerReports.createCustomerAnalysis()
     
@@ -58,7 +58,7 @@ let main argv =
 
     //CreateReport.TCAnalysis()
 
-    Run.InputAllInfo()
+    //Run.InputAllInfo()
 
     printfn "Complete!"
     printfn "Click enter to exit."

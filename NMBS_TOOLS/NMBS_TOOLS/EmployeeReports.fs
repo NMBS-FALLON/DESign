@@ -176,11 +176,11 @@ module EmployeeReport =
             
 
             let jobsSold =
-                xlsToCsv (dataPath + "Jobs Sold.xls")
+                xlsToCsv (dataPath + "Jobs Sold.xlsx")
                 Frame.ReadCsv(dataPath + "Jobs Sold.csv")
 
             let jobsQuoted = 
-                xlsToCsv (dataPath + "Jobs Quoted.xls")
+                xlsToCsv (dataPath + "Jobs Quoted.xlsx")
                 Frame.ReadCsv(dataPath + "Jobs Quoted.csv")
 
             let estimatorData =
