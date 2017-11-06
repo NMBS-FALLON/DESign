@@ -1,8 +1,0 @@
-﻿<Window
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="MainWindow" Height="350" Margin="0,0,0,-50" Width="232">
-    <Grid Margin="0,0,2,1">
-        <Button Name="button" Content="Button" HorizontalAlignment="Left" Height="23" Margin="67,255,0,0" VerticalAlignment="Top" Width="80"/>
-    </Grid>
-</Window>

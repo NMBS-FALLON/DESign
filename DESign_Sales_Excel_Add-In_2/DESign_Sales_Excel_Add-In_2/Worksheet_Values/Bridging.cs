@@ -8,12 +8,9 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 {
     public class Bridging
     {
-        public StringWithUpdateCheck Sequence { get; set; }
-        public StringWithUpdateCheck Size { get; set; }
-        public StringWithUpdateCheck HorX { get; set; }
-        public IntWithUpdateCheck Rows { get; set; }
-        public DoubleWithUpdateCheck Length { get; set; }
-        public DoubleWithUpdateCheck TotalLength { get; set; }
-        public List<StringWithUpdateCheck> Notes { get; set; }
+        public string Sequence { get; set; }
+        public string Size { get; set; }
+        public string HorX { get; set; }
+        public double PlanFeet { get; set; }
     }
 }

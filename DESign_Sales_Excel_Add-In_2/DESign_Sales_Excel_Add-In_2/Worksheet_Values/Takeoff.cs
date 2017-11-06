@@ -32,6 +32,9 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             }
             public double? SDS { get; set; }
         }
+
+        public List<Bridging> Bridging { get; set; }
+
         public List<BaseType> BaseTypes { get; set; }
 
         public List<Sequence> Sequences { get; set; }
@@ -47,7 +50,67 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             //
             Excel._Worksheet marksWS = (Excel._Worksheet)oWB.Worksheets["Marks"];
             Excel._Worksheet baseTypesWS = (Excel._Worksheet)oWB.Worksheets["Base Types"];
+            Excel._Worksheet bridgingWS = (Excel._Worksheet)oWB.Worksheets["Bridging"];
 
+            ///// GET BRIDGING ////
+
+            List<Bridging> bridging = new List<Bridging>();
+            Excel.Range bridgingRange = bridgingWS.UsedRange;
+
+            object[,] bridgingCells = (object[,])bridgingRange.Value2;
+
+            string bridgingSequence = "";
+            string size = "";
+            string type = "";
+            double rows = 0.0;
+            double length = 0.0;
+
+            int startRow = 5;
+            int lastRow = bridgingCells.GetLength(0);
+            for (int row = startRow; row <= lastRow; row++)
+            {
+                if (bridgingCells[row, 2] != null && bridgingCells[row, 2].ToString() != "")
+                {
+                    bridgingSequence = bridgingCells[row, 2].ToString();
+                }
+
+                if (bridgingCells[row, 3] != null && bridgingCells[row, 3].ToString() != "")
+                {
+                    size = bridgingCells[row, 3].ToString();
+                }
+
+                if (bridgingCells[row, 4] != null && bridgingCells[row, 4].ToString() != "")
+                {
+                    type = bridgingCells[row, 4].ToString();
+                }
+
+                rows = Convert.ToDouble(bridgingCells[row, 5]);
+                length = Convert.ToDouble(bridgingCells[row, 6]);
+
+                Bridging br = new Bridging();
+                br.Sequence = bridgingSequence;
+                br.Size = size;
+                br.HorX = type;
+                br.PlanFeet = rows * length * 1.02;
+
+                bridging.Add(br);
+            }
+
+            bridging =
+                (from br in bridging
+                 group br by new
+                 {
+                     br.Sequence,
+                     br.Size,
+                     br.HorX,
+                 } into brcs
+                 select new Bridging()
+                 {
+                     Sequence = brcs.Key.Sequence,
+                     Size = brcs.Key.Size,
+                     HorX = brcs.Key.HorX,
+                     PlanFeet = brcs.Sum(br => br.PlanFeet)
+                 }).ToList();
 
             // Create a range for the 'BaseLine' tab 
             Excel.Range baseTypesRange = baseTypesWS.UsedRange;
@@ -91,7 +154,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             }
 
             ///////////////////
-            
+
             // Determine the row of the first baseType since estimators dont always place the first baseType at the top
             bool firstBaseTypeReached = false;
             int firstBaseTypeRow = 4;
@@ -129,10 +192,10 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     rowsPerBaseTypeList.Add(rowsPerBaseType);
                 }
             }
-            
+
 
             // Now that we can break out the chunks of information for each baseType, we can create the list of baseTypeLines
-            
+
 
             List<BaseType> baseTypes = new List<BaseType>();
 
@@ -227,7 +290,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                         baseTypes.Add(baseType);
                         rowCount = rowCount + rowsForThisBaseType;
-                  }
+                    }
                     catch
                     {
                         if (errorMessageShown2 == false)
@@ -241,7 +304,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     }
                 }
             }
-            
+
             ///////////////////
 
             // Create a range for the 'Marks' tab
@@ -305,7 +368,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 i++;
             }
 
-            
+
             // Create a list containing the number of rows between each mark
             List<int> rowsPerMarkList = new List<int>();
             int rowsPerMark = 1;
@@ -333,9 +396,9 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             bool errorMessageShown = false;
             foreach (int rowsForThisMark in rowsPerMarkList)
             {
-                
+
                 Joist joist = new Joist();
-                try {       
+                try {
                     joist.Mark = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 1], IsUpdated = isUpdated[rowCount - 1, 0] };
                     joist.Quantity = new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 3], IsUpdated = isUpdated[rowCount - 1, 2] };
                     joist.Description = new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] };
@@ -438,7 +501,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
 
                     joistLines.Add(joist);
                     rowCount = rowCount + rowsForThisMark;
-                }               
+                }
                 catch
                 {
                     if (errorMessageShown == false)
@@ -448,8 +511,8 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
     PLEASE CHECK THAT COLUMNS ARE FILLED IN CORRECTLY.
     THIS MUST BE FIXED BEFORE CONVERTING THE TAKEOFF.", joist.Mark.Text));
                         errorMessageShown = true;
-                    }      
-                } 
+                    }
+                }
             }
 
             //Seperate Sequences
@@ -466,9 +529,9 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             }
             else
             {
-                
 
-                if (joistLines[0].Quantity.Value != null || joistLines[0].Description.Text != null )
+
+                if (joistLines[0].Quantity.Value != null || joistLines[0].Description.Text != null)
                 {
                     MessageBox.Show("Please name your first sequence");
                 }
@@ -477,12 +540,12 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     Sequence sequence = new Sequence();
                     sequence.Name = new StringWithUpdateCheck { Text = "" };
 
-                    
+
                     int jstIndex = 0;
 
-                    for(int joistIndex = jstIndex; joistIndex<joistLines.Count; joistIndex ++)
+                    for (int joistIndex = jstIndex; joistIndex < joistLines.Count; joistIndex++)
                     {
-                        if(joistLines[joistIndex].Quantity.Value == null && joistLines[joistIndex].Description.Text == null)
+                        if (joistLines[joistIndex].Quantity.Value == null && joistLines[joistIndex].Description.Text == null)
                         {
                             sequence.Joists = new List<Joist>();
                             sequence.Name.Text = joistLines[joistIndex].Mark.Text;
@@ -536,6 +599,14 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             Takeoff takeoff = new Takeoff();
             takeoff.BaseTypes = baseTypes;
             takeoff.Sequences = sequences;
+            foreach (Bridging br in bridging)
+            {
+                br.PlanFeet = Math.Ceiling(br.PlanFeet / 20.0) * 20.0;
+            }
+            takeoff.Bridging = bridging;
+
+            
+
 
             foreach (Sequence seq in takeoff.Sequences)
             {
@@ -745,6 +816,11 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             int sheetIndex = 6;
 
             int sheetCount = 0;
+
+
+            
+            
+
             foreach (Sequence sequence in Sequences)
             {
                 sheetCount++;
@@ -845,6 +921,39 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             Excel.Worksheet newCover = workbook.Sheets["Cover (2)"];
             newCover.Name = "Cover";
 
+            int bridgingRow = 39;
+            int columnIndex = 0;
+            Bridging = Bridging.Where(br => !(br.Size == "" && br.HorX =="" && br.PlanFeet == 0.0)).ToList();
+            var bridgingBySequence = Bridging.GroupBy(br => br.Sequence);
+                
+            foreach(var seq in bridgingBySequence)
+            {
+                if(bridgingRow + seq.Count() > 53)
+                {
+                    if (columnIndex == 0)
+                    {
+                        columnIndex = 4;
+                        bridgingRow = 39;
+                    }
+                    else
+                    {
+                        MessageBox.Show("NOT ENOUGH ROOM FOR BRIDGING, PLEASE ADJUST BRIDGING MANUALLY");
+                        if (bridgingRow < 55) { bridgingRow = 55; }
+                    }
+                }
+                
+                CellInsert(workbook.Sheets["Cover"], bridgingRow, 2+columnIndex, seq.Key, false);
+                bridgingRow++;
+                foreach(Bridging br in seq)
+                {
+                    CellInsert(workbook.Sheets["Cover"], bridgingRow, 2+columnIndex, br.Size, false);
+                    CellInsert(workbook.Sheets["Cover"], bridgingRow, 3+columnIndex, br.HorX, false);
+                    CellInsert(workbook.Sheets["Cover"], bridgingRow, 4+columnIndex, br.PlanFeet, false);
+                    bridgingRow++;
+                }
+                bridgingRow++;
+            }
+
             //COPY NOTE AND BRIDGING SHEETS INTO NEW TAKEOFF
             foreach(Excel.Worksheet s in oWB.Sheets)
             {
@@ -852,11 +961,18 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                 {
                     s.Copy(Type.Missing, After: workbook.Sheets["Cover"]);
                 }
-                if (s.Name.Contains("B (") && s.Name != "B (0)")
+                if (s.Name.Contains("Bridging"))
                 {
                     s.Copy(Before: workbook.Sheets["Check List"]);
                 }
             }
+
+            newCover.Activate();
+
+            Excel.Worksheet blankWS = workbook.Sheets["J(BLANK)"];
+            oXL.DisplayAlerts = false;
+            blankWS.Delete();
+            oXL.DisplayAlerts = true;
 
 
 
