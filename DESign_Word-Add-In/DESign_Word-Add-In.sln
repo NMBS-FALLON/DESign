@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DESign_Word-Add-In", "DESign_Word-Add-In\DESign_Word-Add-In.csproj", "{DFD711B3-C29B-4FAA-8B68-69EB0523E5C4}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DESign_BASE", "..\DESign_BASE\DESign_BASE\DESign_BASE.shproj", "{38C14CE8-AFE9-4742-8FA6-1FE2E6444B91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DESign_Word-Add-In", "DESign_Word-Add-In\DESign_Word-Add-In.csproj", "{DFD711B3-C29B-4FAA-8B68-69EB0523E5C4}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

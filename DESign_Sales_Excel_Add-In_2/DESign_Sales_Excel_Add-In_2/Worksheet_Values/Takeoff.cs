@@ -8,7 +8,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 
-namespace DESign_Sales_Excel_Add_in.Worksheet_Values
+namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 {
     public class Takeoff
     {
@@ -50,6 +50,26 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
             //
             Excel._Worksheet marksWS = (Excel._Worksheet)oWB.Worksheets["Marks"];
             Excel._Worksheet baseTypesWS = (Excel._Worksheet)oWB.Worksheets["Base Types"];
+
+            bool bridgingSheetExists = false;
+            foreach(Excel.Worksheet sheet in oWB.Sheets)
+            {
+                if (sheet.Name.Equals("Bridging"))
+                {
+                    bridgingSheetExists = true;
+                }
+            }
+
+            if (bridgingSheetExists == false)
+            {
+                oWB.Worksheets.Add(After: oWB.Worksheets[baseTypesWS.Index]);
+                oWB.Worksheets[baseTypesWS.Index + 1].Name = "Bridging";
+                Excel._Worksheet bridgeWS = (Excel._Worksheet)oWB.Worksheets["Bridging"];
+                bridgeWS.Cells[1, 1] = "Temp";
+                bridgeWS.Cells[10, 8] = "Temp";
+                
+            }
+            
             Excel._Worksheet bridgingWS = (Excel._Worksheet)oWB.Worksheets["Bridging"];
 
             ///// GET BRIDGING ////
@@ -800,7 +820,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
         {
 
             string excelPath = System.IO.Path.GetTempFileName();
-            System.IO.File.WriteAllBytes(excelPath, Properties.Resources.BLANK_SALES_BOM);
+            System.IO.File.WriteAllBytes(excelPath, DESign_Sales_Excel_Add_In.Properties.Resources.BLANK_SALES_BOM);
 
             Excel.Application oXL2 = new Excel.Application();
             Excel.Workbooks workbooks = oXL.Workbooks;
@@ -910,6 +930,7 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     ;
                 }
             }
+
 
             //COPY COVER SHEET INTO NEW TAKEOFF
             Excel.Worksheet cover = oWB.Sheets["Cover"];

@@ -1,4 +1,4 @@
-﻿namespace DESign_Sales_Excel_Add_in.Tools
+﻿namespace DESign_Sales_Excel_Add_In_2.Tools
 {
     partial class FormSprinklerLoading
     {

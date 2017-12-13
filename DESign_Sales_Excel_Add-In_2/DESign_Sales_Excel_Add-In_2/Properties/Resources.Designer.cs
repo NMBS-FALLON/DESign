@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DESign_Sales_Excel_Add_In_2.Properties {
+namespace DESign_Sales_Excel_Add_In.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace DESign_Sales_Excel_Add_In_2.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DESign_Sales_Excel_Add_In_2.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DESign_Sales_Excel_Add_In.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace DESign_Sales_Excel_Add_in.Serialize
+namespace DESign_Sales_Excel_Add_In_2.Serialize
 {
     class Serialize
     {

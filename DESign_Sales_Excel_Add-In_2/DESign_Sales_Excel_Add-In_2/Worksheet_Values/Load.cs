@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace DESign_Sales_Excel_Add_in.Worksheet_Values
+namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 {
     [Serializable]
     public class Load

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DESign_BASE", "..\DESign_BASE\DESign_BASE\DESign_BASE.shproj", "{38C14CE8-AFE9-4742-8FA6-1FE2E6444B91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DESign_WordAddIn", "DESign_WordAddIn\DESign_WordAddIn.csproj", "{767701B9-8AE2-4D98-971A-9C032CED81F7}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\DESign_BASE\DESign_BASE\DESign_BASE.projitems*{38c14ce8-afe9-4742-8fa6-1fe2e6444b91}*SharedItemsImports = 13
+		..\DESign_BASE\DESign_BASE\DESign_BASE.projitems*{767701b9-8ae2-4d98-971a-9c032ced81f7}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{767701B9-8AE2-4D98-971A-9C032CED81F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{767701B9-8AE2-4D98-971A-9C032CED81F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{767701B9-8AE2-4D98-971A-9C032CED81F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{767701B9-8AE2-4D98-971A-9C032CED81F7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

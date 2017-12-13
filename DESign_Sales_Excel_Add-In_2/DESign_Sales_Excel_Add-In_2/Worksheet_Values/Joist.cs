@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 
-namespace DESign_Sales_Excel_Add_in.Worksheet_Values
+namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 {
     [Serializable]
     public class Joist
@@ -54,6 +55,17 @@ namespace DESign_Sales_Excel_Add_in.Worksheet_Values
                     double LL = Math.Ceiling((factoredLL / 1.6)/5.0) * 5;
                     description.Text = depth + "LH" + (DL + LL).ToString() + "/" + LL.ToString();
                     Notes.Add(new StringWithUpdateCheck { Text = "CJ SERIES: " + cjLoading, IsUpdated = Description.IsUpdated });
+                }
+
+                if (description.Text != null)
+                {
+                    description.Text = description.Text.Replace("+", "K");
+                    description.Text = description.Text.Replace("-", "LH");
+
+                    var regex = new Regex(Regex.Escape("*"));
+                    description.Text = regex.Replace(description.Text, "G", 1);
+                    description.Text = regex.Replace(description.Text, "N", 1);
+                    description.Text = regex.Replace(description.Text, "K", 1);
                 }
                 return description;
             }

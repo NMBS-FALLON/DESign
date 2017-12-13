@@ -5,8 +5,8 @@ using System.Text;
 using Microsoft.Office.Tools.Ribbon;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
-using DESign_Sales_Excel_Add_in.Worksheet_Values;
-using DESign_Sales_Excel_Add_in.BlueBeam;
+using DESign_Sales_Excel_Add_In_2.Worksheet_Values;
+using DESign_Sales_Excel_Add_In_2.BlueBeam;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using Microsoft.Office.Core;
 
-namespace DESign_Sales_Excel_Add_in
+namespace DESign_Sales_Excel_Add_In_2
 {
     public partial class NMBS_Sales_Ribbon
     {
@@ -53,7 +53,7 @@ namespace DESign_Sales_Excel_Add_in
 
         private void addSprinklerButton_Click(CommandBarButton Ctrl, ref bool CancelDefault)
         {
-            new DESign_Sales_Excel_Add_in.Tools.FormSprinklerLoading().Show();
+            new DESign_Sales_Excel_Add_In_2.Tools.FormSprinklerLoading().Show();
         }
 
         private void button1_Click(object sender, RibbonControlEventArgs e)
@@ -66,7 +66,7 @@ namespace DESign_Sales_Excel_Add_in
         {
 
             string excelPath = System.IO.Path.GetTempFileName();
-            System.IO.File.WriteAllBytes(excelPath, Properties.Resources.TAKEOFF_CONCEPT);
+            System.IO.File.WriteAllBytes(excelPath, DESign_Sales_Excel_Add_In.Properties.Resources.TAKEOFF_CONCEPT);
 
             Excel.Application oXLTemp = Globals.ThisAddIn.Application;
             Excel.Workbooks workbooks = oXLTemp.Workbooks;
@@ -118,7 +118,15 @@ namespace DESign_Sales_Excel_Add_in
                 "OTHER NOTES:\r\n" +
                 "   - SEQUENCES NEED TO BE BETWEEN THE { & } CHARACTERS\r\n" +
                 "   - SINGLE PITCH GEOMETRY: <20-30>LH10\r\n" +
-                "   - DOUBLE PITCH GEOMETRY: <20-30-20>LH10");
+                "   - DOUBLE PITCH GEOMETRY: <20-30-20>LH10\r\n" +
+                "   - JOIST DESCRIPTION SHORTHAND NOTATION:\r\n" +
+                "     '+' CHARACTER GETS REPLACED W/ 'K'\r\n" +
+                "     '-' CHARACTER GETS REPLACED W/ 'LH'\r\n" +
+                "     FIRST OCCURANCE OF '*' GETS REPLACED W/ 'G'\r\n" +
+                "     SECOND OCCURANCE OF '*' GETS REPLACED W/ 'N'\r\n" +
+                "     THIRD OCCURANCE OF '*' GETS REPLACED W/ 'K'\r\n" +
+                "     EXAMPLES:\r\n" +
+                "        20+5 = 20K5, 32-6 = 32LH6, 48*6*10*2 = 48G6N10K2");
         }
 
 

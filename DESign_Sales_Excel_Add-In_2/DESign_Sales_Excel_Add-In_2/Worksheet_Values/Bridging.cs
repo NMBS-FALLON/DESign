@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DESign_Sales_Excel_Add_in.Worksheet_Values
+namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 {
     public class Bridging
     {

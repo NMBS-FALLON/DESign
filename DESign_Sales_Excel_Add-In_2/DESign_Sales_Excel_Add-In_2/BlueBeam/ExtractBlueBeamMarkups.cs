@@ -7,12 +7,12 @@ using System.Data;
 using Microsoft.Win32;
 using System.Windows;
 using System.Text.RegularExpressions;
-using DESign_Sales_Excel_Add_in.Worksheet_Values;
+using DESign_Sales_Excel_Add_In_2.Worksheet_Values;
 using System.Xml.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
 
-namespace DESign_Sales_Excel_Add_in.BlueBeam
+namespace DESign_Sales_Excel_Add_In_2.BlueBeam
 {
     class ExtractBlueBeamMarkups
     {

@@ -427,14 +427,15 @@ module Seperator =
             let getAdditionalJoistsFromArraySlice (a : obj [])  =
                 let mutable col = 16
                 [while col <= 28 do
-                    if (a.[col] <> null && a.[col] <> (box "")) || (a.[col + 1] <> null && a.[col + 1] <> (box "")) then
-                        let additionalJoist =
-                            {
-                            LocationFt = string a.[col]
-                            LocationIn = string a.[col + 1]
-                            Load = Convert.ToDouble(a.[col + 2])
-                            }
-                        yield additionalJoist.ToLoad()
+                    if (a.[col + 2] <> null && a.[col + 2] <> (box "")) then
+                        if (a.[col] <> null && a.[col] <> (box "")) || (a.[col + 1] <> null && a.[col + 1] <> (box "")) then
+                            let additionalJoist =
+                                {
+                                LocationFt = string a.[col]
+                                LocationIn = string a.[col + 1]
+                                Load = Convert.ToDouble(a.[col + 2])
+                                }
+                            yield additionalJoist.ToLoad()
                     col <- col + 4]
 
             let getAdditionalJoistsFromArray (a2D : obj [,]) =
@@ -531,8 +532,8 @@ module Seperator =
         let workSheetNames = [for sheet in bom.Worksheets -> (sheet :?> Worksheet).Name] 
 
         let loads =
-            let filteredWorkSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("L ("))
-            if (List.isEmpty filteredWorkSheetNames) then
+            let loadSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("L ("))
+            if (List.isEmpty loadSheetNames) then
                 []
             else
                 let arrayList =
@@ -546,8 +547,8 @@ module Seperator =
                 loads
 
         let joists =
-            let filteredWorkSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("J ("))
-            if (List.isEmpty filteredWorkSheetNames) then
+            let joistSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("J ("))
+            if (List.isEmpty joistSheetNames) then
                 []
             else
                 let arrayList =
@@ -564,8 +565,8 @@ module Seperator =
                 joists
 
         let girdersAndAdditionalJoists =
-            let filteredWorkSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("G ("))
-            if (List.isEmpty filteredWorkSheetNames) then
+            let girderSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("G ("))
+            if (List.isEmpty girderSheetNames) then
                 []
             else
                 let arrayList1 =
@@ -601,8 +602,14 @@ module Seperator =
         }
 
     let modifyWorkbookFunction (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list) sds: Unit =
+
+        bom.Unprotect()
+        for sheet in bom.Worksheets do
+            let sheet = (sheet :?> Worksheet)
+            sheet.Unprotect("AAABBBBBABA-")
         
-        let workSheetNames = [for sheet in bom.Worksheets -> (sheet :?> Worksheet).Name] 
+        let workSheetNames = [for sheet in bom.Worksheets -> (sheet :?> Worksheet).Name]
+
 
         let switchSmToLc3 (a2D : obj [,]) =
             let startRow = Array2D.base1 a2D
@@ -613,9 +620,11 @@ module Seperator =
                 if a2D.[currentIndex, startCol + 2] = (box "SM") && (lc = "1" || lc = "") then
                     a2D.[currentIndex, startCol + 12] <- box "3"
 
+        
+
         let changeSmLoadsToLC3() =
-            let filteredWorkSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("L ("))
-            if (List.isEmpty filteredWorkSheetNames) then
+            let loadSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("L ("))
+            if (List.isEmpty loadSheetNames) then
                 ()
             else
                 for sheet in bom.Worksheets do
@@ -656,8 +665,8 @@ module Seperator =
         let addLC3LoadsToLoadNotes() =
             let joists, girders, loads = bomInfo
             let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads sds) = false)
-            let filteredWorkSheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("J ("))
-            if (List.isEmpty filteredWorkSheetNames) then ()
+            let joistSheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("J ("))
+            if (List.isEmpty joistSheetNames) then ()
             else
                 for sheet in bom.Worksheets do
                     let sheet = (sheet :?> Worksheet)
@@ -683,8 +692,8 @@ module Seperator =
                             sheet.Range("A16", "AA45").Value2 <- array
 
             let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads sds) = false)
-            let filtredWorkSheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("J ("))
-            if (List.isEmpty filteredWorkSheetNames) then ()
+            let girderWorksheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("G ("))
+            if (List.isEmpty girderWorksheetNames) then ()
             else
                 for sheet in bom.Worksheets do
                     let sheet = (sheet :?> Worksheet)

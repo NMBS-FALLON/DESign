@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 #pragma warning disable 414
-namespace DESign_Sales_Excel_Add_in {
+namespace DESign_Sales_Excel_Add_In_2 {
     
     
     /// 

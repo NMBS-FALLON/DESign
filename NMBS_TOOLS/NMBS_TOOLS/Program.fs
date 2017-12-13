@@ -4,8 +4,10 @@ open NMBS_Tools.CustomerReports
 open NMBS_Tools.BOM_Seismic_Seperation
 open NMBS_Tools.TCWidths
 open NMBS_Tools.GemToNmbs
+open NMBS_Tools.DESign_Automation
 open System
 open Microsoft.Office.Interop.Excel
+open NMBS_Tools.XML
 
 [<EntryPoint>]
 [<STAThreadAttribute>]
@@ -17,6 +19,7 @@ let main argv =
 
     //CustomerReports.createCustomerAnalysis()
     
+    // Seismic Seperator
     
     printfn "Please enter Sds (then click enter): "
     let sds = float (System.Console.ReadLine())
@@ -59,6 +62,10 @@ let main argv =
     //CreateReport.TCAnalysis()
 
     //Run.InputAllInfo()
+
+    //NMBS_Tools.DESign_Automation.InputErfosAndDeflection.goToJoistList()
+    
+    //NMBS_Tools.XML.XML.xmlTest()
 
     printfn "Complete!"
     printfn "Click enter to exit."

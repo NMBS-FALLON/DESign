@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace DESign_Sales_Excel_Add_in.Tools
+namespace DESign_Sales_Excel_Add_In_2.Tools
 {
     public partial class FormSprinklerLoading : Form
     {

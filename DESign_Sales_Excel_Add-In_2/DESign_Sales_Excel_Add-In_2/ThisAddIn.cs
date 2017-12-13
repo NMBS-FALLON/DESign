@@ -7,7 +7,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Excel;
 
-namespace DESign_Sales_Excel_Add_in
+namespace DESign_Sales_Excel_Add_In_2
 {
     public partial class ThisAddIn
     {
