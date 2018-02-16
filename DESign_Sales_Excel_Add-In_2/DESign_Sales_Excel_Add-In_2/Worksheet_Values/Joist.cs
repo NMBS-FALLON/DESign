@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
-
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 {
@@ -13,16 +14,17 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
         public List<StringWithUpdateCheck> BaseTypesOnMark { get; set; }
         public IntWithUpdateCheck Quantity { get; set; }
         private bool geometryAdded = false;
-        private bool compositeJoist = false;
+        private bool compositeJoistAdded = false;
         private StringWithUpdateCheck description = new StringWithUpdateCheck { };
         public StringWithUpdateCheck Description
         {
             get
             {
-                if (geometryAdded == false && description.Text != null && description.Text.Contains("<"))
+                StringWithUpdateCheck newDescription = DeepClone(description);
+                if (newDescription.Text != null && newDescription.Text.Contains("<"))
                 {
                     string[] seperators = { "<", ">", "-" };
-                    string[] geometryValues = description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+                    string[] geometryValues = newDescription.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
                     string geometryNote = "";
                     string depth = "";
                     if (geometryValues.Length == 3) // single pitch
@@ -38,36 +40,43 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                         depth = geometryValues[1];
                         geometryNote = string.Format("DP: {0}/{1}/{2}", geometryValues[0], geometryValues[1], geometryValues[2]);
                     }
-                    description.Text = depth + description.Text.Substring(description.Text.IndexOf('>') + 1);
-                    Notes.Add(new StringWithUpdateCheck { Text = geometryNote, IsUpdated = Description.IsUpdated });
-                    geometryAdded = true;
+                    newDescription.Text = depth + newDescription.Text.Substring(newDescription.Text.IndexOf('>') + 1);
+                    if (geometryAdded == false)
+                    {
+                        Notes.Add(new StringWithUpdateCheck { Text = geometryNote, IsUpdated = newDescription.IsUpdated });
+                        geometryAdded = true;
+                    }
                 }
 
-                if (description.Text != null && description.Text.Contains("CJ"))
+                if (newDescription.Text != null && newDescription.Text.Contains("CJ"))
                 {
                     string[] seperators = { "CJ", "/" };
-                    string[] descriptionArray = description.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
-                    string depth = descriptionArray[0];
-                    double factoredTL = Convert.ToDouble(descriptionArray[1]);
-                    double factoredLL = Convert.ToDouble(descriptionArray[2]);
-                    string cjLoading = description.Text.Split(new string[] { "CJ" }, StringSplitOptions.RemoveEmptyEntries)[1];             
+                    string[] newDescriptionArray = newDescription.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+                    string depth = newDescriptionArray[0];
+                    double factoredTL = Convert.ToDouble(newDescriptionArray[1]);
+                    double factoredLL = Convert.ToDouble(newDescriptionArray[2]);
+                    string cjLoading = newDescription.Text.Split(new string[] { "CJ" }, StringSplitOptions.RemoveEmptyEntries)[1];             
                     double DL = Math.Ceiling(((factoredTL - factoredLL) / 1.2)/5.0) * 5;
                     double LL = Math.Ceiling((factoredLL / 1.6)/5.0) * 5;
-                    description.Text = depth + "LH" + (DL + LL).ToString() + "/" + LL.ToString();
-                    Notes.Add(new StringWithUpdateCheck { Text = "CJ SERIES: " + cjLoading, IsUpdated = Description.IsUpdated });
+                    newDescription.Text = depth + "LH" + (DL + LL).ToString() + "/" + LL.ToString();
+                    if (compositeJoistAdded == false)
+                    {
+                        Notes.Add(new StringWithUpdateCheck { Text = "CJ SERIES: " + cjLoading, IsUpdated = newDescription.IsUpdated });
+                        compositeJoistAdded = true;
+                    }
                 }
 
-                if (description.Text != null)
+                if (newDescription.Text != null)
                 {
-                    description.Text = description.Text.Replace("+", "K");
-                    description.Text = description.Text.Replace("-", "LH");
+                    newDescription.Text = newDescription.Text.Replace("+", "K");
+                    newDescription.Text = newDescription.Text.Replace("-", "LH");
 
                     var regex = new Regex(Regex.Escape("*"));
-                    description.Text = regex.Replace(description.Text, "G", 1);
-                    description.Text = regex.Replace(description.Text, "N", 1);
-                    description.Text = regex.Replace(description.Text, "K", 1);
+                    newDescription.Text = regex.Replace(newDescription.Text, "G", 1);
+                    newDescription.Text = regex.Replace(newDescription.Text, "N", 1);
+                    newDescription.Text = regex.Replace(newDescription.Text, "K", 1);
                 }
-                return description;
+                return newDescription;
             }
             set
             {
@@ -359,7 +368,20 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             errors.Add(error);
         }
 
+        public static T DeepClone<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
+            }
+        }
+
     }
+
     
 
 }

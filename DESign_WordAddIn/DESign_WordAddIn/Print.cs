@@ -189,8 +189,16 @@ namespace DESign_WordAddIn
             string shopCopies;
             string cutCopies;
 
-            shopCopies = "1," + "2-" + Convert.ToString(intChordCutSheetPage - 1) + "," + Convert.ToString(intBasePlate) + "-" + Convert.ToString(intEnd) + "";
-            cutCopies = String.Format("1, {0} - {1}", Convert.ToString(intChordCutSheetPage), Convert.ToString(intEnd));
+            if (intChordCutSheetPage > 1 && intBasePlate > 1 && intEnd > 1)
+            {
+                shopCopies = "1," + "2-" + Convert.ToString(intChordCutSheetPage - 1) + "," + Convert.ToString(intBasePlate) + "-" + Convert.ToString(intEnd) + "";
+                cutCopies = String.Format("1, {0} - {1}", Convert.ToString(intChordCutSheetPage), Convert.ToString(intEnd));
+            }
+            else
+            {
+                MessageBox.Show("ERROR WITH PRINTING");
+                goto ExitSub;
+            }
 
             selection.HomeKey(Word.WdUnits.wdStory, 0);
             selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
@@ -206,6 +214,7 @@ namespace DESign_WordAddIn
             //Globals.ThisAddIn.Application.ActivePrinter = "Xerox D110";
             Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: shopCopies, Copies: 1);
             Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: cutCopies, Copies: 1);
+            
 
             ExitSub:
             selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 {
+    [Serializable]
     public class BaseType
     {
         public StringWithUpdateCheck Name { get; set; }

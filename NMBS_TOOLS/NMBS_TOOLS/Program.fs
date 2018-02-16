@@ -21,6 +21,7 @@ let main argv =
     
     // Seismic Seperator
     
+    (*
     printfn "Please enter Sds (then click enter): "
     let sds = float (System.Console.ReadLine())
 
@@ -57,9 +58,9 @@ let main argv =
                          ()
     | None -> printfn "No BOM Selected."
         
-    
+    *)
 
-    //CreateReport.TCAnalysis()
+    CreateReport.TCAnalysis()
 
     //Run.InputAllInfo()
 

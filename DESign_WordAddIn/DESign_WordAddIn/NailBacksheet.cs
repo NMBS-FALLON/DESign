@@ -157,7 +157,7 @@ namespace DESign_WordAddIn
 
             comboBoxNailPlacement.DrawMode = System.Windows.Forms.DrawMode.Normal;
 
-            string[] placementTypes = new string[] { "Non-Staggered", "Staggered", };
+            string[] placementTypes = new string[] { "Staggered", "Non-Staggered", };
 
             comboBoxNailPlacement.DataSource = placementTypes;
 

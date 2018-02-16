@@ -117,8 +117,8 @@ module CreateReport =
     let getTCAnalysis (files : string list) =
         xlsToCsv files
         [for file in files do
-            let jobNumber = file.Split([|"Joist Details - "; ".xls"|], StringSplitOptions.RemoveEmptyEntries).[1]
-            let newFileName = file.Replace(".xls", ".csv")
+            let jobNumber = file.Split([|"Joist Details - "; ".xlsx"|], StringSplitOptions.RemoveEmptyEntries).[1]
+            let newFileName = file.Replace(".xlsx", ".csv")
             let df = Frame.ReadCsv(newFileName)
             File.Delete(newFileName)
             yield (df |> tcAnalysis jobNumber)
@@ -131,7 +131,7 @@ module CreateReport =
         let joistDetailsDirectory = new DirectoryInfo(joistDetailsPath)
         let files = joistDetailsDirectory.GetFiles();
         [for file in files do yield file.FullName]
-        |> List.filter (fun s -> s.Contains(".xls"))
+        |> List.filter (fun s -> s.Contains(".xlsx"))
         
 
     let TCAnalysis() = 

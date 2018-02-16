@@ -690,7 +690,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     {
                         foreach (BaseType bT1 in all)
                         {
-                            AddBaseType(joist, bT1);
+                            AddBaseType(joist, DeepClone(bT1));
                         }
                     }
 
@@ -698,7 +698,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     {
                         foreach (BaseType bT1 in allJoist)
                         {
-                            AddBaseType(joist, bT1);
+                            AddBaseType(joist, DeepClone(bT1));
                         }
                     }
 
@@ -706,7 +706,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     {
                         foreach (BaseType bT1 in allGirder)
                         {
-                            AddBaseType(joist, bT1);
+                            AddBaseType(joist, DeepClone(bT1));
                         }
                     }
 
@@ -714,7 +714,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     {
                         foreach (BaseType bT1 in allSequence)
                         {
-                            AddBaseType(joist, bT1);
+                            AddBaseType(joist, DeepClone(bT1));
                         }
                     }
 
@@ -722,7 +722,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     {
                         foreach (BaseType bT1 in allJoistSequence)
                         {
-                            AddBaseType(joist, bT1);
+                            AddBaseType(joist, DeepClone(bT1));
                         }
                     }
 
@@ -730,7 +730,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     {
                         foreach (BaseType bT1 in allGirderSequence)
                         {
-                            AddBaseType(joist, bT1);
+                            AddBaseType(joist, DeepClone(bT1));
                         }
                     }
 
@@ -934,6 +934,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
             //COPY COVER SHEET INTO NEW TAKEOFF
             Excel.Worksheet cover = oWB.Sheets["Cover"];
+            CellInsert(cover, 2, 10, "=INDEX(INDIRECT(\"ProjectTypes[Category]\"),MATCH(INDIRECT(\"ProjectCat\"),INDIRECT(\"ProjectTypes[Type]\"),0))", false);
             cover.Copy(Type.Missing, After: workbook.Sheets["Cover"]);
             Excel.Worksheet oldCover = workbook.Sheets["Cover"];
             oXL.DisplayAlerts = false;
