@@ -49,12 +49,12 @@ namespace DESign_WordAddIn
 
         private void btnPrintShopCopies_Click(object sender, RibbonControlEventArgs e)
         {
-            print.PrintShopCopies();
+            print.PrintShopCopies(8);
         }
 
         private void btnSinglePrintShopCopy_Click(object sender, RibbonControlEventArgs e)
         {
-            print.SinglePrintShopCopies();
+            print.PrintShopCopies(1);
         }
 
         private void btnBlankWorksheets_Click(object sender, RibbonControlEventArgs e)
