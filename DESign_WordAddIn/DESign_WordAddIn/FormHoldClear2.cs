@@ -727,10 +727,10 @@ namespace DESign_WordAddIn
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * tcVLeg) / 12.0);
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) >= seatVLeg - 0.1251 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * tcVLeg) >= seatVLeg - 0.1251)
+              /*      else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) >= seatVLeg - 0.1251 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * tcVLeg) >= seatVLeg - 0.1251)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP04 = true;
@@ -753,10 +753,10 @@ namespace DESign_WordAddIn
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * tcVLeg) / 12.0);
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) >= seatVLeg - 0.1251 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * tcVLeg) >= seatVLeg - 0.1251)
+                 /*   else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) >= seatVLeg - 0.1251 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * tcVLeg) >= seatVLeg - 0.1251)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP04 = true;
@@ -865,7 +865,7 @@ namespace DESign_WordAddIn
 
                 }
 
-                if (thisJoistSeatInfo.TC == "4037" || thisJoistSeatInfo.TC == "4043")
+                if (thisJoistSeatInfo.TC == "4037")
                 {
                     diffInHCandTC = -1;
                     thisHCSeatInfo.HCMaterial = "3534";
@@ -877,10 +877,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 4.0) >= 3.501 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 4.0) >= 3.501 - 0.125)
+              /*      else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 4.0) >= 3.501 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 4.0) >= 3.501 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP04 = true;
@@ -891,6 +891,38 @@ namespace DESign_WordAddIn
                             MessageBox.Show(thisHCSeatInfo.mark + " " + thisHCSeatInfo.bplSide + " :\r\n\r\n" + "CONFIRM THAT W2 OVERLAPS BASEPLATE BY A MINIMUM OF 2\".\r\nIF NOT, INCREASE THE LENGTH OF THE PLATE AND ADJUST ALL DEPTHS ACCORDINGLY.");
                         }
                         diffInHCandTC = -2;
+
+                    }
+                }
+
+                if (thisJoistSeatInfo.TC == "4043")
+                {
+                    diffInHCandTC = -1;
+                    thisHCSeatInfo.HCMaterial = "3534";
+
+                    thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 4.0) / 12.0);
+                    thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 4.0) / 12.0);
+
+                    if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 4.0) + 3.501 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 4.0) + 3.501)
+                    {
+                        thisHCSeatInfo.buttedSeat = true;
+                    }
+                    /*      else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 4.0) >= 3.501 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 4.0) >= 3.501 - 0.125)
+                          {
+                              thisHCSeatInfo.gappedSeat = true;
+                          } */
+                    else
+                    {
+                        thisHCSeatInfo.plateSeatP08 = true;
+                        thisHCSeatInfo.paMat = "P0608";
+                        thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 4.0) / 12.0 - 0.5 / 12.0);
+                        thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 4.0) / 12.0 - 0.5 / 12.0);
+                        if (thisJoistSeatInfo.bplInsideDepth > thisJoistSeatInfo.bplOutsideDepth)
+                        {
+                            MessageBox.Show(thisHCSeatInfo.mark + " " + thisHCSeatInfo.bplSide + " :\r\n\r\n" + "CONFIRM THAT W2 OVERLAPS BASEPLATE BY A MINIMUM OF 2\".\r\nIF NOT, INCREASE THE LENGTH OF THE PLATE AND ADJUST ALL DEPTHS ACCORDINGLY.");
+                        }
+                        diffInHCandTC = 1;
+                        thisHCSeatInfo.paWidth = "4";
 
                     }
                 }
@@ -907,10 +939,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 4.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 4.0) >= 4.001 - 0.125)
+                 /*   else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 4.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 4.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
@@ -937,15 +969,15 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125)
+               /*     else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
                         thisHCSeatInfo.paMat = "P0608";
-                        diffInHCandTC = -3;
+                        diffInHCandTC = 1;
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) / 12.0 - 0.5 / 12.0);
                         thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) / 12.0 - 0.5 / 12.0);
                         if (thisJoistSeatInfo.bplInsideDepth > thisJoistSeatInfo.bplOutsideDepth)
@@ -969,10 +1001,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125)
+                /*    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 5.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
@@ -999,10 +1031,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
+            /*        else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
@@ -1028,10 +1060,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
+                 /*   else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
@@ -1058,10 +1090,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
+               /*     else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
@@ -1088,10 +1120,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
+           /*         else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
@@ -1118,10 +1150,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
+              /*      else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 6.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
@@ -1148,10 +1180,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125)
+             /*       else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
@@ -1178,10 +1210,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125)
+           /*         else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;
@@ -1208,10 +1240,10 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                     }
-                    else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125)
+           /*         else if (12.0 * thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125 && 12.0 * thisJoistSeatInfo.bplInsideDepth - (slopeFactor * 8.0) >= 4.001 - 0.125)
                     {
                         thisHCSeatInfo.gappedSeat = true;
-                    }
+                    } */
                     else
                     {
                         thisHCSeatInfo.plateSeatP08 = true;

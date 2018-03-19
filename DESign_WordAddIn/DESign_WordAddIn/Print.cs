@@ -11,7 +11,7 @@ namespace DESign_WordAddIn
 {
     class Print
     {
-        public void PrintShopCopies(int numCopies)
+        public void PrintShopCopies(int numShopCopies, int numCutCopies)
         {
             Word.Selection selection = Globals.ThisAddIn.Application.Selection; 
 
@@ -46,6 +46,13 @@ namespace DESign_WordAddIn
                     }
                 }
                 selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+
+                selection.Find.Execute("\f");
+                selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                selection.GoTo(What: Word.WdGoToItem.wdGoToLine, Which: Word.WdGoToDirection.wdGoToNext, Count: 1);
+                Globals.ThisAddIn.Application.ActiveDocument.Bookmarks.Add("BasePlate", selection.Range);
+
+                /*
                 if (selection.Find.Execute("\f") == true)
                 {
                     selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
@@ -57,6 +64,7 @@ namespace DESign_WordAddIn
                     MessageBox.Show("ERROR WITH PRINTING");
                     goto ExitSub;
                 }
+                */
 
             }
 
@@ -73,6 +81,11 @@ namespace DESign_WordAddIn
                     }
                 }
                 selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+
+                selection.Find.Execute("\f");
+                Globals.ThisAddIn.Application.ActiveDocument.Bookmarks.Add("BasePlate", selection.Range);
+
+                /*
                 if (selection.Find.Execute("\f") == true)
                 {
                     Globals.ThisAddIn.Application.ActiveDocument.Bookmarks.Add("BasePlate", selection.Range);
@@ -82,6 +95,7 @@ namespace DESign_WordAddIn
                     MessageBox.Show("ERROR WITH PRINTING");
                     goto ExitSub;
                 }
+                */
             }
 
             int intEnd;
@@ -97,12 +111,13 @@ namespace DESign_WordAddIn
 
             string shopCopies;
             string cutCopies;
-
+            /*
             if (intChordCutSheetPage <= 1 && intBasePlate <= 1 && intEnd <= 1)
             {
                 MessageBox.Show("ERROR WITH PRINTING");
                 goto ExitSub;
             }
+            */
 
             shopCopies = "1," + "2-" + Convert.ToString(intChordCutSheetPage - 1) + "," + Convert.ToString(intBasePlate) + "-" + Convert.ToString(intEnd) + "";
             cutCopies = String.Format("1, {0} - {1}", Convert.ToString(intChordCutSheetPage), Convert.ToString(intEnd));
@@ -113,8 +128,8 @@ namespace DESign_WordAddIn
             Globals.ThisAddIn.Application.ActiveWindow.View.RevisionsMode = Word.WdRevisionsMode.wdInLineRevisions;
 
             //Globals.ThisAddIn.Application.ActivePrinter = "Xerox D110";
-            Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: shopCopies, Copies: numCopies);
-            Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: cutCopies, Copies: numCopies);
+            Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: shopCopies, Copies: numShopCopies);
+            Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: cutCopies, Copies: numCutCopies);
 
         ExitSub:
             selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);

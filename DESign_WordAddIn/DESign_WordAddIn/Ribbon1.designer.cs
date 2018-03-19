@@ -1,4 +1,8 @@
-﻿namespace DESign_WordAddIn
+﻿using System.Diagnostics;
+using System.Deployment.Application;
+using System.Reflection;
+
+namespace DESign_WordAddIn
 {
     partial class RibbonNMBS : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
@@ -11,6 +15,11 @@
             : base(Globals.Factory.GetRibbonFactory())
         {
             InitializeComponent();
+            if (ApplicationDeployment.IsNetworkDeployed)
+            {
+                System.Version v = ApplicationDeployment.CurrentDeployment.CurrentVersion;
+                tab1.Label = "NMBS (v" + v.Revision.ToString() + ")";
+            }
         }
 
         /// <summary> 
@@ -96,7 +105,7 @@
             // 
             // btnSinglePrintShopCopy
             // 
-            this.btnSinglePrintShopCopy.Label = "Single Shop Copy_";
+            this.btnSinglePrintShopCopy.Label = "Single Shop Copy";
             this.btnSinglePrintShopCopy.Name = "btnSinglePrintShopCopy";
             this.btnSinglePrintShopCopy.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnSinglePrintShopCopy_Click);
             // 

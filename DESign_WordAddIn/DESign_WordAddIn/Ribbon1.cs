@@ -16,7 +16,7 @@ namespace DESign_WordAddIn
         Print print = new Print();
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
-
+            
         }
 
         private void btnNailBacksheet_Click(object sender, RibbonControlEventArgs e)
@@ -49,12 +49,12 @@ namespace DESign_WordAddIn
 
         private void btnPrintShopCopies_Click(object sender, RibbonControlEventArgs e)
         {
-            print.PrintShopCopies(8);
+            print.PrintShopCopies(8, 6);
         }
 
         private void btnSinglePrintShopCopy_Click(object sender, RibbonControlEventArgs e)
         {
-            print.PrintShopCopies(1);
+            print.PrintShopCopies(1, 1);
         }
 
         private void btnBlankWorksheets_Click(object sender, RibbonControlEventArgs e)
