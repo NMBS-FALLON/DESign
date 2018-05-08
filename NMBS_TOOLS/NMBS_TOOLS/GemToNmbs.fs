@@ -121,6 +121,8 @@ module Run =
     let inputAllInfo (joists : Joist list) (savePath: string) =
         printfn "Creating NMBS Takeoff; Please hold."
         let tempExcelApp = new Microsoft.Office.Interop.Excel.ApplicationClass(Visible = false)
+        tempExcelApp.AutomationSecurity = Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable |> ignore
+        tempExcelApp.DisplayAlerts = false |> ignore
         try
             let excelPath = System.IO.Path.GetTempFileName();
             System.IO.File.WriteAllBytes(excelPath, resources.``BLANK SALES BOM``)

@@ -858,8 +858,35 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 for (int markCounter = 0; markCounter < sequence.Joists.Count;)
                 {
                     Joist joist = sequence.Joists[markCounter];
+                    List<Load> newLoads = new List<Load>();
+                    foreach(Load load in joist.Loads)
+                    {
+                        if (load.LoadInfoType.Text == "CAP")
+                        {
+                            if (joist.IsGirder == false)
+                            {
+                                MessageBox.Show("ERROR WITH MARK " + joist.Mark.Text.ToString() + "; CAP LOAD CANNOT BE ADDED TO A JOIST");
+                            }
+                            else
+                            {
 
-                    int maxRows = Math.Max(joist.Loads.Count, joist.Notes.Count);
+                                int numPanelPoints = Convert.ToInt16(joist.Description.Text.Split(new string[] { "G", "N" }, StringSplitOptions.None)[1]) - 1;
+                                for(int i = 1; i <= numPanelPoints; i++)
+                                {
+                                    Load ppLoad = DeepClone(load);
+                                    ppLoad.LoadInfoType.Text = "C";
+                                    ppLoad.Load1DistanceFt.Text = "P" + DeepClone(i).ToString();
+                                    newLoads.Add(ppLoad);
+                                }
+                                    
+                            }
+
+                        }
+                    }
+
+                    int numCapLoads = joist.Loads.Where(load => load.LoadInfoType.Text == "CAP").ToList().Count;
+
+                    int maxRows = Math.Max(joist.Loads.Count + newLoads.Count - numCapLoads, joist.Notes.Count);
                     if (maxRows > 32)
                     {
                         MessageBox.Show(String.Format("Mark {0} has too many loads on it.\r\n NOTE THAT THIS JOIST WILL NOT BE ADDED TO THE TAKEOFFF!\r\n Either add this joist manually or send to Darien to convert.",
@@ -869,7 +896,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     }
 
 
-                    pageRowCounter = pageRowCounter + Math.Max(Math.Max(joist.Loads.Count, joist.Notes.Count), 1) + 3;
+                    pageRowCounter = pageRowCounter + Math.Max(Math.Max(joist.Loads.Count + newLoads.Count - numCapLoads, joist.Notes.Count), 1) + 3;
                     if (pageRowCounter > 35)
                     {
                         sheetCount = sheetCount + 1;
@@ -883,6 +910,13 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                         pageRowCounter = 0;
                         goto SkipLoop;
                     }
+
+                    joist.Loads.RemoveAll(load => load.LoadInfoType.Text == "CAP");
+                    foreach (Load load in newLoads)
+                    {
+                        joist.Loads.Add(load);
+                    }
+
                     CellInsert(sheet, row, 1, joist.Mark.Text, joist.Mark.IsUpdated);
                     CellInsert(sheet, row, 2, joist.Quantity.Value, joist.Quantity.IsUpdated);
                     CellInsert(sheet, row, 3, joist.DescriptionAdjusted.Text, joist.DescriptionAdjusted.IsUpdated);
@@ -902,6 +936,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     int loadRow = row;
                     foreach (Load load in joist.Loads)
                     {
+
                         CellInsert(sheet, loadRow, 16, load.LoadInfoType.Text, load.LoadInfoType.IsUpdated);
                         CellInsert(sheet, loadRow, 17, load.LoadInfoCategory.Text, load.LoadInfoCategory.IsUpdated);
                         CellInsert(sheet, loadRow, 18, load.LoadInfoPosition.Text, load.LoadInfoPosition.IsUpdated);
@@ -912,8 +947,8 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                         CellInsert(sheet, loadRow, 23, load.Load2DistanceFt.Text, load.Load2DistanceFt.IsUpdated);
                         CellInsert(sheet, loadRow, 24, load.Load2DistanceIn.Value, load.Load2DistanceIn.IsUpdated);
                         CellInsert(sheet, loadRow, 25, load.CaseNumber.Value, load.CaseNumber.IsUpdated);
-
                         loadRow++;
+
                     }
 
                     int noteRow = row;
@@ -1046,7 +1081,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             {
                 if (sequence.SeperateSeismic == true)
                 {
-                    bool lc3Taken = false;
+                    /*bool lc3Taken = false;
                     foreach (Joist joist in sequence.Joists)
                     {
                         var listOfLCs = from load in joist.Loads
@@ -1067,7 +1102,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                         sequence.Name.Text));
                         //throw new SystemException();
                     }
-
+                    */
                     
                     foreach (Joist joist in sequence.Joists)
                     {

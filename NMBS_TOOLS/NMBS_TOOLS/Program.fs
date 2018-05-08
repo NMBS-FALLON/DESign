@@ -21,18 +21,18 @@ let main argv =
     
     // Seismic Seperator
     
-    (*
+    
     printfn "Please enter Sds (then click enter): "
     let sds = float (System.Console.ReadLine())
 
     
     let reportPath =
         let openFile = new System.Windows.Forms.OpenFileDialog()
-        openFile.Filter <- "Excel files|*.xlsx"
+        openFile.Filter <- "Excel files|*.xlsm"
         openFile.Title <- "Select BOM"
         if (openFile.ShowDialog())= (System.Windows.Forms.DialogResult.OK) then
             let fileName = openFile.FileName
-            if fileName.Contains(".xlsm") then
+            (*if fileName.Contains(".xlsm") then
                 let tempExcelApp = new Microsoft.Office.Interop.Excel.ApplicationClass(Visible = false)
                 try 
                     tempExcelApp.DisplayAlerts <- false
@@ -49,7 +49,9 @@ let main argv =
                     tempExcelApp.Quit()
                     System.Runtime.InteropServices.Marshal.ReleaseComObject(tempExcelApp) |> ignore
                     System.GC.Collect() |> ignore
-            Some (fileName.Replace(".xlsm", ".xlsx"))
+                    *)
+            //Some (fileName.Replace(".xlsm", ".xlsx"))
+            Some fileName
         else
             None
 
@@ -58,9 +60,9 @@ let main argv =
                          ()
     | None -> printfn "No BOM Selected."
         
-    *)
+    
 
-    CreateReport.TCAnalysis()
+    //CreateReport.TCAnalysis()
 
     //Run.InputAllInfo()
 

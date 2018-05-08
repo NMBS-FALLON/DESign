@@ -499,11 +499,14 @@ module Seperator =
                     yield {girder with AdditionalJoists = additionalJoists}]
                     
     let saveWorkbook (title : string) (workbook : Workbook) =
+            let title = title.Replace(".xlsm", " (IMPORT).xlsm")
             let title = title.Replace(".xlsx", " (IMPORT).xlsx")
             workbook.SaveAs(title)
     
     let getAllInfo reportPath getInfoFunction modifyWorkbookFunction (sds : float) =
         let tempExcelApp = new Microsoft.Office.Interop.Excel.ApplicationClass(Visible = false)
+        tempExcelApp.DisplayAlerts = false |> ignore
+        tempExcelApp.AutomationSecurity = Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable |> ignore
         //let bom = tempExcelApp.Workbooks.Open(bomPath)
         try 
             tempExcelApp.DisplayAlerts <- false
@@ -604,9 +607,9 @@ module Seperator =
     let modifyWorkbookFunction (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list) sds: Unit =
 
         bom.Unprotect()
-        for sheet in bom.Worksheets do
-            let sheet = (sheet :?> Worksheet)
-            sheet.Unprotect("AAABBBBBABA-")
+        //for sheet in bom.Worksheets do
+        //    let sheet = (sheet :?> Worksheet)
+        //    sheet.Unprotect("AAABBBBBABA-")
         
         let workSheetNames = [for sheet in bom.Worksheets -> (sheet :?> Worksheet).Name]
 
