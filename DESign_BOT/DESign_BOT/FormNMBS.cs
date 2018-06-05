@@ -12,6 +12,7 @@ using DESign_BOT;
 using DESign_BASE;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
+using DESign_Bot_FS_Tools;
 
 namespace DESign_BOT
 {
@@ -208,6 +209,27 @@ namespace DESign_BOT
 
 
 
+        }
+
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            string reportPath = "";
+            System.Windows.Forms.OpenFileDialog openFile = new System.Windows.Forms.OpenFileDialog();
+            openFile.Filter = "Excel files|*.xlsm";
+            openFile.Title = "Select BOM";
+            if (openFile.ShowDialog() == (System.Windows.Forms.DialogResult.OK))
+            {
+                reportPath = openFile.FileName;
+            }
+
+            if (reportPath != "")
+            {
+                DESign_Bot_FS_Tools.Seperator.getAllBomInfo(reportPath);
+            }
+            else
+            {
+                MessageBox.Show("No BOM Selected");
+            }
         }
     }
 }

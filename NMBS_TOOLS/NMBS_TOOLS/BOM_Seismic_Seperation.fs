@@ -12,6 +12,14 @@ module Seperator =
     open Microsoft.Office.Interop.Excel
     open System.Runtime.InteropServices
     open NMBS_Tools.ArrayExtensions
+    open System.Text.RegularExpressions
+
+
+
+    let (|Regex|_|) pattern input =
+            let m = Regex.Match(input, pattern)
+            if m.Success then Some(List.tail [ for g in m.Groups -> g.Value ])
+            else None
 
     type Load =
         {
@@ -46,6 +54,7 @@ module Seperator =
         LoadNumber : string
         Load : Load
         }
+
 
     type Panel =
         {
@@ -139,55 +148,73 @@ module Seperator =
         (ft, inch)   
 
         
-    (*
-    let testArray = array2D [[box "G43"; box "B"; box 5; box 8.5; box 5; box 8; box 0; box 7; box 8.5 ];
-                             [box "G44"; box "B"; box 5; box 8.5; box 5; box 8; box 0; box 7; box 8.5 ];
-                             [box "G45"; box "B"; box 5; box 8.5; box 5; box 8; box 0; box 7; box 8.5 ];
-                             [box "G46"; box "B"; box 7; box 3.125; box 1; box 8; box 0; box 7; box 8.5 ];
-                             [box null; box null; box null; box null; box 1; box 5; box 6; box 7; box 8.5 ];
-                             [box null; box null; box null; box null; box 1; box 5; box 6; box 7; box 8.5 ];
-                             [box null; box null; box null; box null; box 1; box 5; box 6; box 7; box 8.5 ];
-                             [box ""; box "B"; box 5; box 8.5; box 1; box 10; box 0; box 7; box 8.5 ];
-                             [box "G47"; box "B"; box 5; box 8.5; box 5; box 8; box 0; box 7; box 8.5 ];
-                             [box ""; box "B"; box 5; box 8.5; box 5; box 8; box 0; box 7; box 8.5 ];
-                             [box ""; box "B"; box 5; box 8.5; box 5; box 8; box 0; box 7; box 8.5 ];
-                             [box ""; box "B"; box 5; box 8.5; box 5; box 8; box 0; box 7; box 8.5 ];
-                             [box "G48"; box "B"; box 5; box 8.5; box 5; box 8; box 0; box 7; box 8.5 ];
-                             [box null; box null; box null; box null; box null; box null; box null; box null; box null ];
-                             [box null; box null; box null; box null; box null; box null; box null; box null; box null ];
-                             [box null; box null; box null; box null; box null; box null; box null; box null; box null ]]
-
-   let test2 = getGirderGeometry testArray
-   let test3 = test2 |> List.filter (fun geom -> geom.Mark = "G46")
-   let test4 = getPanelDim 4 (test3.[0])
-
-   *)
-
-   
-
-
-
-            
-        
-
     let getLoadNotes (note : string) =
-        let loadNoteStart = note.IndexOf("(")
-        let loadNotes = note.Substring(loadNoteStart)
-        let loadNotes = loadNotes.Split([|"("; ","; ")"|], StringSplitOptions.RemoveEmptyEntries)
-        let loadNotes = loadNotes |> List.ofArray
-        loadNotes |> List.map (fun (s : string) -> s.Trim())
-    
+        if note.Contains("(") then
+            let loadNoteStart = note.IndexOf("(")
+            let loadNotes = note.Substring(loadNoteStart)
+            let loadNotes = loadNotes.Split([|"("; ","; ")"|], StringSplitOptions.RemoveEmptyEntries)
+            let loadNotes = loadNotes |> List.ofArray
+            loadNotes |> List.map (fun (s : string) -> s.Trim())
+        else
+            []
+
+    let getSpecialNotes (note : string) =
+        if note.Contains("[") then
+            let specialNotesStart = note.IndexOf("[")
+            let specialNotesEnd = note.IndexOf("]")
+            let specialNotes = note.Substring(specialNotesStart, specialNotesEnd + 1)
+            let specialNotes = specialNotes.Split([|"["; ","; "]"|], StringSplitOptions.RemoveEmptyEntries)
+            let specialNotes = specialNotes |> List.ofArray
+            specialNotes |> List.map (fun (s: string) -> s.Trim())
+        else
+            []
+
+    type Note =
+        {
+        Number : string
+        Text : string
+        }
+
     type Joist =
         {
         Mark : string
         JoistSize : string
-        LoadNoteString : string option
+        OverallLength : float
+        LE_Depth : float
+        RE_Depth : float
+        Overall_TC_Pitch : float
+        NotesString : string option
+        SlopeSpecialNotes : Note List
         }
 
         member this.LoadNoteList =
-            match (this.LoadNoteString) with
+            match (this.NotesString) with
             | Some notes -> getLoadNotes notes
             | None -> []
+
+        member this.SpecialNoteList =
+            match (this.NotesString) with
+            | Some notes -> Some (getSpecialNotes notes)
+            | None -> None
+
+        member this.EndDepths =
+            let slopeSpecialNote =
+                match this.SpecialNoteList with
+                | Some list -> 
+                    [for slopeSpecialNote in this.SlopeSpecialNotes do
+                         if List.contains slopeSpecialNote.Number list then
+                             yield slopeSpecialNote.Text]
+                | None -> []
+
+            let endDepths =
+                match slopeSpecialNote with
+                | [] -> 0.0, 0.0
+                | _ ->
+                    match slopeSpecialNote.[0] with
+                    | Regex @"SP *: *(\d+\.?\d*)/(\d+\.?\d*)" [leDepth; reDepth] -> (float leDepth, float reDepth)
+                    | _ -> 0.0, 0.0 
+
+            endDepths
 
         member this.UDL =
             let size = this.JoistSize
@@ -243,28 +270,6 @@ module Seperator =
             LoadCases = []
             }
 
-        member this.ToLoad2 (gGeom : GirderGeometry) =
-            let mutable locationFt = this.LocationFt
-            let mutable locationIn = this.LocationIn
-            
-            if (string this.LocationFt) = "P" then
-                let panel = System.Int32.Parse((string this.LocationIn).Replace("#", ""))
-                let ft, inch = getPanelDim panel gGeom
-                locationFt <- box ft
-                locationIn <- box inch                   
-            {
-            Type = "C"
-            Category = "CL"
-            Position = "TC"
-            Load1Value = this.Load * 1000.0
-            Load1DistanceFt = locationFt
-            Load1DistanceIn = locationIn
-            Load2Value = null
-            Load2DistanceFt = null
-            Load2DistanceIn = null
-            Ref = null
-            LoadCases = []
-            }
     
     type AdditionalJoist =
         {
@@ -282,14 +287,21 @@ module Seperator =
         TcxlLengthIn : float
         TcxrLengthFt : float
         TcxrLengthIn : float
-        LoadNoteString : string option
+        NotesString : string option
         AdditionalJoists : Load list
         GirderGeometry : GirderGeometry
+        LiveLoadUNO : string
+        LiveLoadSpecialNotes : Note List
         }
 
         member this.LoadNoteList =
-            match (this.LoadNoteString) with
+            match (this.NotesString) with
             | Some notes -> Some (getLoadNotes notes)
+            | None -> None
+
+        member this.SpecialNoteList =
+            match (this.NotesString) with
+            | Some notes -> Some (getSpecialNotes notes)
             | None -> None
 
         member this.BaseLength =
@@ -297,34 +309,54 @@ module Seperator =
              (this.TcxlLengthFt + this.TcxlLengthIn/12.0) -
               (this.TcxrLengthFt + this.TcxlLengthIn/12.0)
 
-        member this.UDL_PDL =
+        member this.UDL_PDL (liveLoadUNO : string) (liveLoadSpecialNotes : Note List)=
             let size = this.GirderSize
             let sizeAsArray = size.Split( [|"G"; "BG"; "VG"; "N"; "K"|], StringSplitOptions.RemoveEmptyEntries)
-            let load = sizeAsArray.[2].Split([|"/"|], StringSplitOptions.RemoveEmptyEntries)
+            let load = sizeAsArray.[2]
             let minSpace =
                 let geometry = this.GirderGeometry
                 let aSpace = geometry.A_Ft + geometry.A_In / 12.0
                 let bSpace = geometry.B_Ft + geometry.B_In / 12.0
                 let minPanelSpace = List.min (geometry.Panels |> List.map (fun geom -> geom.LengthFt + geom.LengthIn / 12.0))
-                Math.Min(Math.Min(aSpace, bSpace), minPanelSpace)
-            if (Array.length load) = 2 then
-                let TL = float load.[0]
-                let LL = float load.[1]
-                let DL = 1000.0 * (TL - LL)
-                let UDL = DL / minSpace
-                UDL, DL
-                 
-            else
-                failwith "GirderSize is not in correct format"
+                List.min [aSpace; bSpace; minPanelSpace]
+
+            let TL = float load
+
+            let liveLoadSpecialNote =
+                match this.SpecialNoteList with
+                | Some list -> 
+                    [for liveLoadSpecialNote in liveLoadSpecialNotes do
+                         if List.contains liveLoadSpecialNote.Number list then
+                             yield liveLoadSpecialNote.Text]
+                | None -> []
+
+            let liveLoad =
+                match liveLoadSpecialNote with
+                | [] -> liveLoadUNO
+                | _ -> liveLoadSpecialNote.[0] 
+                     
+
+            let LL =
+                match liveLoad with
+                | Regex @" *[LS] *= *(\d+\.?\d*) *[Kk] *" [value] -> float value
+                | Regex @" *[LS] *= *(\d+\.?\d*) *% *" [percent] ->
+                    let fraction = float percent/100.0
+                    TL*fraction
+                | _ -> 0.0
+
+            let DL = 1000.0 * (TL - LL)
+            let UDL = DL / minSpace
+            UDL, DL
+
 
         member this.SDS sds =
-            let udl, _ = this.UDL_PDL
+            let udl, _ = this.UDL_PDL this.LiveLoadUNO this.LiveLoadSpecialNotes
             let SDS = udl * 0.14 * sds
             Load.create("U", "SM", "TC", SDS,
                           null, null, null, null, null, null, [3])
 
         member this.DeadLoads =
-            let _,dl = this.UDL_PDL
+            let _,dl = this.UDL_PDL this.LiveLoadUNO this.LiveLoadSpecialNotes
             let geom = this.GirderGeometry
             [for i = 1 to geom.NumPanels do
                 let distanceFt, distanceIn = getPanelDim i geom
@@ -350,7 +382,13 @@ module Seperator =
                 |> List.append additionalJoistLoads
 
 
-            
+    type BOM = 
+        {
+        GeneralNotes : Note list
+        SpecialNotes : Note list
+        Joists : Joist list
+        Girders : Girder list
+        }   
 
 
 
@@ -361,6 +399,13 @@ module Seperator =
             | null  -> None
             | value when value = (box "") -> None
             | _ -> Some ((box value) :?> 'T)
+
+        let toDouble (s : obj) =
+                match (box s) with
+                | v when v = (box "") -> 0.0
+                | _ -> Convert.ToDouble(s)
+
+
 
 
         module CleanLoads =
@@ -400,6 +445,33 @@ module Seperator =
                             yield {LoadNumber = loadNumber; Load = getLoadFromArraySlice a2D.[currentIndex, *]}]
                 loadNotes
 
+        module CleanNotes =
+
+            let getNotesFromArray (a2D : obj [,]) =
+                let mutable startRowIndex = Array2D.base1 a2D 
+                let endIndex = (a2D |> Array2D.length1) - (if startRowIndex = 0 then 1 else 0)
+                let startColIndex = Array2D.base2 a2D
+                let notes : Note list =
+                    let mutable currentIndex = startRowIndex
+                    [while currentIndex <= endIndex do
+                        let mutable noteNumber = ""
+                        let mutable note = ""
+                        let mutable additionalLines = 0
+                        if a2D.[currentIndex, startColIndex] <> null && a2D.[currentIndex, startColIndex] <> (box "") then
+                            noteNumber <- string a2D.[currentIndex, startColIndex]
+                            note <- string a2D.[currentIndex, startColIndex + 1]
+                            while (currentIndex + additionalLines + 1 < endIndex && (a2D.[currentIndex + additionalLines + 1, startColIndex] = null || a2D.[currentIndex + additionalLines + 1,startColIndex] = (box ""))) do
+                                additionalLines <- additionalLines + 1
+                                note <- String.concat " " [note; string a2D.[currentIndex + additionalLines, startColIndex + 1]]
+
+                            yield
+                                {
+                                Number = noteNumber
+                                Text = note
+                                }
+                        currentIndex <- currentIndex + 1 + additionalLines]
+                notes
+
         module CleanJoists =
 
             let getJoistsFromArray (a2D : obj [,]) =
@@ -413,16 +485,25 @@ module Seperator =
                                 {
                                 Mark = string a2D.[currentIndex, startColIndex]
                                 JoistSize = string a2D.[currentIndex, startColIndex + 2]
-                                LoadNoteString = nullableToOption<string> a2D.[currentIndex, startColIndex + 26]
+                                NotesString = nullableToOption<string> a2D.[currentIndex, startColIndex + 26]
+                                OverallLength = 
+                                    let feet = toDouble (a2D.[currentIndex, startColIndex + 3])
+                                    let inches = toDouble (a2D.[currentIndex, startColIndex + 4])
+                                    feet + inches/12.0
+                                LE_Depth = 0.0
+                                RE_Depth = 0.0
+                                Overall_TC_Pitch = toDouble (a2D.[currentIndex, startColIndex + 186])
+                                SlopeSpecialNotes = []
                                 }]
                 joists
 
-        module CleanGirders =
+            let addSlopeNotesToJoists (joists: Joist list, slopeSpecialNotes : Note list) =
+                [for joist in joists do
+                    yield {joist with SlopeSpecialNotes = slopeSpecialNotes}]
 
-            let toDouble (s : obj) =
-                match (box s) with
-                | v when v = (box "") -> 0.0
-                | _ -> Convert.ToDouble(s)
+
+
+        module CleanGirders =
 
             let getAdditionalJoistsFromArraySlice (a : obj [])  =
                 let mutable col = 16
@@ -472,8 +553,10 @@ module Seperator =
                                 TcxlLengthIn = toDouble(sheet1.[currentIndex, colIndex + 7])
                                 TcxrLengthFt = toDouble(sheet1.[currentIndex, colIndex + 9])
                                 TcxrLengthIn = toDouble(string sheet1.[currentIndex, colIndex + 10])
-                                LoadNoteString =  nullableToOption<string> sheet1.[currentIndex, colIndex + 25]
+                                NotesString =  nullableToOption<string> sheet1.[currentIndex, colIndex + 25]
                                 AdditionalJoists = []
+                                LiveLoadUNO = ""
+                                LiveLoadSpecialNotes = []
                                 GirderGeometry = geometry
                                 }]
                 girders
@@ -497,35 +580,55 @@ module Seperator =
                                 yield {load with Load1DistanceFt = locationFt; Load1DistanceIn = locationIn}] 
                     let additionalJoists = girder.AdditionalJoists |> List.append additionalLoads
                     yield {girder with AdditionalJoists = additionalJoists}]
+
+            let addLiveLoadInfoToGirders (girders: Girder list, liveLoadUNO : string, liveLoadSpecialNotes : Note list) =
+                [for girder in girders do
+                    yield {girder with LiveLoadUNO = liveLoadUNO; LiveLoadSpecialNotes = liveLoadSpecialNotes}]
                     
     let saveWorkbook (title : string) (workbook : Workbook) =
             let title = title.Replace(".xlsm", " (IMPORT).xlsm")
             let title = title.Replace(".xlsx", " (IMPORT).xlsx")
             workbook.SaveAs(title)
     
-    let getAllInfo reportPath getInfoFunction modifyWorkbookFunction (sds : float) =
+    let getAllInfo (reportPath:string) getInfoFunction modifyWorkbookFunctions =
         let tempExcelApp = new Microsoft.Office.Interop.Excel.ApplicationClass(Visible = false)
-        tempExcelApp.DisplayAlerts = false |> ignore
-        tempExcelApp.AutomationSecurity = Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable |> ignore
+        tempExcelApp.DisplayAlerts <- false
+        //tempExcelApp.AutomationSecurity <- Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable 
+        //let mutable workbook = tempExcelApp.Workbooks.Add()
+        
         //let bom = tempExcelApp.Workbooks.Open(bomPath)
         try 
             tempExcelApp.DisplayAlerts <- false
             let tempReportPath = System.IO.Path.GetTempFileName()      
             File.Delete(tempReportPath)
             File.Copy(reportPath, tempReportPath)
+            let stopWatch = System.Diagnostics.Stopwatch.StartNew()
+            printfn "Opening Workbook"
             let workbook = tempExcelApp.Workbooks.Open(tempReportPath)
+            tempExcelApp.AutomationSecurity <- Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable
+            stopWatch.Stop()
+            printfn "Workbook is opened (in %i seconds)" stopWatch.Elapsed.Seconds
+            stopWatch.Restart()
+            printfn "Retrieving BOM information"
             let info = getInfoFunction workbook
-            modifyWorkbookFunction workbook info sds
+            stopWatch.Stop()
+            printfn "BOM information retrieved (in %i seconds)" stopWatch.Elapsed.Seconds
+            for modifyWorkbookFunction in modifyWorkbookFunctions do
+                stopWatch.Reset()
+                printfn "Applying Workbook Modification"
+                modifyWorkbookFunction workbook info
+                stopWatch.Stop()
+                printfn "Workbook Modification complete (in %i seconds)" stopWatch.Elapsed.Seconds
             
             workbook |> saveWorkbook reportPath
 
-            workbook.Close(false)
-            Marshal.ReleaseComObject(workbook) |> ignore
-            System.GC.Collect() |> ignore
             printfn "Finished processing %s." reportPath 
             printfn "Finished processing all files."
             info
         finally
+           // workbook.Close(false)
+           // Marshal.ReleaseComObject(workbook) |> ignore
+            System.GC.Collect() |> ignore
             tempExcelApp.Quit()
             Marshal.ReleaseComObject(tempExcelApp) |> ignore
             System.GC.Collect() |> ignore            
@@ -549,6 +652,72 @@ module Seperator =
                 let loads = CleanBomInfo.CleanLoads.getLoadNotesFromArray loadsAsArray
                 loads
 
+        let generalNotes =
+            let generalNotesNames = workSheetNames |> List.filter (fun name -> name.Contains("P ("))
+            if (List.isEmpty generalNotesNames) then
+                []
+            else
+                let arrayList =
+                    seq [for sheet in bom.Worksheets do
+                            let sheet = (sheet :?> Worksheet)
+                            if sheet.Name.Contains("P (") then
+                                yield sheet.Range("A8", "H47").Value2 :?> obj [,]]
+                let notesAsArray = Array2D.joinMany (Array2D.joinByRows) arrayList
+                let notes = CleanBomInfo.CleanNotes.getNotesFromArray notesAsArray
+                notes
+
+        let isLiveLoadNote (note: string) =
+                Regex.IsMatch(note, "[LS] *= *(\d+\.?\d*) *([Kk%]) *")
+
+        let liveLoadUNO =
+            let liveLoadNotes = generalNotes |> List.filter (fun note -> isLiveLoadNote note.Text)
+            match liveLoadNotes with
+            | [] -> "L = 0.0K"
+            | _ -> liveLoadNotes.[0].Text
+
+        let isSlopeLoadNote (note: string) =
+            Regex.IsMatch(note, "SP *: *(\d+\.?\d*)/(\d+\.?\d*)")
+
+
+
+        let SDS =
+            let isSDSNote (note : string) =
+                Regex.IsMatch(note, "SDS *= *(\d+\.?\d*) *")
+            let sdsNotes = generalNotes |> List.filter (fun note -> isSDSNote note.Text)
+            let sds =
+                match sdsNotes with
+                | [] -> 100.0
+                | _ -> 
+                    let sdsNote = sdsNotes.[0]
+                    match sdsNote.Text with
+                    | Regex @"SDS *= *(\d+\.?\d*) *" [sds] -> float sds
+                    | _ -> 100.0
+            sds
+                    
+        
+
+        let specialNotes =
+            let specialNotesNames = workSheetNames |> List.filter (fun name -> name.Contains("N ("))
+            if (List.isEmpty specialNotesNames) then
+                []
+            else
+                let arrayList =
+                    seq [for sheet in bom.Worksheets do
+                            let sheet = (sheet :?> Worksheet)
+                            if sheet.Name.Contains("N (") then
+                                yield sheet.Range("A13", "J51").Value2 :?> obj [,]]
+                let notesAsArray = Array2D.joinMany (Array2D.joinByRows) arrayList
+                let notes = CleanBomInfo.CleanNotes.getNotesFromArray notesAsArray
+                notes
+
+        let slopeSpecialNotes =
+            (specialNotes |> List.filter (fun note -> isSlopeLoadNote note.Text))
+
+        let liveLoadSpecialNotes =
+            (specialNotes |> List.filter (fun note -> isLiveLoadNote note.Text))
+
+        
+
         let joists =
             let joistSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("J ("))
             if (List.isEmpty joistSheetNames) then
@@ -559,12 +728,13 @@ module Seperator =
                             let sheet = (sheet :?> Worksheet)
                             if sheet.Name.Contains("J (") then
                                 if (sheet.Range("A21").Value2 :?> string) = "MARK" then
-                                    yield sheet.Range("A23","AA40").Value2 :?> obj [,]
+                                    yield sheet.Range("A23","GF40").Value2 :?> obj [,]
                                 else
-                                    yield sheet.Range("A16", "AA45").Value2 :?> obj [,]]
+                                    yield sheet.Range("A16", "GF45").Value2 :?> obj [,]]
 
                 let joistsAsArray = Array2D.joinMany (Array2D.joinByRows) arrayList
                 let joists = CleanBomInfo.CleanJoists.getJoistsFromArray joistsAsArray
+                let joistsWithSlopeNotes = CleanBomInfo.CleanJoists.addSlopeNotesToJoists (joists, slopeSpecialNotes)
                 joists
 
         let girdersAndAdditionalJoists =
@@ -592,255 +762,257 @@ module Seperator =
                 let additionalJoists =
                     CleanBomInfo.CleanGirders.getAdditionalJoistsFromArray additionalJoistsAsArray
 
-                (CleanBomInfo.CleanGirders.addAdditionalJoistLoadsToGirders (girders, additionalJoists))
+                let girdersWithAdditionalJoists = (CleanBomInfo.CleanGirders.addAdditionalJoistLoadsToGirders (girders, additionalJoists))
+                let girdersWithLiveLoadInfo = (CleanBomInfo.CleanGirders.addLiveLoadInfoToGirders (girders, liveLoadUNO, liveLoadSpecialNotes))
+                girdersWithLiveLoadInfo
 
-        (joists, girdersAndAdditionalJoists, loads)
+        (joists, girdersAndAdditionalJoists, loads, SDS)
 
 
-    type BomInfo = 
-        {
-        Joists : Joist list
-        Girders : Girder list
-        Loads : LoadNote list
-        }
+    module Modifiers =
+        let seperateSeismic (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list * float) : Unit =
 
-    let modifyWorkbookFunction (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list) sds: Unit =
-
-        bom.Unprotect()
-        //for sheet in bom.Worksheets do
-        //    let sheet = (sheet :?> Worksheet)
-        //    sheet.Unprotect("AAABBBBBABA-")
+            bom.Unprotect()
+            //for sheet in bom.Worksheets do
+            //    let sheet = (sheet :?> Worksheet)
+            //    sheet.Unprotect("AAABBBBBABA-")
         
-        let workSheetNames = [for sheet in bom.Worksheets -> (sheet :?> Worksheet).Name]
+            let workSheetNames = [for sheet in bom.Worksheets -> (sheet :?> Worksheet).Name]
 
 
-        let switchSmToLc3 (a2D : obj [,]) =
-            let startRow = Array2D.base1 a2D
-            let endRow = (Array2D.length1 a2D) - (if startRow = 0 then 1 else 0)
-            let startCol = Array2D.base2 a2D
-            for currentIndex = startRow to endRow do
-                let lc = (string a2D.[currentIndex, startCol + 12]).Trim()
-                if a2D.[currentIndex, startCol + 2] = (box "SM") && (lc = "1" || lc = "") then
-                    a2D.[currentIndex, startCol + 12] <- box "3"
+            let switchSmToLc3 (a2D : obj [,]) =
+                let startRow = Array2D.base1 a2D
+                let endRow = (Array2D.length1 a2D) - (if startRow = 0 then 1 else 0)
+                let startCol = Array2D.base2 a2D
+                for currentIndex = startRow to endRow do
+                    let lc = (string a2D.[currentIndex, startCol + 12]).Trim()
+                    if a2D.[currentIndex, startCol + 2] = (box "SM") && (lc = "1" || lc = "") then
+                        a2D.[currentIndex, startCol + 12] <- box "3"
 
         
 
-        let changeSmLoadsToLC3() =
-            let loadSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("L ("))
-            if (List.isEmpty loadSheetNames) then
-                ()
-            else
-                for sheet in bom.Worksheets do
-                    let sheet = (sheet :?> Worksheet)
-                    if sheet.Name.Contains("L (") then
-                        let loads = sheet.Range("A14","M55").Value2 :?> obj [,]
-                        switchSmToLc3 loads
-                        sheet.Range("A14", "M55").Value2 <- loads
+            let changeSmLoadsToLC3() =
+                let loadSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("L ("))
+                if (List.isEmpty loadSheetNames) then
+                    ()
+                else
+                    for sheet in bom.Worksheets do
+                        let sheet = (sheet :?> Worksheet)
+                        if sheet.Name.Contains("L (") then
+                            let loads = sheet.Range("A14","M55").Value2 :?> obj [,]
+                            switchSmToLc3 loads
+                            sheet.Range("M14", "M55").Value2 <- loads.[*,loads.GetLength(1)] 
 
-        let addLoadNote (mark : string) (note : string) =
-            if (mark.Length > 0 && note.Length > 0) then
-                let loadNote = "S" + mark
-                let insertLocation = note.IndexOf(")")
-                let newNote = note.Substring(0, insertLocation) + ", " + loadNote + ")"
-                newNote
-            else
-               ""
+            let addLoadNote (mark : string) (note : string) =
+                if (mark.Length > 0 && note.Length > 0) then
+                    let loadNote = "S" + mark
+                    let insertLocation = note.IndexOf(")")
+                    let newNote = note.Substring(0, insertLocation) + ", " + loadNote + ")"
+                    newNote
+                else
+                   ""
+    (*
+            let removeLL_FromGirder (mark : string) (designation: string) =
+                if (mark.Length > 0 && designation.Length > 0) then
+                    let designationArray = designation.Split([|'/'; 'K'|], StringSplitOptions.RemoveEmptyEntries)
+                    let newDesignation =
+                        if Array.length designationArray = 3 then
+                            Some (designationArray.[0] + "K" + designationArray.[2])
+                        else
+                            None
+                    match newDesignation with
+                    | Some _ -> ()
+                    | None -> System.Windows.Forms.MessageBox.Show(sprintf "Mark %s is not in TL/LL format; please fix" mark) |> ignore; ()
 
-        let removeLL_FromGirder (mark : string) (designation: string) =
-            if (mark.Length > 0 && designation.Length > 0) then
-                let designationArray = designation.Split([|'/'; 'K'|], StringSplitOptions.RemoveEmptyEntries)
-                let newDesignation =
-                    if Array.length designationArray = 3 then
-                        Some (designationArray.[0] + "K" + designationArray.[2])
-                    else
-                        None
-                match newDesignation with
-                | Some _ -> ()
-                | None -> System.Windows.Forms.MessageBox.Show(sprintf "Mark %s is not in TL/LL format; please fix" mark) |> ignore; ()
+                    match newDesignation with
+                    | Some s -> s
+                    | _ -> designation
+                else
+                    ""
+    *)
 
-                match newDesignation with
-                | Some s -> s
-                | _ -> designation
-            else
-                ""
-
-
-        let addLC3LoadsToLoadNotes() =
-            let joists, girders, loads = bomInfo
-            let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads sds) = false)
-            let joistSheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("J ("))
-            if (List.isEmpty joistSheetNames) then ()
-            else
-                for sheet in bom.Worksheets do
-                    let sheet = (sheet :?> Worksheet)
-                    if sheet.Name.Contains("J (") then
-                        let array =
-                            if (sheet.Range("A21").Value2 :?> string) = "MARK" then
-                                sheet.Range("A23","AA40").Value2 :?> obj [,]
-                            else
-                                sheet.Range("A16", "AA45").Value2 :?> obj [,]
-                        let startRowIndex = Array2D.base1 array
-                        let endRowIndex = (array |> Array2D.length1) - (if startRowIndex = 0 then 1 else 0) 
-                        let colIndex = Array2D.base2 array
+            let addLC3LoadsToLoadNotes() =
+                let joists, girders, loads, SDS = bomInfo
+                let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS) = false)
+                let joistSheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("J ("))
+                if (List.isEmpty joistSheetNames) then ()
+                else
+                    for sheet in bom.Worksheets do
+                        let sheet = (sheet :?> Worksheet)
+                        if sheet.Name.Contains("J (") then
+                            let array =
+                                if (sheet.Range("A21").Value2 :?> string) = "MARK" then
+                                    sheet.Range("A23","AA40").Value2 :?> obj [,]
+                                else
+                                    sheet.Range("A16", "AA45").Value2 :?> obj [,]
+                            let startRowIndex = Array2D.base1 array
+                            let endRowIndex = (array |> Array2D.length1) - (if startRowIndex = 0 then 1 else 0) 
+                            let colIndex = Array2D.base2 array
                         
-                        for i = startRowIndex to endRowIndex do
-                            let joistMarksWithLC3Loads =
-                                joistsWithLC3Loads |> List.map (fun joist -> joist.Mark)
-                            let mark = string array.[i, colIndex]
-                            if (joistMarksWithLC3Loads |> List.contains mark) then
-                                array.[i, colIndex + 26] <- box (addLoadNote mark (string array.[i, colIndex + 26]))
-                        if (sheet.Range("A21").Value2 :?> string) = "MARK" then
-                            sheet.Range("A23","AA40").Value2 <- array
-                        else
-                            sheet.Range("A16", "AA45").Value2 <- array
-
-            let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads sds) = false)
-            let girderWorksheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("G ("))
-            if (List.isEmpty girderWorksheetNames) then ()
-            else
-                for sheet in bom.Worksheets do
-                    let sheet = (sheet :?> Worksheet)
-                    if sheet.Name.Contains("G (") then
-                        let array =
-                            if (sheet.Range("A26").Value2 :?> string) = "MARK" then
-                                sheet.Range("A28","AA45").Value2 :?> obj [,]
+                            for i = startRowIndex to endRowIndex do
+                                let joistMarksWithLC3Loads =
+                                    joistsWithLC3Loads |> List.map (fun joist -> joist.Mark)
+                                let mark = string array.[i, colIndex]
+                                if (joistMarksWithLC3Loads |> List.contains mark) then
+                                    array.[i, colIndex + 26] <- box (addLoadNote mark (string array.[i, colIndex + 26]))
+                            if (sheet.Range("A21").Value2 :?> string) = "MARK" then
+                                sheet.Range("AA23","AA40").Value2 <- array.[*,array.GetLength(1)] ////////////////////////////////////////////////////////////////////////////
                             else
-                                sheet.Range("A14", "AA45").Value2 :?> obj [,]
+                                sheet.Range("AA16", "AA45").Value2 <- array.[*,array.GetLength(1)] ///////////////////////////////////////////////////////////////////////////
 
-                        let startRowIndex = Array2D.base1 array
-                        let endRowIndex = (array |> Array2D.length1) - (if startRowIndex = 0 then 1 else 0) 
-                        let colIndex = Array2D.base2 array
+                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads SDS) = false)
+                let girderWorksheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("G ("))
+                if (List.isEmpty girderWorksheetNames) then ()
+                else
+                    for sheet in bom.Worksheets do
+                        let sheet = (sheet :?> Worksheet)
+                        if sheet.Name.Contains("G (") then
+                            let array =
+                                if (sheet.Range("A26").Value2 :?> string) = "MARK" then
+                                    sheet.Range("A28","AA45").Value2 :?> obj [,]
+                                else
+                                    sheet.Range("A14", "AA45").Value2 :?> obj [,]
 
-                        for i = startRowIndex to endRowIndex do
-                            let girderMarksWithLC3Loads =
-                                girdersWithLC3Loads |> List.map (fun girder -> girder.Mark)
-                            let mark = string array.[i, colIndex]
-                            array.[i, colIndex + 2] <- box (removeLL_FromGirder mark (string array.[i, colIndex + 2]))
-                            if (girderMarksWithLC3Loads |> List.contains mark) then
-                                array.[i, colIndex + 25] <- box (addLoadNote mark (string array.[i, colIndex + 25]))
-                        if (sheet.Range("A26").Value2 :?> string) = "MARK" then
-                            sheet.Range("A28","AA45").Value2 <- array
-                        else
-                            sheet.Range("A14", "AA45").Value2 <- array
+                            let startRowIndex = Array2D.base1 array
+                            let endRowIndex = (array |> Array2D.length1) - (if startRowIndex = 0 then 1 else 0) 
+                            let colIndex = Array2D.base2 array
+
+                            for i = startRowIndex to endRowIndex do
+                                let girderMarksWithLC3Loads =
+                                    girdersWithLC3Loads |> List.map (fun girder -> girder.Mark)
+                                let mark = string array.[i, colIndex]
+                                //array.[i, colIndex + 2] <- box (removeLL_FromGirder mark (string array.[i, colIndex + 2]))
+                                if (girderMarksWithLC3Loads |> List.contains mark) then
+                                    array.[i, colIndex + 25] <- box (addLoadNote mark (string array.[i, colIndex + 25]))
+                            if (sheet.Range("A26").Value2 :?> string) = "MARK" then
+                                sheet.Range("AA28","AA45").Value2 <- array.[*,array.GetLength(1)]              ///////////////////////////////////////////////////////////////////
+                            else
+                                sheet.Range("AA14", "AA45").Value2 <- array.[*,array.GetLength(1)]          ////////////////////////////////////////////////////////////////////
 
 
 
-        let addLC3Loads sds =
+            let addLC3Loads()=
 
-            let addLoadSheet() =
-                let workSheetNames = [for sheet in bom.Worksheets -> (sheet :?> Worksheet).Name] 
-                let indexOfLastLoadSheet, lastLoadSheetNumber =
-                    let lastLoadSheetNumber = workSheetNames
-                                              |> List.filter (fun sheet -> sheet.Contains("L ("))
-                                              |> List.map (fun sheet -> System.Int32.Parse(sheet.Split([|"(";")"|], StringSplitOptions.RemoveEmptyEntries).[1]))
-                                              |> List.max
-                    (bom.Worksheets.[sprintf "L (%i)" lastLoadSheetNumber] :?> Worksheet).Index, lastLoadSheetNumber
+                let addLoadSheet() =
+                    let workSheetNames = [for sheet in bom.Worksheets -> (sheet :?> Worksheet).Name] 
+                    let indexOfLastLoadSheet, lastLoadSheetNumber =
+                        let lastLoadSheetNumber = workSheetNames
+                                                  |> List.filter (fun sheet -> sheet.Contains("L ("))
+                                                  |> List.map (fun sheet -> System.Int32.Parse(sheet.Split([|"(";")"|], StringSplitOptions.RemoveEmptyEntries).[1]))
+                                                  |> List.max
+                        (bom.Worksheets.[sprintf "L (%i)" lastLoadSheetNumber] :?> Worksheet).Index, lastLoadSheetNumber
                                  
 
-                let blankLoadWorksheet = bom.Worksheets.["L_A"] :?> Worksheet
-                blankLoadWorksheet.Visible <- Microsoft.Office.Interop.Excel.XlSheetVisibility.xlSheetVisible
-                blankLoadWorksheet.Copy(bom.Worksheets.[indexOfLastLoadSheet + 1])
-                blankLoadWorksheet.Visible <- Microsoft.Office.Interop.Excel.XlSheetVisibility.xlSheetHidden
-                let newLoadSheet = (bom.Worksheets.[indexOfLastLoadSheet + 1]) :?> Worksheet
-                newLoadSheet.Name <- "L (" + string(lastLoadSheetNumber + 1) + ")"
-                newLoadSheet
+                    let blankLoadWorksheet = bom.Worksheets.["L_A"] :?> Worksheet
+                    blankLoadWorksheet.Visible <- Microsoft.Office.Interop.Excel.XlSheetVisibility.xlSheetVisible
+                    blankLoadWorksheet.Copy(bom.Worksheets.[indexOfLastLoadSheet + 1])
+                    blankLoadWorksheet.Visible <- Microsoft.Office.Interop.Excel.XlSheetVisibility.xlSheetHidden
+                    let newLoadSheet = (bom.Worksheets.[indexOfLastLoadSheet + 1]) :?> Worksheet
+                    newLoadSheet.Name <- "L (" + string(lastLoadSheetNumber + 1) + ")"
+                    newLoadSheet
                 
             
-            let joists, girders, loads = bomInfo
+                let joists, girders, loads, SDS = bomInfo
           
-            let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads sds) = false)
+                let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS) = false)
             
-            let mutable row = 1
-            let mutable maxJoistIndex = List.length joistsWithLC3Loads
+                let mutable row = 1
+                let mutable maxJoistIndex = List.length joistsWithLC3Loads
 
-            let mutable newLoadSheet = addLoadSheet()
-            let mutable array = newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]            
+                let mutable newLoadSheet = addLoadSheet()
+                let mutable array = newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]            
             
-            let mutable joistIndex = 0  
+                let mutable joistIndex = 0  
                    
 
 
-            while joistIndex < maxJoistIndex do
-                let joist = joistsWithLC3Loads.[joistIndex]
+                while joistIndex < maxJoistIndex do
+                    bom.Application.AutomationSecurity <- Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable
+                    bom.Application.DisplayAlerts <- false
+                    let joist = joistsWithLC3Loads.[joistIndex]
 
-                if row + (List.length (joist.LC3Loads loads sds)) >= 42 then
-                    newLoadSheet.Range("A14", "M55").Value2 <- array.Clone()
-                    newLoadSheet <- addLoadSheet()
-                    array <- newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]
-                    row <- 1
-                    joistIndex <- joistIndex - 1
-                else
-                    array.[row, 1] <- box ("S" + joist.Mark)
+                    if row + (List.length (joist.LC3Loads loads SDS)) >= 42 then
+                        newLoadSheet.Range("A14", "M55").Value2 <- array.Clone()
+                        newLoadSheet <- addLoadSheet()
+                        array <- newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]
+                        row <- 1
+                        joistIndex <- joistIndex - 1
+                    else
+                        array.[row, 1] <- box ("S" + joist.Mark)
 
 
-                    for load in (joist.LC3Loads loads sds) do
-                        array.[row, 2] <- box (load.Type)
-                        array.[row, 3] <- box (load.Category)
-                        array.[row, 4] <- load.Position
-                        array.[row, 6] <- load.Load1Value
-                        array.[row, 7] <- load.Load1DistanceFt
-                        array.[row, 8] <- load.Load1DistanceIn
-                        array.[row, 9] <- load.Load2Value
-                        array.[row, 10] <- load.Load2DistanceFt
-                        array.[row, 11] <- load.Load2DistanceIn
-                        array.[row, 12] <- load.Ref
-                        array.[row, 13] <- box (load.LoadCaseString)
-                        row <- row + 1
-                if joistIndex = maxJoistIndex - 1 then
-                    newLoadSheet.Range("A14", "M55").Value2 <- array
-                joistIndex <- joistIndex + 1
+                        for load in (joist.LC3Loads loads SDS) do
+                            array.[row, 2] <- box (load.Type)
+                            array.[row, 3] <- box (load.Category)
+                            array.[row, 4] <- load.Position
+                            array.[row, 6] <- load.Load1Value
+                            array.[row, 7] <- load.Load1DistanceFt
+                            array.[row, 8] <- load.Load1DistanceIn
+                            array.[row, 9] <- load.Load2Value
+                            array.[row, 10] <- load.Load2DistanceFt
+                            array.[row, 11] <- load.Load2DistanceIn
+                            array.[row, 12] <- load.Ref
+                            array.[row, 13] <- box (load.LoadCaseString)
+                            row <- row + 1
+                    if joistIndex = maxJoistIndex - 1 then
+                        newLoadSheet.Range("A14", "M55").Value2 <- array
+                    joistIndex <- joistIndex + 1
 
-            let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads sds) = false)
+                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads SDS) = false)
             
-            let mutable row = 1
+                let mutable row = 1
 
-            let mutable maxGirderIndex = List.length girdersWithLC3Loads
+                let mutable maxGirderIndex = List.length girdersWithLC3Loads
 
-            let mutable newLoadSheet = addLoadSheet()
+                let mutable newLoadSheet = addLoadSheet()
 
-            let mutable array = newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]            
+                let mutable array = newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]            
             
-            let mutable girderIndex = 0   
+                let mutable girderIndex = 0   
 
-            while girderIndex < maxGirderIndex do
-                let girder = girdersWithLC3Loads.[girderIndex]
+                while girderIndex < maxGirderIndex do
+                    let girder = girdersWithLC3Loads.[girderIndex]
 
-                if row + (List.length (girder.LC3Loads loads sds)) >= 42 then
-                    newLoadSheet.Range("A14", "M55").Value2 <- array.Clone()
-                    newLoadSheet <- addLoadSheet()
-                    array <- newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]
-                    row <- 1
-                    girderIndex <- girderIndex - 1
-                else
-                    array.[row, 1] <- box ("S" + girder.Mark)
-                    for load in (girder.LC3Loads loads sds) do
-                        array.[row, 2] <- box (load.Type)
-                        array.[row, 3] <- box (load.Category)
-                        array.[row, 4] <- load.Position
-                        array.[row, 6] <- load.Load1Value
-                        array.[row, 7] <- load.Load1DistanceFt
-                        array.[row, 8] <- load.Load1DistanceIn
-                        array.[row, 9] <- load.Load2Value
-                        array.[row, 10] <- load.Load2DistanceFt
-                        array.[row, 11] <- load.Load2DistanceIn
-                        array.[row, 12] <- load.Ref
-                        array.[row, 13] <- box (load.LoadCaseString)
-                        row <- row + 1
-                if girderIndex = maxGirderIndex - 1 then
-                    newLoadSheet.Range("A14", "M55").Value2 <- array
-                girderIndex <- girderIndex + 1
+                    if row + (List.length (girder.LC3Loads loads SDS)) >= 42 then
+                        newLoadSheet.Range("A14", "M55").Value2 <- array.Clone()
+                        newLoadSheet <- addLoadSheet()
+                        array <- newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]
+                        row <- 1
+                        girderIndex <- girderIndex - 1
+                    else
+                        array.[row, 1] <- box ("S" + girder.Mark)
+                        for load in (girder.LC3Loads loads SDS) do
+                            array.[row, 2] <- box (load.Type)
+                            array.[row, 3] <- box (load.Category)
+                            array.[row, 4] <- load.Position
+                            array.[row, 6] <- load.Load1Value
+                            array.[row, 7] <- load.Load1DistanceFt
+                            array.[row, 8] <- load.Load1DistanceIn
+                            array.[row, 9] <- load.Load2Value
+                            array.[row, 10] <- load.Load2DistanceFt
+                            array.[row, 11] <- load.Load2DistanceIn
+                            array.[row, 12] <- load.Ref
+                            array.[row, 13] <- box (load.LoadCaseString)
+                            row <- row + 1
+                    if girderIndex = maxGirderIndex - 1 then
+                        newLoadSheet.Range("A14", "M55").Value2 <- array
+                    girderIndex <- girderIndex + 1
 
-        changeSmLoadsToLC3()
-        addLC3LoadsToLoadNotes()
-        addLC3Loads sds
+            changeSmLoadsToLC3()
+            addLC3LoadsToLoadNotes()
+            addLC3Loads()
 
-    let getAllBomInfo bomPath sds =
-        let (joists, girders, loads) = getAllInfo bomPath getInfo modifyWorkbookFunction sds  /// warning is OK since this will always return a list of three itmes
-        {
-        Joists = joists
-        Girders = girders
-        Loads = loads
-        }
+        let adjustSinglePitchJoists (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list * float) : Unit =
+            ()
+
+    let seperateSeismic bomPath =
+        getAllInfo bomPath getInfo [Modifiers.seperateSeismic]
+
+    let seperateSeismicAndAdjustSinglePitches bomPath =
+        getAllInfo bomPath getInfo [Modifiers.seperateSeismic; Modifiers.adjustSinglePitchJoists]
+
+    let adjustSinglePitchJoists bomPath =
+        getAllInfo bomPath getInfo [Modifiers.adjustSinglePitchJoists]
 
 
 

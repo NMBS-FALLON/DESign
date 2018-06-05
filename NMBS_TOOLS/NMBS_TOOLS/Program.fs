@@ -22,8 +22,8 @@ let main argv =
     // Seismic Seperator
     
     
-    printfn "Please enter Sds (then click enter): "
-    let sds = float (System.Console.ReadLine())
+   // printfn "Please enter Sds (then click enter): "
+   // let sds = float (System.Console.ReadLine())
 
     
     let reportPath =
@@ -56,7 +56,7 @@ let main argv =
             None
 
     match reportPath with
-    | Some reportPath -> Seperator.getAllBomInfo reportPath sds |> ignore
+    | Some reportPath -> Seperator.seperateSeismic reportPath |> ignore
                          ()
     | None -> printfn "No BOM Selected."
         

@@ -39,11 +39,11 @@ namespace DESign_BASE
                 oSheet = (Excel._Worksheet)oWB.ActiveSheet;
                 oRng = oSheet.UsedRange;
 
-                oRng.get_Range("A1", Missing.Value);
-                oRng = oRng.get_End(Excel.XlDirection.xlToRight);
-                oRng = oRng.get_End(Excel.XlDirection.xlDown);
-                string downJoistMarks = oRng.get_Address(Excel.XlReferenceStyle.xlA1, Type.Missing);
-                oRng = oSheet.get_Range("A1", downJoistMarks);
+             //   oRng.get_Range("A1", Missing.Value);
+             //   oRng = oRng.get_End(Excel.XlDirection.xlToRight);
+             //   oRng = oRng.get_End(Excel.XlDirection.xlDown);
+             //   string downJoistMarks = oRng.get_Address(Excel.XlReferenceStyle.xlA1, Type.Missing);
+             //   oRng = oSheet.get_Range("A1", downJoistMarks);
                 var joistDetailArray = (object[,])oRng.Value2;
 
                 int joistDetailArrayRows = joistDetailArray.GetLength(0);
