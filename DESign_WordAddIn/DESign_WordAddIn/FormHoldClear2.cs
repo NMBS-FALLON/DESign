@@ -668,7 +668,7 @@ namespace DESign_WordAddIn
                 thisHCSeatInfo.bplLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.ConvertLengthtoDecimal(thisJoistSeatInfo.bplLength));
                 thisHCSeatInfo.bplOutsideDepth = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth);
                 thisHCSeatInfo.bplInsideDepth = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth);
-                thisHCSeatInfo.stiffPlateLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.NearestHalfInch(thisJoistSeatInfo.bplOutsideDepth - 1.5 / 12.0));
+                thisHCSeatInfo.stiffPlateLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.NearestHalfInch(thisJoistSeatInfo.bplOutsideDepth - 2.0 / 12.0));
                 thisHCSeatInfo.paMat = "P0604";
 
                 

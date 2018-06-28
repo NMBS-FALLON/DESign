@@ -592,8 +592,8 @@ module Seperator =
     
     let getAllInfo (reportPath:string) getInfoFunction modifyWorkbookFunctions =
         let tempExcelApp = new Microsoft.Office.Interop.Excel.ApplicationClass(Visible = false)
-        tempExcelApp.DisplayAlerts <- false
-        //tempExcelApp.AutomationSecurity <- Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable 
+        tempExcelApp.DisplayAlerts = false |> ignore
+        tempExcelApp.AutomationSecurity = Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable |> ignore
         //let mutable workbook = tempExcelApp.Workbooks.Add()
         
         //let bom = tempExcelApp.Workbooks.Open(bomPath)
@@ -605,30 +605,34 @@ module Seperator =
             let stopWatch = System.Diagnostics.Stopwatch.StartNew()
             printfn "Opening Workbook"
             let workbook = tempExcelApp.Workbooks.Open(tempReportPath)
-            tempExcelApp.AutomationSecurity <- Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable
             stopWatch.Stop()
-            printfn "Workbook is opened (in %i seconds)" stopWatch.Elapsed.Seconds
+            printfn "Workbook is opened (in %i seconds)" (stopWatch.Elapsed.Minutes * 60 + stopWatch.Elapsed.Seconds)
             stopWatch.Restart()
             printfn "Retrieving BOM information"
             let info = getInfoFunction workbook
             stopWatch.Stop()
             printfn "BOM information retrieved (in %i seconds)" stopWatch.Elapsed.Seconds
+            tempExcelApp.EnableEvents <- false
             for modifyWorkbookFunction in modifyWorkbookFunctions do
-                stopWatch.Reset()
+                stopWatch.Restart()
                 printfn "Applying Workbook Modification"
                 modifyWorkbookFunction workbook info
                 stopWatch.Stop()
-                printfn "Workbook Modification complete (in %i seconds)" stopWatch.Elapsed.Seconds
+                printfn "Workbook Modification complete (in %i seconds)" (stopWatch.Elapsed.Minutes * 60 + stopWatch.Elapsed.Seconds)
+
+            tempExcelApp.EnableEvents <- true
             
             workbook |> saveWorkbook reportPath
+
+            workbook.Close(false)
+            Marshal.ReleaseComObject(workbook) |> ignore
+            System.GC.Collect() |> ignore
 
             printfn "Finished processing %s." reportPath 
             printfn "Finished processing all files."
             info
         finally
-           // workbook.Close(false)
-           // Marshal.ReleaseComObject(workbook) |> ignore
-            System.GC.Collect() |> ignore
+
             tempExcelApp.Quit()
             Marshal.ReleaseComObject(tempExcelApp) |> ignore
             System.GC.Collect() |> ignore            
@@ -737,7 +741,7 @@ module Seperator =
                 let joistsWithSlopeNotes = CleanBomInfo.CleanJoists.addSlopeNotesToJoists (joists, slopeSpecialNotes)
                 joists
 
-        let girdersAndAdditionalJoists =
+        let girders =
             let girderSheetNames = workSheetNames |> List.filter (fun name -> name.Contains("G ("))
             if (List.isEmpty girderSheetNames) then
                 []
@@ -762,11 +766,11 @@ module Seperator =
                 let additionalJoists =
                     CleanBomInfo.CleanGirders.getAdditionalJoistsFromArray additionalJoistsAsArray
 
-                let girdersWithAdditionalJoists = (CleanBomInfo.CleanGirders.addAdditionalJoistLoadsToGirders (girders, additionalJoists))
-                let girdersWithLiveLoadInfo = (CleanBomInfo.CleanGirders.addLiveLoadInfoToGirders (girders, liveLoadUNO, liveLoadSpecialNotes))
-                girdersWithLiveLoadInfo
+                let girders = (CleanBomInfo.CleanGirders.addAdditionalJoistLoadsToGirders (girders, additionalJoists))
+                let girders = (CleanBomInfo.CleanGirders.addLiveLoadInfoToGirders (girders, liveLoadUNO, liveLoadSpecialNotes))
+                girders
 
-        (joists, girdersAndAdditionalJoists, loads, SDS)
+        (joists, girders, loads, SDS)
 
 
     module Modifiers =
@@ -801,7 +805,7 @@ module Seperator =
                         if sheet.Name.Contains("L (") then
                             let loads = sheet.Range("A14","M55").Value2 :?> obj [,]
                             switchSmToLc3 loads
-                            sheet.Range("M14", "M55").Value2 <- loads.[*,loads.GetLength(1)] 
+                            sheet.Range("A14", "M55").Value2 <- loads 
 
             let addLoadNote (mark : string) (note : string) =
                 if (mark.Length > 0 && note.Length > 0) then
@@ -823,7 +827,6 @@ module Seperator =
                     match newDesignation with
                     | Some _ -> ()
                     | None -> System.Windows.Forms.MessageBox.Show(sprintf "Mark %s is not in TL/LL format; please fix" mark) |> ignore; ()
-
                     match newDesignation with
                     | Some s -> s
                     | _ -> designation
@@ -890,8 +893,74 @@ module Seperator =
                                 sheet.Range("AA14", "AA45").Value2 <- array.[*,array.GetLength(1)]          ////////////////////////////////////////////////////////////////////
 
 
+            let addLC3Loads() =
 
-            let addLC3Loads()=
+                let joists, girders, loads, SDS = bomInfo
+
+                let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS) = false)
+                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads SDS) = false)
+
+                let getJoistLoadArray (joist : Joist) = 
+                    let loadArray =
+                        let mutable markAdded = false
+                        [for load in (joist.LC3Loads loads SDS) do
+                             if markAdded = false then
+                                 markAdded <- true
+                                 yield 
+                                    [|box(sprintf "%s%s" "S" joist.Mark); box(load.Type); box(load.Category); load.Position; null; load.Load1Value; load.Load1DistanceFt; load.Load1DistanceIn;
+                                     load.Load2Value; load.Load2DistanceFt; load.Load2DistanceIn; load.Ref; box(load.LoadCaseString)|]
+                             else
+                                 yield
+                                      [|null; box(load.Type); box(load.Category); load.Position; null; load.Load1Value; load.Load1DistanceFt; load.Load1DistanceIn;
+                                        load.Load2Value; load.Load2DistanceFt; load.Load2DistanceIn; load.Ref; box(load.LoadCaseString)|]] |> array2D
+                    loadArray
+
+                let getGirderLoadArray (girder : Girder) = 
+                    let loadArray =
+                        let mutable markAdded = false
+                        [for load in (girder.LC3Loads loads SDS) do
+                             if markAdded = false then
+                                 markAdded <- true
+                                 yield 
+                                    [|box(sprintf "%s%s" "S" girder.Mark); box(load.Type); box(load.Category); load.Position; null; load.Load1Value; load.Load1DistanceFt; load.Load1DistanceIn;
+                                     load.Load2Value; load.Load2DistanceFt; load.Load2DistanceIn; load.Ref; box(load.LoadCaseString)|]
+                             else
+                                 yield
+                                      [|null; box(load.Type); box(load.Category); load.Position; null; load.Load1Value; load.Load1DistanceFt; load.Load1DistanceIn;
+                                        load.Load2Value; load.Load2DistanceFt; load.Load2DistanceIn; load.Ref; box(load.LoadCaseString)|]] |> array2D
+                    loadArray
+
+                let allLoads =
+                    let joistLoads = 
+                        if List.isEmpty joistsWithLC3Loads then
+                            None 
+                        else
+                            Some ((joists |> List.map getJoistLoadArray) |> Array2D.joinMany (Array2D.joinByRows))
+                    let girderLoads = 
+                        if List.isEmpty girdersWithLC3Loads then
+                            None
+                        else
+                            Some ((girders |> List.map getGirderLoadArray) |> Array2D.joinMany (Array2D.joinByRows))
+                    
+                    match joistLoads, girderLoads with
+                        | Some joistLoads, Some girderLoads -> Array2D.joinByRows joistLoads girderLoads
+                        | Some joistLoads, None -> joistLoads
+                        | None, Some girderLoads -> girderLoads
+                        | None, None -> [] |> array2D
+
+                
+                
+                let rec divideArray maxRow array =
+                    let rows = Array2D.length1 array
+                    if rows <= maxRow then
+                        [array]             
+                    else
+                        let first = array.[(Array2D.base1 array)..(maxRow - ((Array2D.base1 array) + 1)), *]
+                        let rest = array.[maxRow..rows - ((Array2D.base1 array) + 1), *]
+                        first :: (divideArray maxRow rest)
+
+
+                let loadPagesAsArray = divideArray 42 allLoads
 
                 let addLoadSheet() =
                     let workSheetNames = [for sheet in bom.Worksheets -> (sheet :?> Worksheet).Name] 
@@ -910,94 +979,21 @@ module Seperator =
                     let newLoadSheet = (bom.Worksheets.[indexOfLastLoadSheet + 1]) :?> Worksheet
                     newLoadSheet.Name <- "L (" + string(lastLoadSheetNumber + 1) + ")"
                     newLoadSheet
-                
+
+                let numLoadPages = List.length loadPagesAsArray
+                let mutable loadPageCounter = 0
+                for loadPage in loadPagesAsArray do
+                    loadPageCounter <- loadPageCounter + 1
+                    printfn "Writing to Seismic Load Page %i of %i" loadPageCounter numLoadPages
+                    let newLoadSheet = addLoadSheet()
+                    //newLoadSheet.Range("A14", "D55").Value2 <- loadPage.[*, Array2D.base2 loadPage..(Array2D.base2 loadPage) + 3]
+                    //newLoadSheet.Range("F14", "M55").Value2 <- loadPage.[*, (Array2D.base2 loadPage) + 5..(Array2D.base2 loadPage) + 12]
+                    let numRows = Array2D.length1 loadPage
+                    let finalRow = numRows - 1 + 14
+                    newLoadSheet.Range("A14", sprintf "M%i" finalRow).Value2 <- loadPage
+                    
+
             
-                let joists, girders, loads, SDS = bomInfo
-          
-                let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS) = false)
-            
-                let mutable row = 1
-                let mutable maxJoistIndex = List.length joistsWithLC3Loads
-
-                let mutable newLoadSheet = addLoadSheet()
-                let mutable array = newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]            
-            
-                let mutable joistIndex = 0  
-                   
-
-
-                while joistIndex < maxJoistIndex do
-                    bom.Application.AutomationSecurity <- Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable
-                    bom.Application.DisplayAlerts <- false
-                    let joist = joistsWithLC3Loads.[joistIndex]
-
-                    if row + (List.length (joist.LC3Loads loads SDS)) >= 42 then
-                        newLoadSheet.Range("A14", "M55").Value2 <- array.Clone()
-                        newLoadSheet <- addLoadSheet()
-                        array <- newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]
-                        row <- 1
-                        joistIndex <- joistIndex - 1
-                    else
-                        array.[row, 1] <- box ("S" + joist.Mark)
-
-
-                        for load in (joist.LC3Loads loads SDS) do
-                            array.[row, 2] <- box (load.Type)
-                            array.[row, 3] <- box (load.Category)
-                            array.[row, 4] <- load.Position
-                            array.[row, 6] <- load.Load1Value
-                            array.[row, 7] <- load.Load1DistanceFt
-                            array.[row, 8] <- load.Load1DistanceIn
-                            array.[row, 9] <- load.Load2Value
-                            array.[row, 10] <- load.Load2DistanceFt
-                            array.[row, 11] <- load.Load2DistanceIn
-                            array.[row, 12] <- load.Ref
-                            array.[row, 13] <- box (load.LoadCaseString)
-                            row <- row + 1
-                    if joistIndex = maxJoistIndex - 1 then
-                        newLoadSheet.Range("A14", "M55").Value2 <- array
-                    joistIndex <- joistIndex + 1
-
-                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads SDS) = false)
-            
-                let mutable row = 1
-
-                let mutable maxGirderIndex = List.length girdersWithLC3Loads
-
-                let mutable newLoadSheet = addLoadSheet()
-
-                let mutable array = newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]            
-            
-                let mutable girderIndex = 0   
-
-                while girderIndex < maxGirderIndex do
-                    let girder = girdersWithLC3Loads.[girderIndex]
-
-                    if row + (List.length (girder.LC3Loads loads SDS)) >= 42 then
-                        newLoadSheet.Range("A14", "M55").Value2 <- array.Clone()
-                        newLoadSheet <- addLoadSheet()
-                        array <- newLoadSheet.Range("A14", "M55").Value2 :?> obj [,]
-                        row <- 1
-                        girderIndex <- girderIndex - 1
-                    else
-                        array.[row, 1] <- box ("S" + girder.Mark)
-                        for load in (girder.LC3Loads loads SDS) do
-                            array.[row, 2] <- box (load.Type)
-                            array.[row, 3] <- box (load.Category)
-                            array.[row, 4] <- load.Position
-                            array.[row, 6] <- load.Load1Value
-                            array.[row, 7] <- load.Load1DistanceFt
-                            array.[row, 8] <- load.Load1DistanceIn
-                            array.[row, 9] <- load.Load2Value
-                            array.[row, 10] <- load.Load2DistanceFt
-                            array.[row, 11] <- load.Load2DistanceIn
-                            array.[row, 12] <- load.Ref
-                            array.[row, 13] <- box (load.LoadCaseString)
-                            row <- row + 1
-                    if girderIndex = maxGirderIndex - 1 then
-                        newLoadSheet.Range("A14", "M55").Value2 <- array
-                    girderIndex <- girderIndex + 1
-
             changeSmLoadsToLC3()
             addLC3LoadsToLoadNotes()
             addLC3Loads()
@@ -1008,43 +1004,10 @@ module Seperator =
     let seperateSeismic bomPath =
         getAllInfo bomPath getInfo [Modifiers.seperateSeismic]
 
+
     let seperateSeismicAndAdjustSinglePitches bomPath =
         getAllInfo bomPath getInfo [Modifiers.seperateSeismic; Modifiers.adjustSinglePitchJoists]
 
     let adjustSinglePitchJoists bomPath =
         getAllInfo bomPath getInfo [Modifiers.adjustSinglePitchJoists]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-                       
-
-
-
-    
-
-
-
-    
-
-    
-
 
