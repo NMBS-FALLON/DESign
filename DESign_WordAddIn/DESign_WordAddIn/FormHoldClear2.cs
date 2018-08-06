@@ -659,6 +659,10 @@ namespace DESign_WordAddIn
             int i = 0;
             foreach (JoistSeatInfo thisJoistSeatInfo in listJoistSeatInfo)
             {
+
+                double tcVLeg = QueryAngleData.DblVleg(thisJoistSeatInfo.TC);
+                double tcThickness = QueryAngleData.DblThickness(thisJoistSeatInfo.TC);
+
                 HCSeatInfo thisHCSeatInfo = new HCSeatInfo();
                 thisHCSeatInfo.mark = thisJoistSeatInfo.mark;
                 thisHCSeatInfo.qty = thisJoistSeatInfo.qty * 2;
@@ -668,7 +672,15 @@ namespace DESign_WordAddIn
                 thisHCSeatInfo.bplLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.ConvertLengthtoDecimal(thisJoistSeatInfo.bplLength));
                 thisHCSeatInfo.bplOutsideDepth = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth);
                 thisHCSeatInfo.bplInsideDepth = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth);
-                thisHCSeatInfo.stiffPlateLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.NearestHalfInch(thisJoistSeatInfo.bplOutsideDepth - 2.0 / 12.0));
+
+                if (tcVLeg <= 3.25)
+                {
+                    thisHCSeatInfo.stiffPlateLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.NearestQuarterInch(thisJoistSeatInfo.bplOutsideDepth - 1.0 / 12.0));
+                }
+                else
+                {
+                    thisHCSeatInfo.stiffPlateLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.NearestHalfInch(thisJoistSeatInfo.bplOutsideDepth - 2.0 / 12.0));
+                }
                 thisHCSeatInfo.paMat = "P0604";
 
                 
@@ -690,10 +702,7 @@ namespace DESign_WordAddIn
 
                 int diffInHCandTC = 0;
 
-
-                double tcVLeg = QueryAngleData.DblVleg(thisJoistSeatInfo.TC);
-                double tcThickness = QueryAngleData.DblThickness(thisJoistSeatInfo.TC);
-
+   
 
                 bool gaIsGreater3pt5 = false;
                 if (thisJoistSeatInfo.slotSetback != null)

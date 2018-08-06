@@ -35,7 +35,7 @@
     <PublishUrl>Q:\Designer Aid\DESign\DESign WORD ADD-IN\</PublishUrl>
     <InstallUrl>\\nmbsfaln-fs\engr\designer aid\design\design word add-in\</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.53</ApplicationVersion>
+    <ApplicationVersion>1.0.0.55</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
@@ -232,6 +232,7 @@
     </Compile>
     <EmbeddedResource Include="FormHoldClear2.resx">
       <DependentUpon>FormHoldClear2.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FormInsertJEDIImages.resx">
       <DependentUpon>FormInsertJEDIImages.cs</DependentUpon>

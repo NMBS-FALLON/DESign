@@ -466,14 +466,15 @@ namespace DESign_WordAddIn
 
         public double NearestHalfInch (double dblValue)
         {
-            double nearestHalfInch = 0.0;
             double dblValueInInches = dblValue * 12.0;
-            double remainder = dblValueInInches % 1.0;
-            if (remainder/0.25 >= 3.0) { nearestHalfInch = dblValueInInches - remainder + 1.0; }
-            else if (remainder/0.25 >= 1.0) { nearestHalfInch = dblValueInInches - remainder + 0.50; }
-            else { nearestHalfInch = dblValueInInches - remainder + 0.0; }
+            return Math.Round(dblValueInInches / 0.5) * 0.5 / 12.0;
+            
+        }
 
-            return nearestHalfInch/12.0;
+        public double NearestQuarterInch(double dblValue)
+        {
+            double dblValueInInches = dblValue * 12.0;
+            return Math.Round(dblValueInInches / 0.25) * 0.25 / 12.0;
         }
     }
 }

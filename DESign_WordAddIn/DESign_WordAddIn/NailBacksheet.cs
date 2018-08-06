@@ -516,7 +516,7 @@ namespace DESign_WordAddIn
                 string[] w2Rtext = range.Text.Split(new string[] { "  " }, StringSplitOptions.RemoveEmptyEntries);
                 string w2RMaterial = w2Rtext[0].Trim();
 
-                string[] unacceptableW2s = new string[] { "C32BA", "C34AA", "C36BA", "C38BA", "C40BA", "CW40BA" };
+                string[] unacceptableW2s = new string[] { "C36BA", "C38BA", "C40BA", "CW40BA" };
 
                 bool badW2L = unacceptableW2s.Contains(w2LMaterial);
                 bool badW2R = unacceptableW2s.Contains(w2RMaterial);
@@ -524,6 +524,7 @@ namespace DESign_WordAddIn
                 string message = mark + ":\r\n";
                 if (badW2L) { message = message + "Check W2L Material\r\n"; }
                 if (badW2R) { message = message + "Check W2R Material\r\n"; }
+
 
                 if (badW2L || badW2R)
                 {
