@@ -65,6 +65,7 @@
     <Compile Include="BOM_Seismic_Seperation.fs" />
     <Compile Include="TCWidths.fs" />
     <Compile Include="GemToNmbs.fs" />
+    <Compile Include="DeckDesignCatalog.fs" />
     <Compile Include="DESign Automation.fs" />
     <Compile Include="XML.fs" />
     <Compile Include="Program.fs" />
