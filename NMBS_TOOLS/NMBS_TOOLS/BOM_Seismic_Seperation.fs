@@ -21,6 +21,8 @@ module Seperator =
             if m.Success then Some(List.tail [ for g in m.Groups -> g.Value ])
             else None
 
+    
+
     type Load =
         {
         Type : string;
@@ -365,21 +367,56 @@ module Seperator =
                                  null, null, null, null, [3]) ]
             
 
-        member this.LC3Loads (loadNotes :LoadNote list) sds =
+        member this.LC3Loads (loadNotes :LoadNote list) (sds : float) =
                 let additionalJoistLoads =
                     this.AdditionalJoists
                     |> List.map (fun load -> {load with LoadCases = [3]})
-                loadNotes
-                |> List.filter (fun note ->
-                    match this.LoadNoteList with
-                    | Some loadNoteList -> loadNoteList |> List.contains note.LoadNumber
-                    | None -> false)
-                |> List.map (fun note -> note.Load)
-                |> List.filter (fun load -> load.Category <> "WL" && load.Category <> "SM" && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
-                |> List.map (fun load -> {load with LoadCases = [3]})
+
+                let thisMarksLoads =
+                    loadNotes                   
+                    |> List.filter (fun note ->
+                        match this.LoadNoteList with
+                        | Some loadNoteList -> loadNoteList |> List.contains note.LoadNumber
+                        | None -> false)
+                    |> List.map (fun note -> note.Load)
+                
+                 
+                let sds_From_UDLs_And_UTLs =
+                    thisMarksLoads
+                    |> List.filter (fun load -> load.Type = "U" && (load.Category = "DL" || load.Category = "TL") && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
+                    |> List.map (fun load ->
+                        let categoryFactor = if load.Category = "DL" then 1.0 else 0.5
+                        let load1Value = box (0.14 * sds * (System.Convert.ToDouble(load.Load1Value)) * categoryFactor)
+                        let load2Value =
+                            match (load.Load2Value) with
+                            | v when v = null || v = box "" -> null
+                            | _ -> box (0.14 * sds * (System.Convert.ToDouble(load.Load2Value)) * categoryFactor)
+                        {load with Category = "SM"; Load1Value = load1Value; Load2Value = load2Value; LoadCases = [3]})
+                
+                let directLoadsToLC3 =
+                    thisMarksLoads
+                    |> List.filter (fun load -> load.Category <> "WL" && load.Category <> "SM" && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
+                    |> List.map (fun load -> {load with LoadCases = [3]})                 
+                
+                []
+                |> List.append sds_From_UDLs_And_UTLs
                 |> List.append [this.SDS sds]
                 |> List.append this.DeadLoads
                 |> List.append additionalJoistLoads
+                |> List.append directLoadsToLC3
+                |> List.map
+                    (fun load ->
+                        let load1Value = 
+                            match load.Load1Value with
+                            | v when v = null || v = box "" -> null
+                            | v -> box (Math.Ceiling (System.Convert.ToDouble(v)))
+
+                        let load2Value =
+                            match load.Load2Value with
+                            | v when v = null || v = box "" -> null
+                            | v -> box (Math.Ceiling (System.Convert.ToDouble(load.Load2Value)))
+
+                        {load with Load1Value = load1Value; Load2Value = load2Value})
 
 
     type BOM = 
@@ -810,9 +847,13 @@ module Seperator =
             let addLoadNote (mark : string) (note : string) =
                 if (mark.Length > 0 && note.Length > 0) then
                     let loadNote = "S" + mark
-                    let insertLocation = note.IndexOf(")")
-                    let newNote = note.Substring(0, insertLocation) + ", " + loadNote + ")"
-                    newNote
+                    if (String.exists (fun c -> c = '(') note) then
+                        let insertLocation = note.IndexOf(")")
+                        let newNote = note.Substring(0, insertLocation) + ", " + loadNote + ")"
+                        newNote
+                    else
+                        let newNote = note + " (" + loadNote + ")"
+                        newNote
                 else
                    ""
     (*
@@ -859,9 +900,9 @@ module Seperator =
                                 if (joistMarksWithLC3Loads |> List.contains mark) then
                                     array.[i, colIndex + 26] <- box (addLoadNote mark (string array.[i, colIndex + 26]))
                             if (sheet.Range("A21").Value2 :?> string) = "MARK" then
-                                sheet.Range("AA23","AA40").Value2 <- array.[*,array.GetLength(1)] ////////////////////////////////////////////////////////////////////////////
+                                sheet.Range("AA23","AA40").Value2 <- array.[*,array.GetLength(1)..] ////////////////////////////////////////////////////////////////////////////
                             else
-                                sheet.Range("AA16", "AA45").Value2 <- array.[*,array.GetLength(1)] ///////////////////////////////////////////////////////////////////////////
+                                sheet.Range("AA16", "AA45").Value2 <- array.[*,array.GetLength(1)..] ///////////////////////////////////////////////////////////////////////////
 
                 let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads SDS) = false)
                 let girderWorksheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("G ("))
@@ -872,9 +913,9 @@ module Seperator =
                         if sheet.Name.Contains("G (") then
                             let array =
                                 if (sheet.Range("A26").Value2 :?> string) = "MARK" then
-                                    sheet.Range("A28","AA45").Value2 :?> obj [,]
+                                    sheet.Range("A28","Z45").Value2 :?> obj [,]
                                 else
-                                    sheet.Range("A14", "AA45").Value2 :?> obj [,]
+                                    sheet.Range("A14", "Z45").Value2 :?> obj [,]
 
                             let startRowIndex = Array2D.base1 array
                             let endRowIndex = (array |> Array2D.length1) - (if startRowIndex = 0 then 1 else 0) 
@@ -888,9 +929,9 @@ module Seperator =
                                 if (girderMarksWithLC3Loads |> List.contains mark) then
                                     array.[i, colIndex + 25] <- box (addLoadNote mark (string array.[i, colIndex + 25]))
                             if (sheet.Range("A26").Value2 :?> string) = "MARK" then
-                                sheet.Range("AA28","AA45").Value2 <- array.[*,array.GetLength(1)]              ///////////////////////////////////////////////////////////////////
+                                sheet.Range("Z28","Z45").Value2 <- array.[*,array.GetLength(1)..]              ///////////////////////////////////////////////////////////////////
                             else
-                                sheet.Range("AA14", "AA45").Value2 <- array.[*,array.GetLength(1)]          ////////////////////////////////////////////////////////////////////
+                                sheet.Range("Z14", "Z45").Value2 <- array.[*,array.GetLength(1)..]          ////////////////////////////////////////////////////////////////////
 
 
             let addLC3Loads() =
@@ -1010,4 +1051,135 @@ module Seperator =
 
     let adjustSinglePitchJoists bomPath =
         getAllInfo bomPath getInfo [Modifiers.adjustSinglePitchJoists]
+
+
+type Result<'T,'TError> = 
+    | Ok of ResultValue:'T 
+    | Error of ErrorValue:'TError
+
+
+module test =
+
+    module Load = 
+
+        type Type =
+            | C
+            | U
+
+            member this.toObj =
+                match this with
+                | C -> box "C"
+                | U -> box "U"
+
+            static member fromObj (o: obj) =
+                match o with
+                | :? string ->
+                    match string o with
+                    | "C" -> Ok C
+                    | "U" -> Ok U
+                    | _  -> Error "Incompatible Load Type"
+                | _ -> Error "Incompatible Load Type"
+
+        type Category =
+            | CL
+            | DL 
+            | LL
+
+            member this.toObj =
+                match this with
+                | CL -> box "CL"
+                | DL -> box "DL"
+                | LL -> box "LL"
+
+            static member fromObj (o: obj) =
+                match o with
+                | :? string ->
+                    match string o with
+                    | "C" -> Ok C
+                    | "U" -> Ok U
+                    | _ -> Error "Incompatable Category Type"
+                | _ -> Error "Incompatible Category Type"
+
+        type Position =
+            | TC
+            | BC
+
+            member this.toObj =
+                match this with
+                | TC -> box "TC"
+                | BC -> box "BC"
+
+            static member fromObj (o: obj) =
+                match o with
+                | :? string ->
+                    match string o with
+                    | "TC" -> Ok TC
+                    | "BC" -> Ok BC
+                    | _ -> Error "Incompatable Position Type"
+                | _ -> Error "Incompatible Position Type"
+
+        type Ref =
+            | LBL
+            | RBL
+            | LOAL
+            | ROAL
+
+            member this.toObj =
+                match this with
+                | LBL -> "L-BL"
+                | RBL -> "R-BL"
+                | LOAL -> "L-OAL"
+                | ROAL -> "R-OAL"
+
+            static member fromObj (o: obj) =
+                match o with
+                | null -> Ok None
+                | :? string ->
+                    match string o with
+                    | "" -> Ok (None)
+                    | "L-BL" -> Ok (Some LBL)
+                    | "R-BL" -> Ok (Some RBL)
+                    | "L-OAL" -> Ok (Some LOAL)
+                    | "R-OAL" -> Ok (Some ROAL)
+                    | _ -> Error "Incompatable Position Type"
+                | _ -> Error "Incompatible Position Type"
+
+
+
+        type T =
+            {
+            Type : Type
+            Category : Category
+            Position : Position
+            Load1Value : float
+            Load1DistanceFt : float option
+            Load1DistanceIn : float option
+            Load2Value : float option
+            Load2DistanceFt : float option
+            Load2DistanceIn : float option
+            Ref : Ref option
+            LoadCases : int list
+            }
+
+            member this.LoadCaseString =
+                match this.LoadCases with
+                | [] -> ""
+                | _ -> 
+                    this.LoadCases
+                    |> List.map string
+                    |> List.reduce (fun s1 s2 -> s1 + "," + s2)
+            
+            static member create(loadType, category, position, load1Value, load1DistanceFt, load1DistanceIn, load2Value, load2DistanceFt, load2DistanceIn, ref, loadcases) =
+                {Type = loadType; Category = category; Position = position; Load1Value = load1Value;
+                    Load1DistanceFt = load1DistanceFt; Load1DistanceIn = load1DistanceIn; Load2Value = load2Value;
+                    Load2DistanceFt = load2DistanceFt; Load2DistanceIn = load2DistanceIn; Ref = ref; LoadCases = loadcases}
+
+    let l1 = Load.T.create(Load.Type.C, Load.Category.CL, Load.Position.TC, 1000.0, None, None, None, None, None, Some Load.Ref.LBL, [])
+    let l2 = Load.T.create(Load.Type.C, Load.Category.CL, Load.Position.TC, 1000.0, None, None, None, None, None, Some Load.Ref.LBL, [1])
+    let l3 = Load.T.create(Load.Type.C, Load.Category.CL, Load.Position.TC, 1000.0, None, None, None, None, None, Some Load.Ref.LBL, [2])
+
+    let loads1 = List.sort [l1; l2]
+    let loads2 = List.sort [l2; l1]
+    loads1 = loads2
+
 

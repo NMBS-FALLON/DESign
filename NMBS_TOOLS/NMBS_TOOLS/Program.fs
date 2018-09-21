@@ -26,7 +26,7 @@ let main argv =
    // printfn "Please enter Sds (then click enter): "
    // let sds = float (System.Console.ReadLine())
 
-   (* 
+    
     let reportPath =
         let openFile = new System.Windows.Forms.OpenFileDialog()
         openFile.Filter <- "Excel files|*.xlsm"
@@ -61,7 +61,7 @@ let main argv =
                          ()
     | None -> printfn "No BOM Selected."
         
-    *)
+    
 
     //CreateReport.TCAnalysis()
 
@@ -71,7 +71,7 @@ let main argv =
     
     //NMBS_Tools.XML.XML.xmlTest()
 
-    NMBS_Tools.DeckDesignCatalog.getShearValues() |> ignore
+    //NMBS_Tools.DeckDesignCatalog.getShearValues() |> ignore
 
     printfn "Complete!"
     printfn "Click enter to exit."
