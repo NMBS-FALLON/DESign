@@ -21,40 +21,94 @@ module Seperator =
             if m.Success then Some(List.tail [ for g in m.Groups -> g.Value ])
             else None
 
+    type Result<'T,'TError> = 
+        | Ok of ResultValue:'T 
+        | Error of ErrorValue:'TError
+
+    let handleResultWithFailure result =
+        match result with
+        | Ok r -> r
+        | Error s -> failwith s
+
+    let stringOptionFromObj (o: obj) =
+        match o with
+        | null -> None
+        | _ -> Some (string o)        
+
+    let floatFromObj (o: obj) =
+        match o with
+        | null -> Error (sprintf "Expecting float, received %O" o)
+        | :? string ->
+            match string o with
+            | "" -> Error (sprintf "Expecting float, received %O" o)
+            | _ ->
+                match System.Double.TryParse(string o) with
+                | true, n -> Ok n
+                | _ -> Error (sprintf "Expecting float, received %O" o)
+        | :? float -> Ok (System.Convert.ToDouble o)
+        | _ -> Error (sprintf "Expecting float, received %O" o)
+
+
+
+    let floatOptionFromObj (o: obj) =
+        match o with
+        | null -> Ok None
+        | :? string ->
+            match string o with
+            | "" -> Ok None
+            | _ ->
+                match System.Double.TryParse(string o) with
+                | true, n -> Ok (Some n)
+                | _ -> Error (sprintf "Expecting float, received %O" o)
+        | :? float -> Ok (Some (System.Convert.ToDouble o))
+        | _ -> Error (sprintf "Expecting float, received %O" o)
+
+    let floatOptionToObj (fo: float option) =
+        match fo with
+        | Some v -> box v
+        | None -> null
+
+
+    let parseObjToFloatOptionWithFailure (o: obj) =
+        let result = floatOptionFromObj o
+        handleResultWithFailure result
     
+    module Load = 
 
-    type Load =
-        {
-        Type : string;
-        Category : string
-        Position : obj
-        Load1Value : obj
-        Load1DistanceFt : obj
-        Load1DistanceIn : obj
-        Load2Value : obj
-        Load2DistanceFt : obj
-        Load2DistanceIn : obj
-        Ref : obj
-        LoadCases : int list
-        }
+        type T =
+            {
+            Type : string
+            Category : string
+            Position : string
+            Load1Value : float
+            Load1DistanceFt : float option
+            Load1DistanceIn : float option
+            Load2Value : float option
+            Load2DistanceFt : float option
+            Load2DistanceIn : float option
+            Ref : string option
+            LoadCases : int list
+            }
 
-        member this.LoadCaseString =
-            match this.LoadCases with
-            | [] -> ""
-            | _ -> 
-                this.LoadCases
-                |> List.map string
-                |> List.reduce (fun s1 s2 -> s1 + "," + s2)
+            member this.LoadCaseString =
+                match this.LoadCases with
+                | [] -> ""
+                | _ -> 
+                    this.LoadCases
+                    |> List.map string
+                    |> List.reduce (fun s1 s2 -> s1 + "," + s2)
             
-        static member create(loadType, category, position, load1Value, load1DistanceFt, load1DistanceIn, load2Value, load2DistanceFt, load2DistanceIn, ref, loadcases) =
-            {Type = loadType; Category = category; Position = position; Load1Value = load1Value;
-             Load1DistanceFt = load1DistanceFt; Load1DistanceIn = load1DistanceIn; Load2Value = load2Value;
-             Load2DistanceFt = load2DistanceFt; Load2DistanceIn = load2DistanceIn; Ref = ref; LoadCases = loadcases}
+        let create(loadType, category, position, load1Value, load1DistanceFt, load1DistanceIn, load2Value, load2DistanceFt, load2DistanceIn, ref, loadcases) =
+                {Type = loadType; Category = category; Position = position; Load1Value = load1Value;
+                    Load1DistanceFt = load1DistanceFt; Load1DistanceIn = load1DistanceIn; Load2Value = load2Value;
+                    Load2DistanceFt = load2DistanceFt; Load2DistanceIn = load2DistanceIn; Ref = ref; LoadCases = loadcases}
+
+    open Load
 
     type LoadNote =
         {
         LoadNumber : string
-        Load : Load
+        Load : Load.T
         }
 
 
@@ -218,6 +272,8 @@ module Seperator =
 
             endDepths
 
+    
+
         member this.UDL =
             let size = this.JoistSize
             if size.Contains("/") then
@@ -226,19 +282,22 @@ module Seperator =
                 let LL = float sizeAsArray.[2]
                 let DL = TL - LL
                 Some(Load.create("U", "CL", "TC", DL,
-                             null, null, null, null, null, null, [3]))
+                             None, None, None, None, None, None, [3]))
             else
                 None       
 
         member this.Sds sds =
             match this.UDL with
             | Some udl -> 
-                let sds = 0.14 * sds * System.Convert.ToDouble(udl.Load1Value)
+                let sds = 0.14 * sds * udl.Load1Value
                 Some (Load.create ("U", "SM", "TC", sds,
-                              null, null, null, null, null, null, [3]))
+                              None, None, None, None, None, None, [3]))
             | None -> None
 
+
+
         member this.LC3Loads (loadNotes :LoadNote list) sds =
+            
             match this.UDL, (this.Sds sds) with
             | Some udl, Some sds ->
                 loadNotes
@@ -257,18 +316,18 @@ module Seperator =
         Load : float
         }
 
-        member this.ToLoad() =
+        member this.ToLoad() =            
             {
             Type = "C"
             Category = "CL"
             Position = "TC"
             Load1Value = this.Load * 1000.0
-            Load1DistanceFt = this.LocationFt
-            Load1DistanceIn = this.LocationIn
-            Load2Value = null
-            Load2DistanceFt = null
-            Load2DistanceIn = null
-            Ref = null
+            Load1DistanceFt = parseObjToFloatOptionWithFailure this.LocationFt
+            Load1DistanceIn = parseObjToFloatOptionWithFailure this.LocationIn
+            Load2Value = None
+            Load2DistanceFt = None
+            Load2DistanceIn = None
+            Ref = None
             LoadCases = []
             }
 
@@ -276,7 +335,7 @@ module Seperator =
     type AdditionalJoist =
         {
         Mark : string
-        AdditionalJoists : Load list
+        AdditionalJoists : Load.T list
         }
 
     type Girder =
@@ -290,7 +349,7 @@ module Seperator =
         TcxrLengthFt : float
         TcxrLengthIn : float
         NotesString : string option
-        AdditionalJoists : Load list
+        AdditionalJoists : Load.T list
         GirderGeometry : GirderGeometry
         LiveLoadUNO : string
         LiveLoadSpecialNotes : Note List
@@ -355,7 +414,7 @@ module Seperator =
             let udl, _ = this.UDL_PDL this.LiveLoadUNO this.LiveLoadSpecialNotes
             let SDS = udl * 0.14 * sds
             Load.create("U", "SM", "TC", SDS,
-                          null, null, null, null, null, null, [3])
+                          None, None, None, None, None, None, [3])
 
         member this.DeadLoads =
             let _,dl = this.UDL_PDL this.LiveLoadUNO this.LiveLoadSpecialNotes
@@ -363,8 +422,8 @@ module Seperator =
             [for i = 1 to geom.NumPanels do
                 let distanceFt, distanceIn = getPanelDim i geom
                 yield
-                    Load.create("C", "CL", "TC", dl, distanceFt, distanceIn,
-                                 null, null, null, null, [3]) ]
+                    Load.create("C", "CL", "TC", dl, Some distanceFt, Some distanceIn,
+                                 None, None, None, None, [3]) ]
             
 
         member this.LC3Loads (loadNotes :LoadNote list) (sds : float) =
@@ -386,11 +445,11 @@ module Seperator =
                     |> List.filter (fun load -> load.Type = "U" && (load.Category = "DL" || load.Category = "TL") && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
                     |> List.map (fun load ->
                         let categoryFactor = if load.Category = "DL" then 1.0 else 0.5
-                        let load1Value = box (0.14 * sds * (System.Convert.ToDouble(load.Load1Value)) * categoryFactor)
+                        let load1Value = 0.14 * sds * load.Load1Value * categoryFactor
                         let load2Value =
                             match (load.Load2Value) with
-                            | v when v = null || v = box "" -> null
-                            | _ -> box (0.14 * sds * (System.Convert.ToDouble(load.Load2Value)) * categoryFactor)
+                            | Some v -> Some (0.14 * sds * v * categoryFactor)
+                            | None -> None
                         {load with Category = "SM"; Load1Value = load1Value; Load2Value = load2Value; LoadCases = [3]})
                 
                 let directLoadsToLC3 =
@@ -406,15 +465,12 @@ module Seperator =
                 |> List.append directLoadsToLC3
                 |> List.map
                     (fun load ->
-                        let load1Value = 
-                            match load.Load1Value with
-                            | v when v = null || v = box "" -> null
-                            | v -> box (Math.Ceiling (System.Convert.ToDouble(v)))
+                        let load1Value = Math.Ceiling load.Load1Value
 
                         let load2Value =
                             match load.Load2Value with
-                            | v when v = null || v = box "" -> null
-                            | v -> box (Math.Ceiling (System.Convert.ToDouble(load.Load2Value)))
+                            | Some v -> Some (Math.Ceiling v)
+                            | None -> None
 
                         {load with Load1Value = load1Value; Load2Value = load2Value})
 
@@ -454,18 +510,19 @@ module Seperator =
                                 |> List.map (fun string -> System.Int32.Parse(string))
                 loadNotes
 
+
             let getLoadFromArraySlice (a : obj []) =
                 {
                 Type = string a.[1]
-                Category = string a.[2]
-                Position = a.[3]
-                Load1Value = a.[5]
-                Load1DistanceFt =  a.[6]
-                Load1DistanceIn = a.[7]
-                Load2Value = a.[8]
-                Load2DistanceFt = a.[9]
-                Load2DistanceIn = a.[10]
-                Ref = a.[11]
+                Category = string  a.[2]
+                Position = string a.[3]
+                Load1Value = handleResultWithFailure (floatFromObj a.[5])
+                Load1DistanceFt =  parseObjToFloatOptionWithFailure a.[6]
+                Load1DistanceIn = parseObjToFloatOptionWithFailure a.[7]
+                Load2Value = parseObjToFloatOptionWithFailure a.[8]
+                Load2DistanceFt = parseObjToFloatOptionWithFailure a.[9]
+                Load2DistanceIn = parseObjToFloatOptionWithFailure a.[10]
+                Ref = stringOptionFromObj  a.[11]
                 LoadCases = getLoadCases (string a.[12])
                 }
 
@@ -479,6 +536,12 @@ module Seperator =
                         if a2D.[currentIndex, startColIndex + 1] <> null && a2D.[currentIndex, startColIndex + 1] <> (box "") then
                             if a2D.[currentIndex, startColIndex] <> null && a2D.[currentIndex, startColIndex] <> (box "") then
                                 loadNumber <- (string a2D.[currentIndex, startColIndex]).Trim()
+                            let load =
+                                try
+                                    getLoadFromArraySlice a2D.[currentIndex, *]
+                                with
+                                    | Failure(msg) -> printfn "Issue with load line %i; %s" currentIndex msg; failwith ""
+                                    
                             yield {LoadNumber = loadNumber; Load = getLoadFromArraySlice a2D.[currentIndex, *]}]
                 loadNotes
 
@@ -612,8 +675,8 @@ module Seperator =
                                 if (string locationFt) = "P" then
                                     let panel = System.Int32.Parse((string locationIn).Replace("#", ""))
                                     let ft, inch = getPanelDim panel girder.GirderGeometry
-                                    locationFt <- box ft
-                                    locationIn <- box inch                   
+                                    locationFt <- Some ft
+                                    locationIn <- Some inch                   
                                 yield {load with Load1DistanceFt = locationFt; Load1DistanceIn = locationIn}] 
                     let additionalJoists = girder.AdditionalJoists |> List.append additionalLoads
                     yield {girder with AdditionalJoists = additionalJoists}]
@@ -631,7 +694,8 @@ module Seperator =
         let tempExcelApp = new Microsoft.Office.Interop.Excel.ApplicationClass(Visible = false)
         tempExcelApp.DisplayAlerts = false |> ignore
         tempExcelApp.AutomationSecurity = Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable |> ignore
-        //let mutable workbook = tempExcelApp.Workbooks.Add()
+        let workbooks = tempExcelApp.Workbooks
+        let mutable workbook = workbooks.Add()
         
         //let bom = tempExcelApp.Workbooks.Open(bomPath)
         try 
@@ -641,7 +705,7 @@ module Seperator =
             File.Copy(reportPath, tempReportPath)
             let stopWatch = System.Diagnostics.Stopwatch.StartNew()
             printfn "Opening Workbook"
-            let workbook = tempExcelApp.Workbooks.Open(tempReportPath)
+            workbook <- workbooks.Open(tempReportPath)
             stopWatch.Stop()
             printfn "Workbook is opened (in %i seconds)" (stopWatch.Elapsed.Minutes * 60 + stopWatch.Elapsed.Seconds)
             stopWatch.Restart()
@@ -661,18 +725,18 @@ module Seperator =
             
             workbook |> saveWorkbook reportPath
 
-            workbook.Close(false)
-            Marshal.ReleaseComObject(workbook) |> ignore
-            System.GC.Collect() |> ignore
-
             printfn "Finished processing %s." reportPath 
             printfn "Finished processing all files."
             info
         finally
-
+            workbook.Close(false)
+            Marshal.ReleaseComObject(workbook) |> ignore
+            System.GC.Collect() |> ignore
+            workbooks.Close()
+            Marshal.ReleaseComObject(workbooks) |> ignore
             tempExcelApp.Quit()
             Marshal.ReleaseComObject(tempExcelApp) |> ignore
-            System.GC.Collect() |> ignore            
+            System.GC.Collect() |> ignore           
 
     let getInfo (bom: Workbook) =
 
@@ -945,30 +1009,82 @@ module Seperator =
                     let loadArray =
                         let mutable markAdded = false
                         [for load in (joist.LC3Loads loads SDS) do
+                             let refObj =
+                                match load.Ref with
+                                | Some r -> box r
+                                | None -> null
                              if markAdded = false then
                                  markAdded <- true
                                  yield 
-                                    [|box(sprintf "%s%s" "S" joist.Mark); box(load.Type); box(load.Category); load.Position; null; load.Load1Value; load.Load1DistanceFt; load.Load1DistanceIn;
-                                     load.Load2Value; load.Load2DistanceFt; load.Load2DistanceIn; load.Ref; box(load.LoadCaseString)|]
+                                    [|box(sprintf "%s%s" "S" joist.Mark);
+                                      box load.Type;
+                                      box load.Category;
+                                      box load.Position;
+                                      null;
+                                      box load.Load1Value;
+                                      floatOptionToObj load.Load1DistanceFt;
+                                      floatOptionToObj load.Load1DistanceIn;
+                                      floatOptionToObj load.Load2Value;
+                                      floatOptionToObj load.Load2DistanceFt;
+                                      floatOptionToObj load.Load2DistanceIn;
+                                      refObj;
+                                      box(load.LoadCaseString)|]
                              else
                                  yield
-                                      [|null; box(load.Type); box(load.Category); load.Position; null; load.Load1Value; load.Load1DistanceFt; load.Load1DistanceIn;
-                                        load.Load2Value; load.Load2DistanceFt; load.Load2DistanceIn; load.Ref; box(load.LoadCaseString)|]] |> array2D
+                                      [|null;
+                                        box load.Type;
+                                        box load.Category;
+                                        box load.Position;
+                                        null;
+                                        box load.Load1Value;
+                                        floatOptionToObj load.Load1DistanceFt;
+                                        floatOptionToObj load.Load1DistanceIn;
+                                        floatOptionToObj load.Load2Value;
+                                        floatOptionToObj load.Load2DistanceFt;
+                                        floatOptionToObj load.Load2DistanceIn;
+                                        refObj;
+                                        box(load.LoadCaseString)|]] |> array2D
                     loadArray
 
                 let getGirderLoadArray (girder : Girder) = 
                     let loadArray =
                         let mutable markAdded = false
                         [for load in (girder.LC3Loads loads SDS) do
+                             let refObj =
+                                match load.Ref with
+                                | Some r -> box r
+                                | None -> null
                              if markAdded = false then
                                  markAdded <- true
                                  yield 
-                                    [|box(sprintf "%s%s" "S" girder.Mark); box(load.Type); box(load.Category); load.Position; null; load.Load1Value; load.Load1DistanceFt; load.Load1DistanceIn;
-                                     load.Load2Value; load.Load2DistanceFt; load.Load2DistanceIn; load.Ref; box(load.LoadCaseString)|]
+                                    [|box(sprintf "%s%s" "S" girder.Mark);
+                                      box load.Type;
+                                      box load.Category;
+                                      box load.Position;
+                                      null;
+                                      box load.Load1Value;
+                                      floatOptionToObj load.Load1DistanceFt;
+                                      floatOptionToObj load.Load1DistanceIn;
+                                      floatOptionToObj load.Load2Value;
+                                      floatOptionToObj load.Load2DistanceFt;
+                                      floatOptionToObj load.Load2DistanceIn;
+                                      refObj;
+                                      box(load.LoadCaseString)|]
                              else
                                  yield
-                                      [|null; box(load.Type); box(load.Category); load.Position; null; load.Load1Value; load.Load1DistanceFt; load.Load1DistanceIn;
-                                        load.Load2Value; load.Load2DistanceFt; load.Load2DistanceIn; load.Ref; box(load.LoadCaseString)|]] |> array2D
+                                      [|null;
+                                        box load.Type;
+                                        box load.Category;
+                                        box load.Position;
+                                        null;
+                                        box load.Load1Value;
+                                        floatOptionToObj load.Load1DistanceFt;
+                                        floatOptionToObj load.Load1DistanceIn;
+                                        floatOptionToObj load.Load2Value;
+                                        floatOptionToObj load.Load2DistanceFt;
+                                        floatOptionToObj load.Load2DistanceIn;
+                                        refObj;
+                                        box(load.LoadCaseString)|]] |> array2D
                     loadArray
 
                 let allLoads =
@@ -1053,133 +1169,8 @@ module Seperator =
         getAllInfo bomPath getInfo [Modifiers.adjustSinglePitchJoists]
 
 
-type Result<'T,'TError> = 
-    | Ok of ResultValue:'T 
-    | Error of ErrorValue:'TError
-
-
-module test =
-
-    module Load = 
-
-        type Type =
-            | C
-            | U
-
-            member this.toObj =
-                match this with
-                | C -> box "C"
-                | U -> box "U"
-
-            static member fromObj (o: obj) =
-                match o with
-                | :? string ->
-                    match string o with
-                    | "C" -> Ok C
-                    | "U" -> Ok U
-                    | _  -> Error "Incompatible Load Type"
-                | _ -> Error "Incompatible Load Type"
-
-        type Category =
-            | CL
-            | DL 
-            | LL
-
-            member this.toObj =
-                match this with
-                | CL -> box "CL"
-                | DL -> box "DL"
-                | LL -> box "LL"
-
-            static member fromObj (o: obj) =
-                match o with
-                | :? string ->
-                    match string o with
-                    | "C" -> Ok C
-                    | "U" -> Ok U
-                    | _ -> Error "Incompatable Category Type"
-                | _ -> Error "Incompatible Category Type"
-
-        type Position =
-            | TC
-            | BC
-
-            member this.toObj =
-                match this with
-                | TC -> box "TC"
-                | BC -> box "BC"
-
-            static member fromObj (o: obj) =
-                match o with
-                | :? string ->
-                    match string o with
-                    | "TC" -> Ok TC
-                    | "BC" -> Ok BC
-                    | _ -> Error "Incompatable Position Type"
-                | _ -> Error "Incompatible Position Type"
-
-        type Ref =
-            | LBL
-            | RBL
-            | LOAL
-            | ROAL
-
-            member this.toObj =
-                match this with
-                | LBL -> "L-BL"
-                | RBL -> "R-BL"
-                | LOAL -> "L-OAL"
-                | ROAL -> "R-OAL"
-
-            static member fromObj (o: obj) =
-                match o with
-                | null -> Ok None
-                | :? string ->
-                    match string o with
-                    | "" -> Ok (None)
-                    | "L-BL" -> Ok (Some LBL)
-                    | "R-BL" -> Ok (Some RBL)
-                    | "L-OAL" -> Ok (Some LOAL)
-                    | "R-OAL" -> Ok (Some ROAL)
-                    | _ -> Error "Incompatable Position Type"
-                | _ -> Error "Incompatible Position Type"
 
 
 
-        type T =
-            {
-            Type : Type
-            Category : Category
-            Position : Position
-            Load1Value : float
-            Load1DistanceFt : float option
-            Load1DistanceIn : float option
-            Load2Value : float option
-            Load2DistanceFt : float option
-            Load2DistanceIn : float option
-            Ref : Ref option
-            LoadCases : int list
-            }
-
-            member this.LoadCaseString =
-                match this.LoadCases with
-                | [] -> ""
-                | _ -> 
-                    this.LoadCases
-                    |> List.map string
-                    |> List.reduce (fun s1 s2 -> s1 + "," + s2)
-            
-            static member create(loadType, category, position, load1Value, load1DistanceFt, load1DistanceIn, load2Value, load2DistanceFt, load2DistanceIn, ref, loadcases) =
-                {Type = loadType; Category = category; Position = position; Load1Value = load1Value;
-                    Load1DistanceFt = load1DistanceFt; Load1DistanceIn = load1DistanceIn; Load2Value = load2Value;
-                    Load2DistanceFt = load2DistanceFt; Load2DistanceIn = load2DistanceIn; Ref = ref; LoadCases = loadcases}
-
-    let l1 = Load.T.create(Load.Type.C, Load.Category.CL, Load.Position.TC, 1000.0, None, None, None, None, None, Some Load.Ref.LBL, [])
-    let l2 = Load.T.create(Load.Type.C, Load.Category.CL, Load.Position.TC, 1000.0, None, None, None, None, None, Some Load.Ref.LBL, [1])
-    let l3 = Load.T.create(Load.Type.C, Load.Category.CL, Load.Position.TC, 1000.0, None, None, None, None, None, Some Load.Ref.LBL, [2])
-
-    let loads1 = List.sort [l1; l2]
-    let loads2 = List.sort [l2; l1]
-    loads1 = loads2
 
 
