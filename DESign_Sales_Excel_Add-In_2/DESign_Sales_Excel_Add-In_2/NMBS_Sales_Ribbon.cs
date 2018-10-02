@@ -122,6 +122,7 @@ namespace DESign_Sales_Excel_Add_In_2
                 "   - JOIST DESCRIPTION SHORTHAND NOTATION:\r\n" +
                 "     '+' CHARACTER GETS REPLACED W/ 'K'\r\n" +
                 "     '-' CHARACTER GETS REPLACED W/ 'LH'\r\n" +
+                "     '+-' CHARACTER GETS REPLACED W/ 'KCS'\r\n" +
                 "     FIRST OCCURANCE OF '*' GETS REPLACED W/ 'G'\r\n" +
                 "     SECOND OCCURANCE OF '*' GETS REPLACED W/ 'N'\r\n" +
                 "     THIRD OCCURANCE OF '*' GETS REPLACED W/ 'K'\r\n" +

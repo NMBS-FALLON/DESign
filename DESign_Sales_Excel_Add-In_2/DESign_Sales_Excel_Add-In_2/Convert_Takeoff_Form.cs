@@ -19,6 +19,7 @@ namespace DESign_Sales_Excel_Add_In_2
                 dataGridSeperateSeismic.Rows.Add();
 
                 dataGridSeperateSeismic.Rows[i].Cells[0].Value = takeoff.Sequences[i].Name.Text;
+                dataGridSeperateSeismic.Rows[i].Cells[2].Value = takeoff.SDS;
             }
 
         }

@@ -68,6 +68,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
                 if (newDescription.Text != null)
                 {
+                    newDescription.Text = newDescription.Text.Replace("+-", "KCS");
                     newDescription.Text = newDescription.Text.Replace("+", "K");
                     newDescription.Text = newDescription.Text.Replace("-", "LH");
 

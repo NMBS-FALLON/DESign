@@ -12,6 +12,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 {
     public class Takeoff
     {
+        public double? SDS { get; set; }
         public class Sequence
         {
 
@@ -19,6 +20,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             public List<Joist> Joists { get; set; }
             public List<Bridging> Bridging { get; set; }
             private bool seperateSeismic = false;
+            
             public bool SeperateSeismic
             {
                 get
@@ -50,6 +52,13 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             //
             Excel._Worksheet marksWS = (Excel._Worksheet)oWB.Worksheets["Marks"];
             Excel._Worksheet baseTypesWS = (Excel._Worksheet)oWB.Worksheets["Base Types"];
+            Excel._Worksheet cover = (Excel._Worksheet)oWB.Worksheets["Cover"];
+
+            double? sds = null;
+            if (cover.Range["K12"].Value != null && cover.Range["K12"].Value.Contains("SDS"))
+            {
+                sds = cover.Range["M12"].Value;
+            }
 
             bool bridgingSheetExists = false;
             foreach(Excel.Worksheet sheet in oWB.Sheets)
@@ -617,6 +626,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             }
 
             Takeoff takeoff = new Takeoff();
+            takeoff.SDS = sds;
             takeoff.BaseTypes = baseTypes;
             takeoff.Sequences = sequences;
             foreach (Bridging br in bridging)
@@ -770,11 +780,112 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
             var baseTypeNames = from bt in baseTypes
                                 select bt.Name.Text;
-            
 
-            
 
-            foreach(Sequence seq in sequences)
+            // ADJUST SPECIAL LOADS
+            // ..... FUTURE .....
+            // NEED TO ADD CHECKS TO MAKE SURE ALL OF THE SPECIAL LOADS ARE PROVIDIG ACCURATE INFORMATION.
+            foreach (Sequence sequence in takeoff.Sequences)
+            {
+                foreach (Joist joist in sequence.Joists)
+                {
+                    List<Load> newLoads = new List<Load>();
+                    foreach (Load load in joist.Loads)
+                    {
+                        if (load.LoadInfoCategory.Text == "SMU")
+                        {
+                            load.Load1Value.Value = 1 * (int)Math.Ceiling((decimal)(load.Load1Value.Value * 0.7 / 1.0));
+                            if (load.Load2Value.Value != null)
+                            {
+                                load.Load2Value.Value = 1 * (int)Math.Ceiling((decimal)(load.Load2Value.Value * 0.7 / 1.0));
+                            }
+                            load.LoadInfoCategory.Text = "SM";
+                        }
+
+                        if (load.LoadInfoCategory.Text == "WLU")
+                        {
+                            load.Load1Value.Value = 1 * (int)Math.Ceiling((decimal)(load.Load1Value.Value * 0.6 / 1.0));
+                            if (load.Load2Value.Value != null)
+                            {
+                                load.Load2Value.Value = 1 * (int)Math.Ceiling((decimal)(load.Load2Value.Value * 0.6 / 1.0));
+                            }
+                            load.LoadInfoCategory.Text = "WL";
+                        }
+
+                        if (load.LoadInfoType.Text == "CMP")
+                        {
+                            if (joist.IsGirder == false)
+                            {
+                                load.Errors.Add("'CMP' LOAD CANNOT BE ADDED TO A JOIST");
+                            }
+                            else
+                            {
+                                if (load.Load1DistanceFt.Text.Replace(" ", "").ToUpper() == "ALL")
+                                {
+                                    int numPanelPoints = Convert.ToInt16(joist.Description.Text.Split(new string[] { "G", "N" }, StringSplitOptions.None)[1]) - 1;
+                                    for (int j = 1; j <= numPanelPoints; j++)
+                                    {
+                                        Load ppLoad = DeepClone(load);
+                                        ppLoad.LoadInfoType.Text = "C";
+                                        ppLoad.Load1DistanceFt.Text = "P" + DeepClone(j).ToString();
+                                        newLoads.Add(ppLoad);
+                                    }
+                                }
+                                else
+                                {
+                                    string[] loadLocations = load.Load1DistanceFt.Text.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                    loadLocations = loadLocations.Select(loadLocation => "P" + loadLocation.Replace(" ", "")).ToArray();
+                                    foreach (string loadLocation in loadLocations)
+                                    {
+                                        Load newLoad = DeepClone(load);
+                                        newLoad.LoadInfoType.Text = "C";
+                                        newLoad.Load1DistanceFt.Text = loadLocation;
+                                        newLoads.Add(newLoad);
+                                    }
+
+                                }
+                            }
+                        }
+
+                        if (load.LoadInfoType.Text == "CUP" || load.LoadInfoType.Text == "CUA")
+                        {
+                            double joistFt = joist.BaseLengthFt.Value == null ? 0.0 : (double)(joist.BaseLengthFt.Value);
+                            double joistIn = joist.BaseLengthIn.Value == null ? 0.0 : (double)(joist.BaseLengthIn.Value);
+                            double joistLengthInFt = joistFt + joistIn / 12.0;
+
+                            double loadFt = load.Load1DistanceFt.Text == null ? 0.0 : Double.Parse(load.Load1DistanceFt.Text);
+                            double loadIn = load.Load1DistanceIn.Value == null ? 0.0 : (double)(load.Load1DistanceIn.Value);
+                            double spaceInFt = loadFt + loadIn / 12.0;
+
+                            double ptLoad = load.Load1Value.Value == null ? 0.0 : (double)(load.Load1Value.Value);
+                            double uniformLoadValue = Math.Ceiling(ptLoad / spaceInFt - ptLoad / joistLengthInFt);
+
+                            Load uniformLoad = DeepClone(load);
+                            uniformLoad.Load1Value.Value = uniformLoadValue;
+                            uniformLoad.LoadInfoType.Text = "U";
+                            uniformLoad.Load1DistanceFt.Text = null;
+                            uniformLoad.Load1DistanceIn.Value = null;
+
+                            Load cpLoad = DeepClone(load);
+                            cpLoad.LoadInfoType.Text = load.LoadInfoType.Text == "CUP" ? "CP" : "CA";
+                            cpLoad.Load1DistanceFt.Text = null;
+                            cpLoad.Load1DistanceIn.Value = null;
+
+                            newLoads.Add(uniformLoad);
+                            newLoads.Add(cpLoad);
+                        }
+                    }
+
+                    joist.Loads.AddRange(newLoads);
+
+                    string[] loadInfoTypesToRemove = new string[] { "CMP", "CUP", "CUA" };
+                    joist.Loads.RemoveAll(load => (loadInfoTypesToRemove.Contains(load.LoadInfoType.Text)));
+
+                }
+            }
+
+
+            foreach (Sequence seq in sequences)
             {
                 
                 foreach (Joist joist in seq.Joists)
@@ -806,6 +917,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 File.WriteAllText(filePath, "Takeoff Errors:\r\n\r\n" + errors);
                 System.Diagnostics.Process.Start(filePath);
             }
+
             return takeoff;
         }
 
@@ -837,10 +949,6 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
             int sheetCount = 0;
 
-
-            
-            
-
             foreach (Sequence sequence in Sequences)
             {
                 sheetCount++;
@@ -858,35 +966,8 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 for (int markCounter = 0; markCounter < sequence.Joists.Count;)
                 {
                     Joist joist = sequence.Joists[markCounter];
-                    List<Load> newLoads = new List<Load>();
-                    foreach(Load load in joist.Loads)
-                    {
-                        if (load.LoadInfoType.Text == "CAP")
-                        {
-                            if (joist.IsGirder == false)
-                            {
-                                MessageBox.Show("ERROR WITH MARK " + joist.Mark.Text.ToString() + "; CAP LOAD CANNOT BE ADDED TO A JOIST");
-                            }
-                            else
-                            {
 
-                                int numPanelPoints = Convert.ToInt16(joist.Description.Text.Split(new string[] { "G", "N" }, StringSplitOptions.None)[1]) - 1;
-                                for(int i = 1; i <= numPanelPoints; i++)
-                                {
-                                    Load ppLoad = DeepClone(load);
-                                    ppLoad.LoadInfoType.Text = "C";
-                                    ppLoad.Load1DistanceFt.Text = "P" + DeepClone(i).ToString();
-                                    newLoads.Add(ppLoad);
-                                }
-                                    
-                            }
-
-                        }
-                    }
-
-                    int numCapLoads = joist.Loads.Where(load => load.LoadInfoType.Text == "CAP").ToList().Count;
-
-                    int maxRows = Math.Max(joist.Loads.Count + newLoads.Count - numCapLoads, joist.Notes.Count);
+                    int maxRows = Math.Max(joist.Loads.Count, joist.Notes.Count);
                     if (maxRows > 32)
                     {
                         MessageBox.Show(String.Format("Mark {0} has too many loads on it.\r\n NOTE THAT THIS JOIST WILL NOT BE ADDED TO THE TAKEOFFF!\r\n Either add this joist manually or send to Darien to convert.",
@@ -896,7 +977,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     }
 
 
-                    pageRowCounter = pageRowCounter + Math.Max(Math.Max(joist.Loads.Count + newLoads.Count - numCapLoads, joist.Notes.Count), 1) + 3;
+                    pageRowCounter = pageRowCounter + Math.Max(Math.Max(joist.Loads.Count, joist.Notes.Count), 1) + 3;
                     if (pageRowCounter > 35)
                     {
                         sheetCount = sheetCount + 1;
@@ -909,12 +990,6 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                         row = 7;
                         pageRowCounter = 0;
                         goto SkipLoop;
-                    }
-
-                    joist.Loads.RemoveAll(load => load.LoadInfoType.Text == "CAP");
-                    foreach (Load load in newLoads)
-                    {
-                        joist.Loads.Add(load);
                     }
 
                     CellInsert(sheet, row, 1, joist.Mark.Text, joist.Mark.IsUpdated);

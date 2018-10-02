@@ -10,10 +10,10 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
         public StringWithUpdateCheck LoadInfoType { get; set; }
         public StringWithUpdateCheck LoadInfoCategory { get; set; }
         public StringWithUpdateCheck LoadInfoPosition { get; set; }
-        private DoubleWithUpdateCheck load1Value = null;
-        private bool hasBeenReduced = false;
-        public DoubleWithUpdateCheck Load1Value
-        {
+        //private DoubleWithUpdateCheck load1Value = null;
+        //private bool hasBeenReduced = false;
+        public DoubleWithUpdateCheck Load1Value { get; set; }
+        /*{
             get
             {
                 if (hasBeenReduced == false)
@@ -24,12 +24,20 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                         if (LoadInfoCategory.Text == "SMU")
                         {
                             load1Value.Value = 1 * (int)Math.Ceiling((decimal)(load1Value.Value * 0.7 / 1.0));
+                            if (Load2Value.Value != null)
+                            {
+                                Load2Value.Value = 1 * (int)Math.Ceiling((decimal)(Load2Value.Value * 0.7 / 1.0));
+                            }                            
                             hasBeenReduced = true;
                             LoadInfoCategory.Text = "SM";
                         }
                         if(LoadInfoCategory.Text == "WLU")
                         {
                             load1Value.Value = 1 * (int)Math.Ceiling((decimal)(load1Value.Value * 0.6 / 1.0));
+                            if (Load2Value.Value != null)
+                            {
+                                Load2Value.Value = 1 * (int)Math.Ceiling((decimal)(Load2Value.Value * 0.6 / 1.0));
+                            }
                             hasBeenReduced = true;
                             LoadInfoCategory.Text = "WL";
                         }
@@ -42,6 +50,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 load1Value = value;
             }
         }
+        */
         public StringWithUpdateCheck Load1DistanceFt { get; set; }
         public DoubleWithUpdateCheck Load1DistanceIn { get; set; }
         public DoubleWithUpdateCheck Load2Value { get; set; }
@@ -92,7 +101,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             get
             {
                 List<string> errors = new List<string>();
-                string[] concentratedLoads = { "C", "CB", "CZ", "C3" };
+                string[] concentratedLoads = { "C", "CB", "CZ", "C3", "CMP", "CUP", "CUA" };
                 if (concentratedLoads.Contains(LoadInfoType.Text) && Load1DistanceFt.HasNoText == true)
                 {
                     errors.Add("Concentated load without a distance.");
@@ -113,7 +122,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 {
                     errors.Add("Distance missing in 'Load 2' column.");
                 }
-                bool isWL = LoadInfoCategory.Text == "WL";
+                bool isWL = LoadInfoCategory.Text == "WL" || LoadInfoCategory.Text == "WLU";
                 bool isNegative = Load1Value.Value < 0.0;
                 bool isBackedOutLoad = (LoadInfoType.Text == "CP" && LoadInfoCategory.Text == "CL" && isNegative == true);
                 bool isInLC1 = (CaseNumber.Value == 1 || CaseNumber.Value == null);
