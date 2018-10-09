@@ -36,7 +36,7 @@
             // 
             this.btnCreateHoldClears.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.btnCreateHoldClears.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCreateHoldClears.Location = new System.Drawing.Point(67, 11);
+            this.btnCreateHoldClears.Location = new System.Drawing.Point(116, 11);
             this.btnCreateHoldClears.Margin = new System.Windows.Forms.Padding(2);
             this.btnCreateHoldClears.Name = "btnCreateHoldClears";
             this.btnCreateHoldClears.Size = new System.Drawing.Size(81, 23);
@@ -50,7 +50,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(212, 248);
+            this.ClientSize = new System.Drawing.Size(311, 248);
             this.Controls.Add(this.btnCreateHoldClears);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
@@ -64,7 +64,5 @@
         #endregion
 
         private System.Windows.Forms.Button btnCreateHoldClears;
-
-
     }
 }

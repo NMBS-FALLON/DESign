@@ -98,10 +98,12 @@ namespace DESign_BOT
                 {
                     object mark, quantity, designation, overallLengthFeet, overallLengthInches, TCXLfeet, TCXLinches, TCXLtype, TCXRfeet, TCXRinches,
                            TCXRtype, BCXLfeet, BCXLinches, BCXLtype, BCXRfeet, BCXRinches, BCXRtype, bearingDepthL, bearingDepthR, baySlope, baySlopeHE, LEseatSlope, LEseatHL,
-                           REseatSlope, REseatHL, holeLeftFeet, holeLeftInches, holeRightFeet, holeRightInches, holeSize, holeGage, NailerHoldBackLE, NailerHoldBackRE, NailerSpacing;
+                           REseatSlope, REseatHL, holeLeftFeet, holeLeftInches, holeRightFeet, holeRightInches, holeSize, holeGage, NailerHoldBackLE, NailerHoldBackRE, NailerSpacing,
+                           KnifePlateLE, KnifePlateRE;
                     mark = quantity = designation = overallLengthFeet = overallLengthInches = TCXLfeet = TCXLinches = TCXLtype = TCXRfeet = TCXRinches =
                            TCXRtype = BCXLfeet = BCXLinches = BCXLtype = BCXRfeet = BCXRinches = BCXRtype = bearingDepthL = bearingDepthR = baySlope = baySlopeHE = LEseatSlope = LEseatHL =
-                           REseatSlope = REseatHL = holeLeftFeet = holeLeftInches = holeRightFeet = holeRightInches = holeSize = holeGage = NailerHoldBackLE = NailerHoldBackRE = NailerSpacing =null;
+                           REseatSlope = REseatHL = holeLeftFeet = holeLeftInches = holeRightFeet = holeRightInches = holeSize = holeGage = NailerHoldBackLE = NailerHoldBackRE = NailerSpacing =
+                           KnifePlateLE = KnifePlateRE = null;
 
                     oSheet = (Excel._Worksheet)sheet.get_Item(joistWorksheetIndices[i]);
 
@@ -149,6 +151,11 @@ namespace DESign_BOT
                             holeRightInches = joistSheetMultiArray[j + 13, 85];
                             holeSize = joistSheetMultiArray[j + 13, 57];
                             holeGage = joistSheetMultiArray[j + 13, 70];
+
+                            KnifePlateLE = joistSheetMultiArray[j + 102, 159];
+                            KnifePlateRE = joistSheetMultiArray[j + 102, 164];
+
+
 
                             NailerHoldBackLE = joistSheetMultiArray[j + 102, 169];
                             NailerHoldBackRE = joistSheetMultiArray[j + 102, 174];
@@ -201,7 +208,7 @@ namespace DESign_BOT
                             nucorJoistDataLine = new object[] {mark, quantity, designation, overallLengthFeet, overallLengthInches,TCXLfeet,TCXLinches,TCXLtype,
                                                             TCXRfeet,TCXRinches,TCXRtype, bearingDepthL, bearingDepthR, BCXLfeet,BCXLinches,BCXLtype,BCXRfeet,BCXRinches,BCXRtype,
                                                             holeLeftFeet,holeLeftInches,holeRightFeet,holeRightInches,holeGage,
-                                                           LEseatSlope,REseatSlope, NailerHoldBackLE, NailerHoldBackRE, NailerSpacing};
+                                                           LEseatSlope,REseatSlope, NailerHoldBackLE, NailerHoldBackRE, NailerSpacing, KnifePlateLE, KnifePlateRE};
 
                             nucorJoistData.Add(nucorJoistDataLine);
 
@@ -232,16 +239,16 @@ namespace DESign_BOT
                     for (int i = 0; i < girderWorksheetIndices.Count; i++)
                     {
 
-                        object mark, quantity, designation, overallLengthFeet, overallLengthInches, TCwidth, TCXLfeet, TCXLinches, TCXLtype, TCXRfeet, TCXRinches,
-                               TCXRtype, BCXLfeet, BCXLinches, BCXLtype, BCXRfeet, BCXRinches, BCXRtype, bearingDepthL, bearingDepthR, baySlope, baySlopeHE, LEseatSlope, LEseatHL,
-                               REseatSlope, REseatHL, holeLeftFeet, holeLeftInches, holeRightFeet, holeRightInches, holeSize, holeGage, notes, unbrLen, NFB,
-                               Aft, Ain, numbPanels, Panelft, Panelin, Bft, Bin, netUpliftKip;
+                    object mark, quantity, designation, overallLengthFeet, overallLengthInches, TCwidth, TCXLfeet, TCXLinches, TCXLtype, TCXRfeet, TCXRinches,
+                           TCXRtype, BCXLfeet, BCXLinches, BCXLtype, BCXRfeet, BCXRinches, BCXRtype, bearingDepthL, bearingDepthR, baySlope, baySlopeHE, LEseatSlope, LEseatHL,
+                           REseatSlope, REseatHL, holeLeftFeet, holeLeftInches, holeRightFeet, holeRightInches, holeSize, holeGage, notes, unbrLen, NFB,
+                           Aft, Ain, numbPanels, Panelft, Panelin, Bft, Bin, netUpliftKip, KnifePlateLE, KnifePlateRE;
 
 
                         mark = quantity = designation = overallLengthFeet = overallLengthInches = TCwidth = TCXLfeet = TCXLinches = TCXLtype = TCXRfeet = TCXRinches =
                                TCXRtype = BCXLfeet = BCXLinches = BCXLtype = BCXRfeet = BCXRinches = BCXRtype = bearingDepthL = bearingDepthR = baySlope = baySlopeHE = LEseatSlope = LEseatHL =
                                REseatSlope = REseatHL = holeLeftFeet = holeLeftInches = holeRightFeet = holeRightInches = holeSize = holeGage = notes = unbrLen = netUpliftKip = NFB =
-                        Aft = Ain = numbPanels = Panelft = Panelin = Bft = Bin = null;
+                        Aft = Ain = numbPanels = Panelft = Panelin = Bft = Bin = KnifePlateLE = KnifePlateRE = null;
 
                         oSheet = (Excel._Worksheet)sheet.get_Item(girderWorksheetIndices[i]);
 
@@ -295,6 +302,9 @@ namespace DESign_BOT
                                 Panelin = girderSheetMultiArray[j + 39, 36];
                                 Bft = girderSheetMultiArray[j + 39, 43];
                                 Bin = girderSheetMultiArray[j + 39, 49];
+
+                            KnifePlateLE = girderSheetMultiArray[j + 100, 159];
+                            KnifePlateRE = girderSheetMultiArray[j + 100, 164];
 
                                 object netUpliftPLF = girderSheetMultiArray[j + 26, 9];
 
@@ -392,7 +402,7 @@ namespace DESign_BOT
                                 nucorGirderDataLine = new object[] {mark, quantity, designation, overallLengthFeet, overallLengthInches, TCwidth, TCXLfeet,TCXLinches,TCXLtype,
                                                             TCXRfeet,TCXRinches,TCXRtype, bearingDepthL, bearingDepthR, BCXLfeet,BCXLinches,BCXRfeet,BCXRinches,
                                                             holeLeftFeet,holeLeftInches,holeRightFeet,holeRightInches,holeGage,
-                                                           LEseatSlope,REseatSlope, notes, unbrLen, mark, NFB, Aft, Ain, numbPanels, Panelft, Panelin, Bft, Bin};
+                                                           LEseatSlope,REseatSlope, notes, unbrLen, mark, NFB, Aft, Ain, numbPanels, Panelft, Panelin, Bft, Bin, KnifePlateLE, KnifePlateRE};
                                 nucorGirderData.Add(nucorGirderDataLine);
                             }
                         }

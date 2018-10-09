@@ -57,43 +57,47 @@ namespace DESign_WordAddIn
             string clipboard = Clipboard.GetText();
 
             joistData = JoistCoverSheet.JoistData();
-            
+
             var labelMarkTitle = new Label();
+            var labelAutoFilledTitle = new Label();
             var labelLEBPL1 = new Label();
             var labelREBPL1 = new Label();
-
-
 
             labelMarkTitle.Size = new System.Drawing.Size(60, 15);
 
 
 
             labelMarkTitle.AutoSize = true;
+            labelAutoFilledTitle.AutoSize = true;
             labelLEBPL1.AutoSize = true;
             labelREBPL1.AutoSize = true;
 
             
             labelMarkTitle.Location = new Point(20, 60);
-            labelLEBPL1.Location = new Point(85, 60);
-            labelREBPL1.Location = new Point(180, 60);
+            labelAutoFilledTitle.Location = new Point(85, 60);
+            labelLEBPL1.Location = new Point(185, 60);
+            labelREBPL1.Location = new Point(280, 60);
 
 
             labelMarkTitle.Text = "MARK";
+            labelAutoFilledTitle.Text = "AUTO-\nFILLED?";
             labelLEBPL1.Text = "LE HOLD\nCLEAR";
             labelREBPL1.Text = "RE HOLD\nCLEAR";
 
 
             labelMarkTitle.Font = new Font("Times New Roman", 9, FontStyle.Bold);
+            labelAutoFilledTitle.Font = new Font("Times New Roman", 9, FontStyle.Bold);
             labelLEBPL1.Font = new Font("Times New Roman", 9, FontStyle.Bold);
             labelREBPL1.Font = new Font("Times New Roman", 9, FontStyle.Bold);
 
             labelMarkTitle.TextAlign = ContentAlignment.MiddleLeft;
+            labelAutoFilledTitle.TextAlign = ContentAlignment.MiddleCenter;
             labelLEBPL1.TextAlign = ContentAlignment.MiddleCenter;
             labelREBPL1.TextAlign = ContentAlignment.MiddleCenter;
 
             var labelOveride = new Label();
             labelOveride.AutoSize = true;
-            labelOveride.Location = new Point(285, 60);
+            labelOveride.Location = new Point(385, 60);
             labelOveride.Text = "DETAIL\nOVERIDE";
             labelOveride.Font = new Font("Times New Roman", 9, FontStyle.Bold);
             labelOveride.TextAlign = ContentAlignment.MiddleLeft;
@@ -101,8 +105,8 @@ namespace DESign_WordAddIn
             var labelAllMarks = new Label();
             labelAllMarks.Size = labelMarkTitle.Size;
             labelAllMarks.Location = new Point(20, 120);
-            cbAllLE.Location = new Point(110, 120);
-            cbAllRE.Location = new Point(210, 120);
+            cbAllLE.Location = new Point(210, 120);
+            cbAllRE.Location = new Point(310, 120);
             cbAllLE.Size = new System.Drawing.Size(20, 20);
             cbAllRE.Size = new System.Drawing.Size(20, 20);
             labelAllMarks.Text = "ALL";
@@ -111,7 +115,7 @@ namespace DESign_WordAddIn
 
 
             allDetailOveride.DrawMode = System.Windows.Forms.DrawMode.Normal;
-            allDetailOveride.Location = new Point(285, 120);
+            allDetailOveride.Location = new Point(385, 120);
             allDetailOveride.Size = new System.Drawing.Size(70, 20);
 
             string[] allHCdetails = new string[] { "","Butted", "Gapped", "1/4\" Plate", "1/2\" Plate" };
@@ -124,6 +128,7 @@ namespace DESign_WordAddIn
 
 
             this.Controls.Add(labelMarkTitle);
+            this.Controls.Add(labelAutoFilledTitle);
             this.Controls.Add(labelLEBPL1);
             this.Controls.Add(labelREBPL1);
 
@@ -138,39 +143,59 @@ namespace DESign_WordAddIn
             List<string> joistMarks = joistData[0];
 
             int joistDataLength = joistMarks.Count();
-
+            Dictionary<string, ExcelDataExtraction.HoldClearInformation> allHoldClearInformation = new Dictionary<string, ExcelDataExtraction.HoldClearInformation>();
 
 
             var labelMark = new Label[joistDataLength];
             var cbLEs = new CheckBox[joistDataLength];
             var cbREs = new CheckBox[joistDataLength];
 
+            string noteInfoPath = Globals.ThisAddIn.Application.ActiveDocument.Path.ToString() + "\\Note Info.xlsx";
+            if (System.IO.File.Exists(noteInfoPath))
+            {
+                ExcelDataExtraction excelDataExtraction = new ExcelDataExtraction();
+                allHoldClearInformation = excelDataExtraction.getHoldClearInfo(noteInfoPath);
+            }
+
 
             for (var i = 0; i < joistDataLength; i++)
             {
+                string mark = joistMarks[i];
+                bool hcLeft = false;
+                bool hcRight = false;
+                var cbAutoFilled = new CheckBox();
+
+                if (allHoldClearInformation.ContainsKey(mark))
+                {
+                    hcLeft = allHoldClearInformation[mark].HCLeft;
+                    hcRight = allHoldClearInformation[mark].HCRight;
+                    cbAutoFilled.Checked = true;
+                }
+
                 var labelMarks = new Label();
                 var cbLE = new CheckBox();
+                cbLE.Checked = hcLeft;
                 var cbRE = new CheckBox();
+                cbRE.Checked = hcRight;
                 var detailComboBox = new ComboBox();
 
                 int Y = 150 + (i * 25);
 
-                labelMarks.Text = joistMarks[i];
+                labelMarks.Text = mark;
                 labelMarks.Location = new Point(20, Y);
                 labelMarks.Size = new System.Drawing.Size(50, 25);
 
+                cbAutoFilled.Location = new Point(110, Y);
+                cbAutoFilled.Size = new System.Drawing.Size(20, 20);
 
-
-
-
-                cbLE.Location = new Point(110, Y);
+                cbLE.Location = new Point(210, Y);
                 cbLE.Size = new System.Drawing.Size(20, 20);
 
-                cbRE.Location = new Point(210, Y);
+                cbRE.Location = new Point(310, Y);
                 cbRE.Size = new System.Drawing.Size(20, 20);
 
                 detailComboBox.DrawMode = System.Windows.Forms.DrawMode.Normal;
-                detailComboBox.Location = new Point(285, Y);
+                detailComboBox.Location = new Point(385, Y);
                 detailComboBox.Size = new System.Drawing.Size(70, 20);
 
 
@@ -182,9 +207,9 @@ namespace DESign_WordAddIn
                 detailComboBox.Enabled = true;
 
 
-
-                this.Controls.Add(cbLE);
                 this.Controls.Add(labelMarks);
+                this.Controls.Add(cbAutoFilled);
+                this.Controls.Add(cbLE);
                 this.Controls.Add(cbRE);
                 this.Controls.Add(detailComboBox);
 

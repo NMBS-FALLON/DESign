@@ -34,6 +34,92 @@ namespace DESign_WordAddIn
             
         }
 
+        public struct HoldClearInformation
+        {
+            public bool HCLeft;
+            public bool HCRight;
+
+            public HoldClearInformation( bool hcLeft, bool hcRight)
+            {
+                HCLeft = hcLeft;
+                HCRight = hcRight;
+            }
+        }
+
+        public Dictionary<string, HoldClearInformation> getHoldClearInfo (string fileName)
+        {
+            Dictionary<string, HoldClearInformation> allHoldClearInformation = new Dictionary<string, HoldClearInformation>();
+            object[,] excelData = null;
+
+            string excelFileName = fileName;
+
+            Excel.Application oXL;
+            Excel._Workbook oWB;
+            Excel._Worksheet oSheet;
+            Excel.Range oRng;
+
+            try
+            {
+                //Start Excel and get Application object.
+                oXL = new Excel.Application();
+                oXL.Visible = false;
+
+                //Get a new workbook.
+
+
+                oWB = oXL.Workbooks.Open(excelFileName);
+                oSheet = (Excel._Worksheet)oWB.ActiveSheet;
+                oSheet = oWB.ActiveSheet;
+
+
+                Excel.Range last = oSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
+
+                excelData = oSheet.get_Range("B6", "F" + last.Row).Value2;
+
+
+                oWB.Close(0);
+                oXL.Quit();
+                Marshal.ReleaseComObject(oWB);
+                Marshal.ReleaseComObject(oXL);
+                Marshal.ReleaseComObject(oSheet);
+
+            }
+
+            catch (Exception theException)
+            {
+                String errorMessage;
+                errorMessage = "Error: ";
+                errorMessage = String.Concat(errorMessage, theException.Message);
+                errorMessage = String.Concat(errorMessage, "Line:");
+                errorMessage = String.Concat(errorMessage, theException.Source);
+
+                MessageBox.Show(errorMessage, "Error");
+            }
+
+            for (int i = 1; i <= excelData.GetLength(0); i++)
+            {
+                if (excelData[i, 2] != null)
+                {
+                    string mark = excelData[i, 1].ToString();
+                    string hc = excelData[i, 5].ToString();
+
+                    bool hcLeft = false;
+                    bool hcRight = false;
+                    
+                    if (hc == "LEFT") { hcLeft = true; }
+                    if (hc == "RIGHT") { hcRight = true; }
+                    if (hc == "BOTH") { hcLeft = true; hcRight = true; }
+
+                    HoldClearInformation hcInfo = new HoldClearInformation( hcLeft, hcRight);
+
+                    allHoldClearInformation.Add(mark, hcInfo);
+                }
+            }
+
+            return allHoldClearInformation;
+
+        }
+
         public NailerInformation exlNailerValues (string fileName, string jobNumber)
         {
 

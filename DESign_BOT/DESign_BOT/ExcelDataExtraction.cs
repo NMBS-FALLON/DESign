@@ -109,16 +109,37 @@ namespace DESign_BOT
 
          
     }
-        public List<List<string>> BOMMarksAndNotes()
+        public struct BOMMarksAndNotes
+        {
+            public List<string> BOMjoistMarks;
+            public List<string> BOMjoistNotes;
+            public List<string> BOMgirderMarks;
+            public List<string> BOMgirderNotes;
+
+            public BOMMarksAndNotes(List<string> bomJoistMarks,
+                                    List<string> bomJoistNotes,
+                                    List<string> bomGirderMarks,
+                                    List<string> bomGirderNotes)
+            {
+                BOMjoistMarks = bomJoistMarks;
+                BOMjoistNotes = bomJoistNotes;
+                BOMgirderMarks = bomGirderMarks;
+                BOMgirderNotes = bomGirderNotes;
+            }
+        }
+
+        public BOMMarksAndNotes getBOMMarksAndNotes()
          {
              OpenFileDialog openBOMFileDialog = new OpenFileDialog();
 
              openBOMFileDialog.Filter = "|*.xlsx;*.xlsm";
 
               
-              List<List<string>> BOMMarksAndNotes = new List<List<string>>();
+              //List<List<string>> BOMMarksAndNotes = new List<List<string>>();
               List<string> BOMjoistMarks = new List<string>();
               List<string> BOMjoistNotes = new List<string>();
+            List<string> BOMgirderMarks = new List<string>();
+            List<string> BOMgirderNotes = new List<string>();
 
 
 
@@ -161,7 +182,6 @@ namespace DESign_BOT
                          }
                      }
 
-
                      for (int i = 0; i < joistWorksheetIndices.Count; i++)
                      {
                          oSheet = (Excel._Worksheet)sheet.get_Item(joistWorksheetIndices[i]);
@@ -179,6 +199,37 @@ namespace DESign_BOT
                              }
                          }
                      }
+
+                    List<int> girderWorksheetIndices = new List<int>();
+
+                    for (int i = 1; i <= oWB.Sheets.Count; i++)
+                    {
+                        worksheet = (Excel.Worksheet)sheet.get_Item(i);
+                        string workSheetName = worksheet.Name;
+                        if (workSheetName.Contains("G") == true && workSheetName.Contains("(") == true)
+                        {
+                            girderWorksheetIndices.Add(i);
+                        }
+                    }
+
+                    for (int i = 0; i < girderWorksheetIndices.Count; i++)
+                    {
+                        oSheet = (Excel._Worksheet)sheet.get_Item(girderWorksheetIndices[i]);
+                        for (int k = 14; k < 46; k++)
+                        {
+                            oRngMarks = oSheet.get_Range("A" + k, Missing.Value);
+                            oRngNotes = oSheet.get_Range("Z" + k, Missing.Value);
+
+                            string stringoRngMarks = (string)oRngMarks.Text;
+                            string stringoRngNotes = (string)oRngNotes.Text;
+                            if (stringoRngMarks != "" && stringoRngMarks != "MARK")
+                            {
+                                BOMgirderMarks.Add(stringoRngMarks);
+                                BOMgirderNotes.Add(stringoRngNotes);
+                            }
+                        }
+                    }
+
 
                     oSheet = null;
                     Marshal.ReleaseComObject(sheet);
@@ -201,12 +252,10 @@ namespace DESign_BOT
 
              }
 
+            BOMMarksAndNotes bomMarksAndNotes = new BOMMarksAndNotes(BOMjoistMarks, BOMjoistNotes, BOMgirderMarks, BOMgirderNotes);
 
-             BOMMarksAndNotes.Add(BOMjoistMarks);
-             BOMMarksAndNotes.Add(BOMjoistNotes);
 
-            
-             return BOMMarksAndNotes;
+            return bomMarksAndNotes;
          }
 
 

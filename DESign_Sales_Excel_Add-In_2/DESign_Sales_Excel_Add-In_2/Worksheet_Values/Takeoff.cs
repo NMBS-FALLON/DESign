@@ -144,6 +144,13 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             // Create a range for the 'BaseLine' tab 
             Excel.Range baseTypesRange = baseTypesWS.UsedRange;
 
+            // Add 'Base Types' column if it is not there
+            if (baseTypesRange.Range["B2"].Value.Contains("DESCRIPTION") == true)
+            {
+                baseTypesRange.Range["B1"].EntireColumn.Insert(Excel.XlInsertShiftDirection.xlShiftToRight, Excel.XlInsertFormatOrigin.xlFormatFromRightOrBelow);
+                baseTypesRange.Range["B2"].Value = "BASE TYPES";
+            }
+
             //Create an object array containing all information from the 'Base Types' tab, in the form of a multidimensional array [row, column]
             object[,] baseTypesCells = (object[,])baseTypesRange.Value2;
 
@@ -238,72 +245,80 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     try
                     {
                         baseType.Name = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 1], IsUpdated = isUpdated[rowCount - 1, 0] };
-                        baseType.Description = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 2], IsUpdated = isUpdated[rowCount - 1, 1] };
-                        baseType.BaseLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 3], IsUpdated = isUpdated[rowCount - 1, 2] };
-                        baseType.BaseLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] };
-                        baseType.TcxlQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] };
-                        baseType.TcxlLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] };
-                        baseType.TcxlLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] };
-                        baseType.TcxrQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] };
-                        baseType.TcxrLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] };
-                        baseType.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] };
-                        baseType.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] };
-                        baseType.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
-                        if (Convert.ToString(baseTypesCells[rowCount, 13]) == "<ALL>")
+                        baseType.Description = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 3], IsUpdated = isUpdated[rowCount - 1, 2] };
+                        baseType.BaseLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] };
+                        baseType.BaseLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] };
+                        baseType.TcxlQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] };
+                        baseType.TcxlLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] };
+                        baseType.TcxlLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] };
+                        baseType.TcxrQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] };
+                        baseType.TcxrLengthFt = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] };
+                        baseType.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] };
+                        baseType.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
+                        baseType.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
+                        if (Convert.ToString(baseTypesCells[rowCount, 14]).ToUpper().Contains("BE"))
                         {
-                            baseType.BcxQuantity = new IntWithUpdateCheck { Value = -1, IsUpdated = isUpdated[rowCount - 1, 12] };
+                            baseType.BcxQuantity = new IntWithUpdateCheck { Value = -1, IsUpdated = isUpdated[rowCount - 1, 13] };
+                        }
+                        else if (Convert.ToString(baseTypesCells[rowCount, 14]).ToUpper().Contains("1E"))
+                        {
+                            baseType.BcxQuantity = new IntWithUpdateCheck { Value = -2, IsUpdated = isUpdated[rowCount - 1, 13] };
                         }
                         else
                         {
-                            baseType.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
+                            baseType.BcxQuantity = new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
                         }
-                        baseType.Uplift = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
-                        baseType.Erfos = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 26], IsUpdated = isUpdated[rowCount - 1, 25] };
-                        baseType.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 27], IsUpdated = isUpdated[rowCount - 1, 26] };
-                        baseType.DeflectionLL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 28], IsUpdated = isUpdated[rowCount - 1, 27] };
-                        baseType.WnSpacing = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 29], IsUpdated = isUpdated[rowCount - 1, 28] };
+                        baseType.Uplift = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] };
+                        baseType.Erfos = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 27], IsUpdated = isUpdated[rowCount - 1, 26] };
+                        baseType.DeflectionTL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 28], IsUpdated = isUpdated[rowCount - 1, 27] };
+                        baseType.DeflectionLL = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 29], IsUpdated = isUpdated[rowCount - 1, 28] };
+                        baseType.WnSpacing = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 30], IsUpdated = isUpdated[rowCount - 1, 29] };
 
 
                         List<Load> loads = new List<Load>();
                         List<StringWithUpdateCheck> notes = new List<StringWithUpdateCheck>();
+                        List<string> baseTypeStrings = new List<string>();
 
                         for (i = 0; i < rowsForThisBaseType; i++)
                         {
+                            if (baseTypesCells[rowCount + i, 2] != null && (string)baseTypesCells[rowCount + i, 2] != "")
+                            {
+                                baseTypeStrings.Add(baseTypesCells[rowCount + i, 2].ToString());
+                            }
 
                             Load load = new Load();
-
-                            load.LoadInfoType = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 15], IsUpdated = isUpdated[rowCount + i - 1, 14] };
-                            load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 16], IsUpdated = isUpdated[rowCount + i - 1, 15] };
-                            load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
-                            load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
-                            if (baseTypesCells[rowCount + i, 19] is double)
+                            load.LoadInfoType = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 16], IsUpdated = isUpdated[rowCount + i - 1, 15] };
+                            load.LoadInfoCategory = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
+                            load.LoadInfoPosition = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
+                            load.Load1Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                            if (baseTypesCells[rowCount + i, 20] is double)
                             {
-                                load.Load1DistanceFt = new StringWithUpdateCheck { Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 19]), IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                                load.Load1DistanceFt = new StringWithUpdateCheck { Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 20]), IsUpdated = isUpdated[rowCount + i - 1, 19] };
                             }
                             else
                             {
-                                load.Load1DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                                load.Load1DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
                             }
 
-                            load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
-                            load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
-                            if (baseTypesCells[rowCount + i, 22] is double)
+                            load.Load1DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
+                            load.Load2Value = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                            if (baseTypesCells[rowCount + i, 23] is double)
                             {
-                                load.Load2DistanceFt = new StringWithUpdateCheck { Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 22]), IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                                load.Load2DistanceFt = new StringWithUpdateCheck { Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 23]), IsUpdated = isUpdated[rowCount + i - 1, 22] };
                             }
                             else
                             {
-                                load.Load2DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                                load.Load2DistanceFt = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
                             }
-                            load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
-                            load.CaseNumber = new DoubleWithUpdateCheck { Value = ToNullableDouble((string)baseTypesCells[rowCount + i, 24]), IsUpdated = isUpdated[rowCount + i - 1, 23] };
-                            load.LoadNote = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] };
+                            load.Load2DistanceIn = new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] };
+                            load.CaseNumber = new DoubleWithUpdateCheck { Value = ToNullableDouble((string)baseTypesCells[rowCount + i, 25]), IsUpdated = isUpdated[rowCount + i - 1, 24] };
+                            load.LoadNote = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] };
                             if (load.IsNull == false)
                             {
                                 loads.Add(load);
                             }
 
-                            StringWithUpdateCheck note = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 30], IsUpdated = isUpdated[rowCount + i - 1, 29] };
+                            StringWithUpdateCheck note = new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 31], IsUpdated = isUpdated[rowCount + i - 1, 30] };
                             if (note.Text != null)
                             {
                                 notes.Add(note);
@@ -316,6 +331,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                         }
                         baseType.Loads = loads;
                         baseType.Notes = notes;
+                        baseType.BaseTypeStrings = baseTypeStrings;
 
                         baseTypes.Add(baseType);
                         rowCount = rowCount + rowsForThisBaseType;
@@ -330,8 +346,60 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
     THIS MUST BE FIXED BEFORE CONVERTING THE TAKEOFF.", baseType.Name.Text));
                             errorMessageShown2 = true;
                         }
-                    }
+                    } 
                 }
+            }
+
+            /// Add Recursive BaseTypes
+            /// 
+
+            foreach (BaseType baseType in baseTypes)
+            {
+                List<string> allBaseTypeStrings = baseType.BaseTypeStrings;
+                bool addedAllBaseTypes = false;
+                // Select the matching base type. THIS WILL NEED TO BE UPDATED TO CHECK FOR TYPOS AND TO MAKE SURE BASETYPES EXIST
+                while (addedAllBaseTypes == false)
+                {
+                    int originalNumBaseTypeStrings = DeepClone(baseType.BaseTypeStrings.Count);
+
+                    var matchedBaseType = from bT in baseTypes
+                                          where baseType.BaseTypeStrings.Contains(bT.Name.Text)
+                                          select bT;
+                    foreach (var bT in matchedBaseType)
+                    {
+                        foreach (string baseTypeString in bT.BaseTypeStrings)
+                        if (baseTypeString != baseType.Name.Text && baseType.BaseTypeStrings.Contains(baseTypeString) == false)
+                        {
+                                baseType.BaseTypeStrings.Add(baseTypeString);
+                        }
+                    }
+
+                    addedAllBaseTypes = originalNumBaseTypeStrings == baseType.BaseTypeStrings.Count ? true : false;
+
+                }
+
+                var _matchedBaseType = from bT in baseTypes
+                                      where baseType.BaseTypeStrings.Contains(bT.Name.Text)
+                                      select bT;
+
+                foreach (var bT in _matchedBaseType)
+                {
+                    //ADD VALUES    ???DO I NEED TO CHECK ANYTHING THAT MAY BE UPDATED??? IF SO HOW TO IMPLEMENT?
+                    if (baseType.Description.Text == null || baseType.Description.Text == "") { baseType.Description = bT.Description; }
+                    if (baseType.BaseLengthFt.Value == null) { baseType.BaseLengthFt = bT.BaseLengthFt; }
+                    if (baseType.BaseLengthIn.Value == null) { baseType.BaseLengthIn = bT.BaseLengthIn; }
+                    if (baseType.TcxlQuantity.Value == null) { baseType.TcxlQuantity = bT.TcxlQuantity; }
+                    if (baseType.TcxlLengthFt.Value == null) { baseType.TcxlLengthFt = bT.TcxlLengthFt; }
+                    if (baseType.TcxlLengthIn.Value == null) { baseType.TcxlLengthIn = bT.TcxlLengthIn; }
+                    if (baseType.SeatDepthLE.Value == null) { baseType.SeatDepthLE = bT.SeatDepthLE; }
+                    if (baseType.SeatDepthRE.Value == null) { baseType.SeatDepthRE = bT.SeatDepthRE; }
+                    if (baseType.BcxQuantity.Value == null) { baseType.BcxQuantity = bT.BcxQuantity; }
+                    if (baseType.Uplift.Value == null) { baseType.Uplift = bT.Uplift; }
+                    baseType.Loads.AddRange(bT.Loads);
+                    baseType.Notes.AddRange(bT.Notes);
+                }
+
+           
             }
 
             ///////////////////
@@ -441,9 +509,13 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     joist.TcxrLengthIn = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
                     joist.SeatDepthLE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
                     joist.SeatDepthRE = new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
-                    if (Convert.ToString(marksCells[rowCount, 15]) == "<ALL>")
+                    if (Convert.ToString(marksCells[rowCount, 15]).ToUpper().Contains("BE"))
                     {
                         joist.BcxQuantity = new IntWithUpdateCheck { Value = joist.Quantity.Value * 2, IsUpdated = isUpdated[rowCount - 1, 14] };
+                    }
+                    else if (Convert.ToString(marksCells[rowCount, 15]).ToUpper().Contains("1E"))
+                    {
+                        joist.BcxQuantity = new IntWithUpdateCheck { Value = joist.Quantity.Value, IsUpdated = isUpdated[rowCount - 1, 14] };
                     }
                     else
                     {

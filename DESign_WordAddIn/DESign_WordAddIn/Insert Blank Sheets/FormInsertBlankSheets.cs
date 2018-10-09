@@ -88,6 +88,7 @@ namespace DESign_WordAddIn.Insert_Blank_Sheets
 
             Word.Table tblDetailHeader = Globals.ThisAddIn.Application.ActiveDocument.Tables.Add(selection.Range, 2, 6);
 
+
             tblDetailHeader.Cell(1, 1).Range.Text = "JOB NAME: ";
             tblDetailHeader.Cell(2, 1).Range.Text = "LOCATION: ";
             tblDetailHeader.Cell(1, 3).Range.Text = "JOB #: ";
@@ -192,10 +193,11 @@ namespace DESign_WordAddIn.Insert_Blank_Sheets
             selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
             Word.Table tblDetailInfo = Globals.ThisAddIn.Application.ActiveDocument.Tables.Add(selection.Range, 6, 16);
+            tblDetailInfo.AllowAutoFit = true;
+            tblDetailInfo.AutoFitBehavior(Word.WdAutoFitBehavior.wdAutoFitContent);
 
 
-
-            tblDetailInfo.Columns[3].Width = 120;
+            //tblDetailInfo.Columns[3].Width = 120;
 
 
 
@@ -390,10 +392,11 @@ namespace DESign_WordAddIn.Insert_Blank_Sheets
             selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
             Word.Table tblDetailInfo = Globals.ThisAddIn.Application.ActiveDocument.Tables.Add(selection.Range, 6, 18);
+            tblDetailInfo.AllowAutoFit = true;
+            tblDetailInfo.AutoFitBehavior(Word.WdAutoFitBehavior.wdAutoFitContent);
 
 
-
-            tblDetailInfo.Columns[3].Width = 120;
+            //tblDetailInfo.Columns[3].Width = 120;
 
 
 

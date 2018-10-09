@@ -636,10 +636,12 @@ namespace DESign_BOT
 
 
                 List<object[]> nucorJoistData = nucorBOMdata[0];
-                object[,] Marks = new object[nucorJoistData.Count(), 1];
-                object[,] Nailer_A_Array = new object[nucorJoistData.Count(), 1];
-                object[,] Nailer_B_Array = new object[nucorJoistData.Count(), 1];
-                object[,] Nailer_Space_Array = new object[nucorJoistData.Count(), 1];
+                List<object[]> nucorGirderData = nucorBOMdata[1];
+                object[,] Marks = new object[nucorJoistData.Count() + nucorGirderData.Count(), 1];
+                object[,] Nailer_A_Array = new object[nucorJoistData.Count() + nucorGirderData.Count(), 1];
+                object[,] Nailer_B_Array = new object[nucorJoistData.Count() + nucorGirderData.Count(), 1];
+                object[,] Nailer_Space_Array = new object[nucorJoistData.Count() + nucorGirderData.Count(), 1];
+                object[,] HoldClear = new object[nucorJoistData.Count() + nucorGirderData.Count(), 1];
 
                 for (int i = 0; i < nucorJoistData.Count(); i++)
                 {
@@ -670,6 +672,56 @@ namespace DESign_BOT
                     {
                         Nailer_Space_Array[i, 0] = (object)(Convert.ToDouble(nucorJoistData[i][28])*2);
                     }
+                    bool hcLeft = !(nucorJoistData[i][29] == null | (nucorJoistData[i][29] ?? String.Empty).ToString() == "");
+                    bool hcRight = !(nucorJoistData[i][30] == null | (nucorJoistData[i][30] ?? String.Empty).ToString() == "");
+                    if (hcLeft && hcRight)
+                    {
+                        HoldClear[i, 0] = "BOTH";
+                    }
+                    else if (hcLeft)
+                    {
+                        HoldClear[i, 0] = "LEFT";
+                    }
+                    else if (hcRight)
+                    {
+                        HoldClear[i, 0] = "RIGHT";
+                    }
+                    else
+                    {
+                        HoldClear[i, 0] = "";
+                    }
+
+
+                }
+
+                int joistCount = nucorJoistData.Count();
+
+                for (int i = 0; i < nucorGirderData.Count(); i++)
+                {
+                    int j = i + joistCount;
+                    Marks[j, 0] = nucorGirderData[i][0];
+                    Nailer_A_Array[j, 0] = "";
+                    Nailer_B_Array[j, 0] = "";
+                    Nailer_Space_Array[j, 0] = "";
+                    
+                    bool hcLeft = !(nucorGirderData[i][36] == null | (nucorGirderData[i][36] ?? String.Empty).ToString() == "");
+                    bool hcRight = !(nucorGirderData[i][37] == null | (nucorGirderData[i][37] ?? String.Empty).ToString() == "");
+                    if (hcLeft && hcRight)
+                    {
+                        HoldClear[j, 0] = "BOTH";
+                    }
+                    else if (hcLeft)
+                    {
+                        HoldClear[j, 0] = "LEFT";
+                    }
+                    else if (hcRight)
+                    {
+                        HoldClear[j, 0] = "RIGHT";
+                    }
+                    else
+                    {
+                        HoldClear[j, 0] = "";
+                    }
 
 
                 }
@@ -679,6 +731,7 @@ namespace DESign_BOT
                 oSheet.get_Range("C6", "C" + lastRow).Value2 = Nailer_A_Array;
                 oSheet.get_Range("D6", "D" + lastRow).Value2 = Nailer_B_Array;
                 oSheet.get_Range("E6", "E" + lastRow).Value2 = Nailer_Space_Array;
+                oSheet.get_Range("F6", "F" + lastRow).Value2 = HoldClear;
 
                 oXL.Visible = true;
 

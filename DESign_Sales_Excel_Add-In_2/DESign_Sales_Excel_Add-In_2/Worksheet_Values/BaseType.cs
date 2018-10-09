@@ -10,6 +10,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
     public class BaseType
     {
         public StringWithUpdateCheck Name { get; set; }
+        public List<string> BaseTypeStrings { get; set; }
         public StringWithUpdateCheck Description { get; set; }
         public DoubleWithUpdateCheck BaseLengthFt { get; set; }
         public DoubleWithUpdateCheck BaseLengthIn { get; set; }

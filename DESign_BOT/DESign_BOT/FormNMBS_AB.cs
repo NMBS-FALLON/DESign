@@ -29,15 +29,16 @@ namespace DESign_BOT
 
         private void btnBOMtoExcel_Click(object sender, EventArgs e)
         {
-            List<List<string>> BOMMarksAndNotes = ExcelDataExtraction.BOMMarksAndNotes();
+            ExcelDataExtraction.BOMMarksAndNotes bomMarksAndNotes = ExcelDataExtraction.getBOMMarksAndNotes();
 
-            List<string> BOMMarks = BOMMarksAndNotes[0];
-            List<string> BOMNotes = BOMMarksAndNotes[1];
+            List<string> BOMMarks = bomMarksAndNotes.BOMjoistMarks.Concat(bomMarksAndNotes.BOMgirderMarks).ToList();
+            List<string> BOMNotes = bomMarksAndNotes.BOMjoistNotes.Concat(bomMarksAndNotes.BOMgirderNotes).ToList();
 
             List<string> formNotes = new List<string>();
             List<string> formAs = new List<string>();
             List<string> formBs = new List<string>();
             List<string> formSpacings = new List<string>();
+            List<string> formHCs = new List<string>();
 
 
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
@@ -67,6 +68,14 @@ namespace DESign_BOT
                     else if (dataGridView1.Rows[i].Cells[3].Value == null)
                     {
                         formSpacings.Add("");
+                    }
+                    if (dataGridView1.Rows[i].Cells[4].Value != null)
+                    {
+                        formHCs.Add(dataGridView1.Rows[i].Cells[4].Value.ToString());
+                    }
+                    else if (dataGridView1.Rows[i].Cells[4].Value == null)
+                    {
+                        formHCs.Add("");
                     }
 
                 }
@@ -110,6 +119,7 @@ namespace DESign_BOT
                 Excel.Range oRngAs;
                 Excel.Range oRngBs;
                 Excel.Range oRngSpacing;
+                Excel.Range oRngHC;
 
                 for (int i = 0; i < BOMMarks.Count; i++)
                 {
@@ -118,6 +128,7 @@ namespace DESign_BOT
                     oRngAs = oSheet.get_Range("C" + cellNumber, Missing.Value);
                     oRngBs = oSheet.get_Range("D" + cellNumber, Missing.Value);
                     oRngSpacing = oSheet.get_Range("E" + cellNumber, Missing.Value);
+                    oRngHC = oSheet.get_Range("F" + cellNumber, Missing.Value);
 
                     string[] alpha = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S" };
 
@@ -125,7 +136,7 @@ namespace DESign_BOT
                     string[] BOMNotesArray = BOMNotes[i].Split(delimChars, StringSplitOptions.RemoveEmptyEntries);
                     for (int k = 0; k < formNotes.Count; k++)
                     {
-                        int alphaIndex = 5;
+                        int alphaIndex = 6;
                         if (BOMNotesArray.Contains(formNotes[k]))
                         {
                             if (formAs[k].ToString() != "")
@@ -170,6 +181,20 @@ namespace DESign_BOT
                                 }
 
                             }
+                            if (formHCs[k].ToString() != "")
+                            {
+                                if ((string)oRngHC.Text == "")
+                                {
+                                    oRngHC.Value = "'" + formHCs[k].ToString();
+                                }
+                                else
+                                {
+                                    oRngHC = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
+                                    oRngHC.Value = "'" + formHCs[k].ToString();
+                                    alphaIndex++;
+                                }
+
+                            }
                         }
                     }
                    
@@ -177,7 +202,7 @@ namespace DESign_BOT
 
                 Excel.Range last = oSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
                 int lastUsedRow = last.Row;
-                oRng = oSheet.get_Range("B6", "E" + lastUsedRow);
+                oRng = oSheet.get_Range("B6", "F" + lastUsedRow);
 
                 object[,] stringJoistMarks = (object[,])oRng.Value2;
 
@@ -204,6 +229,13 @@ namespace DESign_BOT
                             if (stringJoistMarks[row, 4] == null)
                             {
                                     stringJoistMarks[row, 4] = "'" + formSpacings[0];                                
+                            }
+                        }
+                        if (formHCs[0] != null)
+                        {
+                            if (stringJoistMarks[row, 5] == null)
+                            {
+                                stringJoistMarks[row, 5] = "'" + formHCs[0];
                             }
                         }
                     }

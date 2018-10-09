@@ -35,6 +35,7 @@
             this.holdBackDataViewAColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.holdBackDataViewBColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colSpacing = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.HC = new System.Windows.Forms.DataGridViewComboBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -42,7 +43,7 @@
             // 
             this.btnBOMtoExcel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnBOMtoExcel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBOMtoExcel.Location = new System.Drawing.Point(128, 233);
+            this.btnBOMtoExcel.Location = new System.Drawing.Point(265, 233);
             this.btnBOMtoExcel.Margin = new System.Windows.Forms.Padding(2);
             this.btnBOMtoExcel.Name = "btnBOMtoExcel";
             this.btnBOMtoExcel.Size = new System.Drawing.Size(80, 43);
@@ -65,14 +66,15 @@
             this.holdBackDataViewNoteColumn,
             this.holdBackDataViewAColumn,
             this.holdBackDataViewBColumn,
-            this.colSpacing});
+            this.colSpacing,
+            this.HC});
             this.dataGridView1.Location = new System.Drawing.Point(12, 10);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(2);
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 24;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(305, 209);
+            this.dataGridView1.Size = new System.Drawing.Size(579, 209);
             this.dataGridView1.TabIndex = 9;
             this.dataGridView1.TabStop = false;
             // 
@@ -96,11 +98,23 @@
             this.colSpacing.HeaderText = "SPACING:";
             this.colSpacing.Name = "colSpacing";
             // 
+            // HC
+            // 
+            this.HC.HeaderText = "HC:";
+            this.HC.Items.AddRange(new object[] {
+            "",
+            "LEFT",
+            "RIGHT",
+            "BOTH"});
+            this.HC.Name = "HC";
+            this.HC.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.HC.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
             // FormNMBS_AB
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(327, 286);
+            this.ClientSize = new System.Drawing.Size(601, 286);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.btnBOMtoExcel);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -121,5 +135,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn holdBackDataViewAColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn holdBackDataViewBColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn colSpacing;
+        private System.Windows.Forms.DataGridViewComboBoxColumn HC;
     }
 }

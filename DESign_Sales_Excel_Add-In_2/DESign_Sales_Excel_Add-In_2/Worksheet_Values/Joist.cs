@@ -133,6 +133,10 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 {
                     bcxQuantity.Value = this.Quantity.Value * 2;
                 }
+                if (bcxQuantity.Value == -2)
+                {
+                    bcxQuantity.Value = this.Quantity.Value;
+                }
                 return bcxQuantity;
             }
             set
