@@ -81,12 +81,17 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             
             Excel._Worksheet bridgingWS = (Excel._Worksheet)oWB.Worksheets["Bridging"];
 
+            Regex zeroOrMoreSpaces = new Regex(@"^ *$");
+            Func<object, bool> cellIsBlank = (s) => (s == null || zeroOrMoreSpaces.IsMatch(s.ToString()));
+
             ///// GET BRIDGING ////
 
             List<Bridging> bridging = new List<Bridging>();
             Excel.Range bridgingRange = bridgingWS.UsedRange;
 
             object[,] bridgingCells = (object[,])bridgingRange.Value2;
+
+            
 
             string bridgingSequence = "";
             string size = "";
@@ -98,23 +103,25 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             int lastRow = bridgingCells.GetLength(0);
             for (int row = startRow; row <= lastRow; row++)
             {
-                if (bridgingCells[row, 2] != null && bridgingCells[row, 2].ToString() != "")
+                if (!cellIsBlank(bridgingCells[row, 2]))
                 {
                     bridgingSequence = bridgingCells[row, 2].ToString();
                 }
 
-                if (bridgingCells[row, 3] != null && bridgingCells[row, 3].ToString() != "")
+                if (!cellIsBlank(bridgingCells[row, 3]))
                 {
                     size = bridgingCells[row, 3].ToString();
                 }
 
-                if (bridgingCells[row, 4] != null && bridgingCells[row, 4].ToString() != "")
+                if (!cellIsBlank(bridgingCells[row, 4]))
                 {
                     type = bridgingCells[row, 4].ToString();
                 }
 
-                rows = Convert.ToDouble(bridgingCells[row, 5]);
-                length = Convert.ToDouble(bridgingCells[row, 6]);
+                rows = cellIsBlank(bridgingCells[row, 5]) ? 0.0 : Convert.ToDouble(bridgingCells[row, 5]);
+
+                length = cellIsBlank(bridgingCells[row, 6]) ? 0.0 : Convert.ToDouble(bridgingCells[row, 6]);
+
 
                 Bridging br = new Bridging();
                 br.Sequence = bridgingSequence;
@@ -161,7 +168,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 {
                     if (baseTypesCells[row, col] is string)
                     {
-                        if (Regex.Replace((string)baseTypesCells[row, col], @"\s+", "") == "")
+                        if (cellIsBlank(baseTypesCells[row, col]))
                         {
                             baseTypesCells[row, col] = null;
                         }
@@ -417,7 +424,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 {
                     if (marksCells[row, col] is string)
                     {
-                        if (Regex.Replace((string)marksCells[row, col], @"\s+", "") == "")
+                        if (cellIsBlank(marksCells[row, col]))
                         {
                             marksCells[row, col] = null;
                         }

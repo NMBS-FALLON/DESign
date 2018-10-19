@@ -176,16 +176,16 @@
             this.groupBox1.Size = new System.Drawing.Size(312, 112);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "AB EXCEL SHEETS";
+            this.groupBox1.Text = "\'NOTE INFO\' EXCEL SHEETS";
             // 
             // button5
             // 
             this.button5.Location = new System.Drawing.Point(19, 80);
             this.button5.Margin = new System.Windows.Forms.Padding(2);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(131, 19);
+            this.button5.Size = new System.Drawing.Size(172, 19);
             this.button5.TabIndex = 1;
-            this.button5.Text = "MANUAL AB SHEET";
+            this.button5.Text = "MANUAL \'NOTE INFO\' SHEET";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
@@ -194,9 +194,9 @@
             this.button2.Location = new System.Drawing.Point(19, 51);
             this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(131, 19);
+            this.button2.Size = new System.Drawing.Size(172, 19);
             this.button2.TabIndex = 1;
-            this.button2.Text = "AB FROM NUCOR BOM";
+            this.button2.Text = "\'NOTE INFO\' FROM NUCOR BOM";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
@@ -205,9 +205,9 @@
             this.button1.Location = new System.Drawing.Point(19, 19);
             this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(131, 19);
+            this.button1.Size = new System.Drawing.Size(172, 19);
             this.button1.TabIndex = 0;
-            this.button1.Text = "A&B FROM NMBS BOM";
+            this.button1.Text = "\'NOTE INFO\' FROM NMBS BOM";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 

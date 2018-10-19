@@ -198,20 +198,11 @@ namespace DESign_WordAddIn
             {
                 try
                 {
-                    Dictionary<string, string> dict = new Dictionary<string, string>();
-                    string excelFilePath = "";
-                    string[] jobNumberComponents = Convert.ToString(joistData[7][0]).Split('-');
-                    string jobNumber = jobNumberComponents[0] + "-" + jobNumberComponents[1];
-                    try
-                    {
-                        string dictStream = File.ReadAllText(@"\\nmbsfaln-fs\engr\Designer Aid\DESign\DESign Word Add-In\data\woodnailerPropertyData.txt");
-                        dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(dictStream);
-                        excelFilePath = dict[jobNumber];
 
-                    }
-                    catch { }
+                    string excelFilePath = Globals.ThisAddIn.Application.ActiveDocument.Path.ToString() + "\\Note Info.xlsx";
 
-                    ExcelDataExtraction.NailerInformation excelJoistData = excelDataExtraction.exlNailerValues(excelFilePath, jobNumber);
+
+                    ExcelDataExtraction.NailerInformation excelJoistData = excelDataExtraction.exlNailerValues(excelFilePath);
                     excelJoistMarks = excelJoistData.Marks;
                     excelAs = excelJoistData.As;
                     excelBs = excelJoistData.Bs;

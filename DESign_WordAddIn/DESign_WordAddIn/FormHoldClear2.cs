@@ -164,6 +164,7 @@ namespace DESign_WordAddIn
                 bool hcLeft = false;
                 bool hcRight = false;
                 var cbAutoFilled = new CheckBox();
+                cbAutoFilled.AutoCheck = false;
 
                 if (allHoldClearInformation.ContainsKey(mark))
                 {
