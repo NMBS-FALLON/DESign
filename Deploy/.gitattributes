@@ -1,0 +1,3 @@
+*.mainfest binary
+*.application binary
+*.deploy binary

@@ -31,10 +31,10 @@
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>True</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>\\nmbsfaln-fs\users\darien.shannon\CODE\DESIGN\sales-excel-add-in\</PublishUrl>
-    <InstallUrl>https://nmbsdesign.blob.core.windows.net/sales-excel-add-in/</InstallUrl>
+    <PublishUrl>C:\Users\darien.shannon\Desktop\DESign\DESign\Deploy\sales-excel-add-in\</PublishUrl>
+    <InstallUrl>https://github.com/nmbs-fallon/design/deploy/sales-excel-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.18</ApplicationVersion>
+    <ApplicationVersion>1.0.0.17</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
