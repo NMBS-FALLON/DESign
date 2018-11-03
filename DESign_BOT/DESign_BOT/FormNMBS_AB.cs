@@ -23,7 +23,9 @@ namespace DESign_BOT
         {
             InitializeComponent();
             dataGridView1.Rows.Add();
-            dataGridView1.Rows[0].Cells[0].Value = "U.N.O.";
+            dataGridView1.Rows[0].Cells[0].Value = "U.N.O. (JOISTS)";
+            dataGridView1.Rows.Add();
+            dataGridView1.Rows[1].Cells[0].Value = "U.N.O. (GIRDERS)";
         }
 
 
@@ -31,7 +33,7 @@ namespace DESign_BOT
         {
             ExcelDataExtraction.BOMMarksAndNotes bomMarksAndNotes = ExcelDataExtraction.getBOMMarksAndNotes();
 
-            List<string> BOMMarks = bomMarksAndNotes.BOMjoistMarks.Concat(bomMarksAndNotes.BOMgirderMarks).ToList();
+            var BOMMarks = bomMarksAndNotes.BOMjoistMarks.Concat(bomMarksAndNotes.BOMgirderMarks).ToList();
             List<string> BOMNotes = bomMarksAndNotes.BOMjoistNotes.Concat(bomMarksAndNotes.BOMgirderNotes).ToList();
 
             List<string> formNotes = new List<string>();
@@ -71,7 +73,14 @@ namespace DESign_BOT
                     }
                     if (dataGridView1.Rows[i].Cells[4].Value != null)
                     {
-                        formHCs.Add(dataGridView1.Rows[i].Cells[4].Value.ToString());
+                        if (dataGridView1.Rows[i].Cells[4].Value == "NONE")
+                        {
+                            formHCs.Add("");
+                        }
+                        else
+                        {
+                            formHCs.Add(dataGridView1.Rows[i].Cells[4].Value.ToString());
+                        }
                     }
                     else if (dataGridView1.Rows[i].Cells[4].Value == null)
                     {
@@ -86,8 +95,8 @@ namespace DESign_BOT
             Excel._Workbook oWB;
             Excel._Worksheet oSheet;
             Excel.Range oRng;
-            try
-            {
+         //   try
+         //   {
 
 
                 //Start Excel and get Application object.
@@ -114,7 +123,7 @@ namespace DESign_BOT
                 {
                     int cellNumber = 6 + i;
                     oRng = oSheet.get_Range("B" + cellNumber, Missing.Value);
-                    oRng.Value = BOMMarks[i];
+                    oRng.Value = BOMMarks[i].Mark;
                 }
                 Excel.Range oRngAs;
                 Excel.Range oRngBs;
@@ -206,36 +215,42 @@ namespace DESign_BOT
 
                 object[,] stringJoistMarks = (object[,])oRng.Value2;
 
-                for (int row = 1; row <= stringJoistMarks.GetLength(0); row++)
+
+                var markCounter = 0;
+                for (int row = 2; row < stringJoistMarks.GetLength(0) -2; row++)
                 {
-                    if (dataGridView1.Rows[0].Cells[0].Value == "U.N.O.")
+                    int index = BOMMarks[markCounter].JorG == ExcelDataExtraction.JorG.Joist ? 0 : 1;
+                    markCounter = markCounter + 1;
+
+                    if (dataGridView1.Rows[0].Cells[0].Value == "U.N.O. (JOISTS)" && dataGridView1.Rows[1].Cells[0].Value == "U.N.O. (GIRDERS)")
                     {
                         if (formAs[0] != null)
                         {
                             if (stringJoistMarks[row, 2] == null)
                             {
-                                stringJoistMarks[row, 2] = "'" + formAs[0];
+                                stringJoistMarks[row, 2] = "'" + formAs[index];
                             }
                         }
                         if (formBs[0] != null)
                         {
                             if (stringJoistMarks[row, 3] == null)
                             {
-                                stringJoistMarks[row, 3] = "'" + formBs[0];
+                                stringJoistMarks[row, 3] = "'" + formBs[index];
                             }
                         }
                         if (formSpacings[0] != null)
                         {
                             if (stringJoistMarks[row, 4] == null)
                             {
-                                    stringJoistMarks[row, 4] = "'" + formSpacings[0];                                
+                                    stringJoistMarks[row, 4] = "'" + formSpacings[index];                                
                             }
                         }
-                        if (formHCs[0] != null)
+                        if (formHCs[index] != null)
                         {
                             if (stringJoistMarks[row, 5] == null)
                             {
-                                stringJoistMarks[row, 5] = "'" + formHCs[0];
+                                var hcValue = formHCs[index] == "NONE" ? "" : formHCs[index];
+                                stringJoistMarks[row, 5] = "'" + hcValue;
                             }
                         }
                     }
@@ -252,7 +267,7 @@ namespace DESign_BOT
                 }
 
 
-            }
+       /*     }
 
             catch (Exception theException)
             {
@@ -264,7 +279,7 @@ namespace DESign_BOT
 
                 MessageBox.Show(errorMessage, "Error");
 
-            }
+            } */
 
         }
 

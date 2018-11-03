@@ -109,26 +109,24 @@ namespace DESign_BOT
 
          
     }
-        public struct BOMMarksAndNotes
-        {
-            public List<string> BOMjoistMarks;
-            public List<string> BOMjoistNotes;
-            public List<string> BOMgirderMarks;
-            public List<string> BOMgirderNotes;
+        public enum JorG { Joist, Girder };
 
-            public BOMMarksAndNotes(List<string> bomJoistMarks,
-                                    List<string> bomJoistNotes,
-                                    List<string> bomGirderMarks,
-                                    List<string> bomGirderNotes)
+        public struct OWSJ
+        {
+            public string Mark;
+            public string Notes;
+            public JorG JorG;
+
+            public OWSJ(string mark, JorG jORg, string notes)
             {
-                BOMjoistMarks = bomJoistMarks;
-                BOMjoistNotes = bomJoistNotes;
-                BOMgirderMarks = bomGirderMarks;
-                BOMgirderNotes = bomGirderNotes;
+                Mark = mark;
+                Notes = notes;
+                JorG = jORg;
             }
+
         }
 
-        public BOMMarksAndNotes getBOMMarksAndNotes()
+        public List<OWSJ> getBOMMarksAndNotes()
          {
              OpenFileDialog openBOMFileDialog = new OpenFileDialog();
 
@@ -136,10 +134,7 @@ namespace DESign_BOT
 
               
               //List<List<string>> BOMMarksAndNotes = new List<List<string>>();
-              List<string> BOMjoistMarks = new List<string>();
-              List<string> BOMjoistNotes = new List<string>();
-            List<string> BOMgirderMarks = new List<string>();
-            List<string> BOMgirderNotes = new List<string>();
+            var bomMarks = new List<OWSJ>();
 
 
 
@@ -194,8 +189,7 @@ namespace DESign_BOT
                              string stringoRngNotes = (string)oRngNotes.Text;
                              if (stringoRngMarks!= "" && stringoRngMarks != "MARK")
                              {
-                                 BOMjoistMarks.Add(stringoRngMarks);
-                                 BOMjoistNotes.Add(stringoRngNotes);
+                                 bomMarks.Add(new OWSJ(stringoRngMarks, JorG.Joist, stringoRngNotes));
                              }
                          }
                      }
@@ -224,8 +218,7 @@ namespace DESign_BOT
                             string stringoRngNotes = (string)oRngNotes.Text;
                             if (stringoRngMarks != "" && stringoRngMarks != "MARK")
                             {
-                                BOMgirderMarks.Add(stringoRngMarks);
-                                BOMgirderNotes.Add(stringoRngNotes);
+                                bomMarks.Add(new OWSJ(stringoRngMarks, JorG.Girder, stringoRngNotes));
                             }
                         }
                     }
@@ -252,10 +245,8 @@ namespace DESign_BOT
 
              }
 
-            BOMMarksAndNotes bomMarksAndNotes = new BOMMarksAndNotes(BOMjoistMarks, BOMjoistNotes, BOMgirderMarks, BOMgirderNotes);
 
-
-            return bomMarksAndNotes;
+            return bomMarks;
          }
 
 

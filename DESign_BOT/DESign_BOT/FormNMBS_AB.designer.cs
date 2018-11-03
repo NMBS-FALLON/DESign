@@ -103,6 +103,7 @@
             this.HC.HeaderText = "HC:";
             this.HC.Items.AddRange(new object[] {
             "",
+            "NONE",
             "LEFT",
             "RIGHT",
             "BOTH"});
