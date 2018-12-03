@@ -160,6 +160,9 @@ module Seperator =
                             row <- row - 1
                 panelCounter
            
+            let test =
+               [for j = 1 to 1 do
+                   yield sprintf "%i" j]
 
             let panels =
                 [for j = 1 to numPanels do

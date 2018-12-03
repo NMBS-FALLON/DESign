@@ -16,6 +16,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
         private bool geometryAdded = false;
         private bool compositeJoistAdded = false;
         private StringWithUpdateCheck description = new StringWithUpdateCheck { };
+        public bool isComposite = false;
         public StringWithUpdateCheck Description
         {
             get
@@ -50,6 +51,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
                 if (newDescription.Text != null && newDescription.Text.Contains("CJ"))
                 {
+                    isComposite = true;
                     string[] seperators = { "CJ", "/" };
                     string[] newDescriptionArray = newDescription.Text.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
                     string depth = newDescriptionArray[0];

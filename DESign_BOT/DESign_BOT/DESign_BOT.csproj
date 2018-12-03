@@ -11,24 +11,24 @@
     <AssemblyName>DESign_BOT</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
     <TargetFrameworkProfile />
-    <PublishUrl>Q:\Designer Aid\Design\design bot\</PublishUrl>
+    <PublishUrl>C:\Users\darien.shannon\Desktop\DESign\DESign\Deploy\design-bot\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Unc</InstallFrom>
+    <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>1</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdateMode>Background</UpdateMode>
+    <UpdateInterval>4</UpdateInterval>
+    <UpdateIntervalUnits>Hours</UpdateIntervalUnits>
     <UpdatePeriodically>true</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>\\nmbsfaln-fs\engr\Designer Aid\Design\design bot\</InstallUrl>
-    <UpdateUrl>\\nmbsfaln-fs\Engr\Designer Aid\Design\design bot\</UpdateUrl>
+    <InstallUrl>https://nmbsdesign.blob.core.windows.net/design-bot/</InstallUrl>
+    <UpdateUrl>https://nmbsdesign.blob.core.windows.net/design-bot/</UpdateUrl>
     <ProductName>DESign BOT</ProductName>
     <PublisherName>DESign</PublisherName>
-    <ApplicationRevision>19</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationRevision>3</ApplicationRevision>
+    <ApplicationVersion>2.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>

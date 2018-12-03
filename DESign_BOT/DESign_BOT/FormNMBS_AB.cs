@@ -28,75 +28,183 @@ namespace DESign_BOT
             dataGridView1.Rows[1].Cells[0].Value = "U.N.O. (GIRDERS)";
         }
 
+        public struct FormNote
+        {
+            public string Note;
+            public string A;
+            public string B;
+            public string Spacing;
+            public string HC;
+
+            public FormNote (string note, string a, string b, string spacing, string hc)
+            {
+                Note = note;
+                A = a;
+                B = b;
+                Spacing = spacing;
+                HC = hc;
+            }
+        }
+
+        public struct NoteInfo
+        {
+            public string Mark;
+            public string A;
+            public string B;
+            public string Spacing;
+            public string HC;
+            public List<string> Errors;
+
+            public NoteInfo(string mark, string a, string b, string spacing, string hc, List<string> errors)
+            {
+                Mark = mark;
+                A = a;
+                B = b;
+                Spacing = spacing;
+                HC = hc;
+                Errors = errors;
+            }
+        }
+
+        public string[] GetNoteArray(string notes)
+        {
+            Char[] delimChars = { '[', ',', ']', ' ' };
+            string[] notesArray = notes.Split(delimChars, StringSplitOptions.RemoveEmptyEntries);
+            return notesArray;
+
+        }
+
 
         private void btnBOMtoExcel_Click(object sender, EventArgs e)
         {
-            ExcelDataExtraction.BOMMarksAndNotes bomMarksAndNotes = ExcelDataExtraction.getBOMMarksAndNotes();
-
-            var BOMMarks = bomMarksAndNotes.BOMjoistMarks.Concat(bomMarksAndNotes.BOMgirderMarks).ToList();
-            List<string> BOMNotes = bomMarksAndNotes.BOMjoistNotes.Concat(bomMarksAndNotes.BOMgirderNotes).ToList();
-
-            List<string> formNotes = new List<string>();
-            List<string> formAs = new List<string>();
-            List<string> formBs = new List<string>();
-            List<string> formSpacings = new List<string>();
-            List<string> formHCs = new List<string>();
-
+            // Get all notes from the dataGridView
+            // ----------------------------------------------------------------------------------------------------------------------------
+            var notesFromForm = new List<FormNote>();
 
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
             {
-                if (dataGridView1.Rows[i].Cells[0].Value != null)
+                var noteObj = dataGridView1.Rows[i].Cells[0].Value;
+                var aObj = dataGridView1.Rows[i].Cells[1].Value;
+                var bObj = dataGridView1.Rows[i].Cells[2].Value;
+                var spacingObj = dataGridView1.Rows[i].Cells[3].Value;
+                var hcObj = dataGridView1.Rows[i].Cells[4].Value;
+
+                string note = noteObj == null ? null : noteObj.ToString();
+                string a = aObj == null ? null : aObj.ToString();
+                string b = bObj == null ? null : bObj.ToString();
+                string spacing = spacingObj == null ? null : spacingObj.ToString();
+                string hc = hcObj == null ? null : hcObj.ToString();
+
+                notesFromForm.Add(new FormNote(note, a, b, spacing, hc));
+            }
+            // ----------------------------------------------------------------------------------------------------------------------------
+
+
+
+            // Create a list of all noteInfos called allNoteInfo
+            // ----------------------------------------------------------------------------------------------------------------------------
+            var bomOWSJs = ExcelDataExtraction.getBOMOWSJs();
+            var allNoteInfo = new List<NoteInfo>();
+
+            foreach (var owsj in bomOWSJs)
+            {
+                string mark = owsj.Mark;
+                string a = null;
+                string b = null;
+                string spacing = null;
+                string hc = null;
+                var errors = new List<string>();
+
+
+                // Apply applicable notes
+                // ----------------------------------------------------------------------------------------------------------------------------
+                var notesArray = GetNoteArray(owsj.Notes);
+                foreach (var note in notesArray)
                 {
-                    formNotes.Add(dataGridView1.Rows[i].Cells[0].Value.ToString());
-                    if (dataGridView1.Rows[i].Cells[1].Value != null)
+                    var applicableNotes = notesFromForm.Where(n => n.Note == note);
+                    foreach (var applicableNote in applicableNotes)
                     {
-                        formAs.Add(dataGridView1.Rows[i].Cells[1].Value.ToString());
-                    }
-                    else if (dataGridView1.Rows[i].Cells[1].Value == null)
-                        formAs.Add("");
+                        // Add error if a info value has already been set and this applicableNote also has a value for that info
+                        if (a != null && applicableNote.A != null) { errors.Add("Multiple 'A' values set on Mark " + mark); }
+                        if (b != null && applicableNote.B != null) { errors.Add("Multiple 'B' values set on Mark " + mark); }
+                        if (spacing != null && applicableNote.Spacing != null) { errors.Add("Multiple 'Spacing' values set on Mark " + mark); }
+                        if (hc != null && applicableNote.HC != null) { errors.Add("Multiple 'HC' values set on Mark " + mark); }
 
-                    if (dataGridView1.Rows[i].Cells[2].Value != null)
-                    {
-                        formBs.Add(dataGridView1.Rows[i].Cells[2].Value.ToString());
+                        // set info values to the applicableNote value if the applicableNote value is not null
+                        a = applicableNote.A != null ? applicableNote.A : a;
+                        b = applicableNote.B != null ? applicableNote.B : b;
+                        spacing = applicableNote.Spacing != null ? applicableNote.Spacing : spacing;
+                        hc = applicableNote.HC != null ? applicableNote.HC : hc;
                     }
-                    else if (dataGridView1.Rows[i].Cells[2].Value == null)
-                    {
-                        formBs.Add("");
-                    }
-                    if (dataGridView1.Rows[i].Cells[3].Value != null)
-                    {
-                        formSpacings.Add(dataGridView1.Rows[i].Cells[3].Value.ToString());
-                    }
-                    else if (dataGridView1.Rows[i].Cells[3].Value == null)
-                    {
-                        formSpacings.Add("");
-                    }
-                    if (dataGridView1.Rows[i].Cells[4].Value != null)
-                    {
-                        if (dataGridView1.Rows[i].Cells[4].Value == "NONE")
-                        {
-                            formHCs.Add("");
-                        }
-                        else
-                        {
-                            formHCs.Add(dataGridView1.Rows[i].Cells[4].Value.ToString());
-                        }
-                    }
-                    else if (dataGridView1.Rows[i].Cells[4].Value == null)
-                    {
-                        formHCs.Add("");
-                    }
-
                 }
+                // ----------------------------------------------------------------------------------------------------------------------------
+
+
+                // Apply Default Values
+                // ----------------------------------------------------------------------------------------------------------------------------
+                var defaultIE = owsj.JorG == ExcelDataExtraction.JorG.Joist ?
+                                    notesFromForm.Where(n => n.Note == "U.N.O. (JOISTS)")
+                                    : notesFromForm.Where(n => n.Note == "U.N.O. (GIRDERS)");
+                var hasDefault = defaultIE.Count() > 0;
+
+                if (hasDefault)
+                {
+                    // set info values to the default value if the current info value is null
+                    var defaultInfo = defaultIE.First();
+                    a = a == null ? defaultInfo.A : a;
+                    b = b == null ? defaultInfo.B : b;
+                    spacing = spacing == null ? defaultInfo.Spacing : spacing;
+                    hc = hc == null ? defaultInfo.HC : hc;
+                }
+                // ----------------------------------------------------------------------------------------------------------------------------
+
+                //add current noteInfo to allNoteInfo
+                var noteInfo = new NoteInfo(mark, a, b, spacing, hc, errors);
+                allNoteInfo.Add(noteInfo);
 
             }
+            // ----------------------------------------------------------------------------------------------------------------------------
 
-            Excel.Application oXL;
-            Excel._Workbook oWB;
-            Excel._Worksheet oSheet;
-            Excel.Range oRng;
-         //   try
-         //   {
+            // Convert 'allNoteInfo' into an object[,]
+            // ----------------------------------------------------------------------------------------------------------------------------
+            object[,] allNoteInfoArray = new object[allNoteInfo.Count, 5];
+
+            for (int i = 0; i < allNoteInfo.Count; i++)
+            {
+                var noteInfo = allNoteInfo[i];
+                allNoteInfoArray[i, 0] = noteInfo.Mark;
+                allNoteInfoArray[i, 1] = noteInfo.A;
+                allNoteInfoArray[i, 2] = noteInfo.B;
+                allNoteInfoArray[i, 3] = noteInfo.Spacing;
+                allNoteInfoArray[i, 4] = noteInfo.HC;
+            }
+            // ----------------------------------------------------------------------------------------------------------------------------
+
+
+            // create array of errors;
+            // ----------------------------------------------------------------------------------------------------------------------------
+            var allErrors = allNoteInfo
+                            .SelectMany(n => n.Errors);
+
+            object[,] allErrorsArray = new object[allErrors.Count(), 1];
+            var errorCount = 0;
+            foreach (var error in allErrors)
+            {
+                allErrorsArray[errorCount, 0] = error;
+                errorCount++;
+            }
+            // ----------------------------------------------------------------------------------------------------------------------------
+
+
+            // Create Excel workbook and 'paste' in allNoteInfoArray and allErrorsArray
+
+            Excel.Application oXL = null;
+            Excel._Workbook oWB = null;
+            Excel.Workbooks oWorkBooks = null;
+            Excel._Worksheet oSheet = null;
+            Excel.Range oRng = null;
+            try
+            {
 
 
                 //Start Excel and get Application object.
@@ -109,153 +217,19 @@ namespace DESign_BOT
 
                 System.IO.File.WriteAllBytes(excelPath, Properties.Resources.BLANK_AB_SHEET);
 
-                oWB = oXL.Workbooks.Open(excelPath);
+                oWorkBooks = oXL.Workbooks;
+                oWB = oWorkBooks.Open(excelPath);
 
 
                 oSheet = (Excel._Worksheet)oWB.ActiveSheet;
-                oRng = oSheet.get_Range("B5", Missing.Value);
+                var numMarks = allNoteInfoArray.GetLength(0);
+                oRng = oSheet.get_Range("B6", "F" + (numMarks + 5).ToString());
 
+                oRng.Value2 = allNoteInfoArray;
 
-                //Get a new workbook.
-
-
-                for (int i = 0; i < BOMMarks.Count; i++)
-                {
-                    int cellNumber = 6 + i;
-                    oRng = oSheet.get_Range("B" + cellNumber, Missing.Value);
-                    oRng.Value = BOMMarks[i].Mark;
-                }
-                Excel.Range oRngAs;
-                Excel.Range oRngBs;
-                Excel.Range oRngSpacing;
-                Excel.Range oRngHC;
-
-                for (int i = 0; i < BOMMarks.Count; i++)
-                {
-
-                    int cellNumber = 6 + i;
-                    oRngAs = oSheet.get_Range("C" + cellNumber, Missing.Value);
-                    oRngBs = oSheet.get_Range("D" + cellNumber, Missing.Value);
-                    oRngSpacing = oSheet.get_Range("E" + cellNumber, Missing.Value);
-                    oRngHC = oSheet.get_Range("F" + cellNumber, Missing.Value);
-
-                    string[] alpha = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S" };
-
-                    Char[] delimChars = { '[', ',', ']', ' ' };
-                    string[] BOMNotesArray = BOMNotes[i].Split(delimChars, StringSplitOptions.RemoveEmptyEntries);
-                    for (int k = 0; k < formNotes.Count; k++)
-                    {
-                        int alphaIndex = 6;
-                        if (BOMNotesArray.Contains(formNotes[k]))
-                        {
-                            if (formAs[k].ToString() != "")
-                            {
-
-                                if ((string)oRngAs.Text == "")
-                                {
-                                    oRngAs.Value = "'" + formAs[k].ToString();
-                                }
-                                else
-                                {
-                                    oRngAs = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
-                                    oRngAs.Value = "'" + formAs[k].ToString();
-                                    alphaIndex++;
-                                }
-                            }
-                            if (formBs[k].ToString() != "")
-                            {
-                                if ((string)oRngBs.Text == "")
-                                {
-                                    oRngBs.Value = "'" + formBs[k].ToString();
-                                }
-                                else
-                                {
-                                    oRngBs = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
-                                    oRngBs.Value = "'" + formBs[k].ToString();
-                                    alphaIndex++;
-                                }
-
-                            }
-                            if (formSpacings[k].ToString() != "")
-                            {
-                                if ((string)oRngSpacing.Text == "")
-                                {
-                                    oRngSpacing.Value = "'" + formSpacings[k].ToString();
-                                }
-                                else
-                                {
-                                    oRngSpacing = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
-                                    oRngSpacing.Value = "'" + formSpacings[k].ToString();
-                                    alphaIndex++;
-                                }
-
-                            }
-                            if (formHCs[k].ToString() != "")
-                            {
-                                if ((string)oRngHC.Text == "")
-                                {
-                                    oRngHC.Value = "'" + formHCs[k].ToString();
-                                }
-                                else
-                                {
-                                    oRngHC = oSheet.get_Range(alpha[alphaIndex] + cellNumber, Missing.Value);
-                                    oRngHC.Value = "'" + formHCs[k].ToString();
-                                    alphaIndex++;
-                                }
-
-                            }
-                        }
-                    }
-                   
-                }
-
-                Excel.Range last = oSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
-                int lastUsedRow = last.Row;
-                oRng = oSheet.get_Range("B6", "F" + lastUsedRow);
-
-                object[,] stringJoistMarks = (object[,])oRng.Value2;
-
-
-                var markCounter = 0;
-                for (int row = 2; row < stringJoistMarks.GetLength(0) -2; row++)
-                {
-                    int index = BOMMarks[markCounter].JorG == ExcelDataExtraction.JorG.Joist ? 0 : 1;
-                    markCounter = markCounter + 1;
-
-                    if (dataGridView1.Rows[0].Cells[0].Value == "U.N.O. (JOISTS)" && dataGridView1.Rows[1].Cells[0].Value == "U.N.O. (GIRDERS)")
-                    {
-                        if (formAs[0] != null)
-                        {
-                            if (stringJoistMarks[row, 2] == null)
-                            {
-                                stringJoistMarks[row, 2] = "'" + formAs[index];
-                            }
-                        }
-                        if (formBs[0] != null)
-                        {
-                            if (stringJoistMarks[row, 3] == null)
-                            {
-                                stringJoistMarks[row, 3] = "'" + formBs[index];
-                            }
-                        }
-                        if (formSpacings[0] != null)
-                        {
-                            if (stringJoistMarks[row, 4] == null)
-                            {
-                                    stringJoistMarks[row, 4] = "'" + formSpacings[index];                                
-                            }
-                        }
-                        if (formHCs[index] != null)
-                        {
-                            if (stringJoistMarks[row, 5] == null)
-                            {
-                                var hcValue = formHCs[index] == "NONE" ? "" : formHCs[index];
-                                stringJoistMarks[row, 5] = "'" + hcValue;
-                            }
-                        }
-                    }
-                }
-                oRng.Value2 = stringJoistMarks;
+                var numErrors = allErrorsArray.GetLength(0);
+                oRng = oSheet.get_Range("J6", "J" + (numErrors + 5).ToString());
+                oRng.Value2 = allErrorsArray;
 
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
                 saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx";
@@ -266,11 +240,26 @@ namespace DESign_BOT
                     oWB.SaveAs(saveFileDialog.FileName);
                 }
 
+                Marshal.ReleaseComObject(oRng);
+                Marshal.ReleaseComObject(oSheet);
+                Marshal.ReleaseComObject(oWB);
+                Marshal.ReleaseComObject(oWorkBooks);
+                Marshal.ReleaseComObject(oXL); ;
+                System.GC.Collect();
+                
 
-       /*     }
+            }
 
             catch (Exception theException)
             {
+                Marshal.ReleaseComObject(oRng);
+                Marshal.ReleaseComObject(oSheet);
+                Marshal.ReleaseComObject(oWB);
+                Marshal.ReleaseComObject(oWorkBooks);
+                Marshal.ReleaseComObject(oXL); ;
+                System.GC.Collect();
+                
+
                 String errorMessage;
                 errorMessage = "Error: ";
                 errorMessage = String.Concat(errorMessage, theException.Message);
@@ -279,7 +268,7 @@ namespace DESign_BOT
 
                 MessageBox.Show(errorMessage, "Error");
 
-            } */
+            } 
 
         }
 

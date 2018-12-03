@@ -990,6 +990,103 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 }
                 
             }
+
+            foreach (Sequence seq in sequences)
+            {
+                foreach (Joist joist in seq.Joists)
+                {
+                    if (joist.isComposite)
+                    {
+                        double moment = 0.0;
+                        var loadsInCase1 = joist.Loads.Where(l => l.CaseNumber.Value == null || l.CaseNumber.Value == 1.0);
+                        foreach (var load in loadsInCase1)
+                        {
+                            double factor = 1.0;
+                            switch (load.LoadInfoCategory.Text)
+                            {
+                                case "LL":
+                                    factor = 1.6;
+                                    break;
+                                case "TL":
+                                    factor = 1.44;
+                                    break;
+                                case "CL":
+                                case "DL":
+                                    factor = 1.2;
+                                    break;
+                                default:
+                                    factor = 1.0;
+                                    break;                             
+                            }
+
+                            double firstLoadValue = Convert.ToDouble(load.Load1Value.Value);
+                            firstLoadValue = firstLoadValue > 0 ? firstLoadValue : 0;
+                            double firstLoadDistanceFtinFt = Convert.ToDouble(load.Load1DistanceFt.Text == "" ? "0" : load.Load1DistanceFt.Text);
+                            double firstLoadDistanceIninFt = Convert.ToDouble(load.Load1DistanceIn.Value) / 12.0;
+                            double firstLoadDistanceinFt = firstLoadDistanceFtinFt + firstLoadDistanceIninFt;
+                            double secondLoadValue = Convert.ToDouble(load.Load2Value.Value);
+                            secondLoadValue = secondLoadValue > 0 ? secondLoadValue : 0;
+                            double secondLoadDistanceFtinFt = Convert.ToDouble(load.Load2DistanceFt.Text == "" ? "0" : load.Load2DistanceFt.Text);
+                            double secondLoadDistanceIninFt = Convert.ToDouble(load.Load2DistanceIn.Value) / 12.0;
+                            double secondLoadDistanceinFt = secondLoadDistanceFtinFt + secondLoadDistanceIninFt;
+                            double joistLength = Convert.ToDouble(joist.BaseLengthFt.Value);
+
+                            double firstLoadAddMomentAtLoad = 0.0;
+                            double firstLoadAddMomentAtMidSpan = 0.0;
+                            double secondLoadAddMomentAtLoad = 0.0;
+                            double secondLoadAddMomentAtMidSpan = 0.0;
+
+                            switch (load.LoadInfoType.Text)
+                            {
+                                case "U":
+                                    moment = moment + firstLoadValue * Math.Pow(joistLength, 2.0) / 8.0; 
+                                    break;
+                                case "C":                       
+                                    firstLoadAddMomentAtLoad = factor * firstLoadValue * firstLoadDistanceinFt * (joistLength - firstLoadDistanceinFt) / joistLength;
+                                    secondLoadAddMomentAtLoad = factor * secondLoadValue * secondLoadDistanceinFt * (joistLength - secondLoadDistanceinFt) / joistLength;
+                                    double firstLoadDistanceFromMid = Math.Abs((joistLength / 2.0) - firstLoadDistanceinFt);
+                                    double firstLoadMomentSlope = firstLoadAddMomentAtLoad / ((joistLength / 2.0) + firstLoadDistanceFromMid);
+                                    firstLoadAddMomentAtMidSpan = firstLoadAddMomentAtLoad - firstLoadMomentSlope * firstLoadDistanceFromMid;
+
+                                    double secondLoadDistanceFromMid = Math.Abs((joistLength / 2.0) - secondLoadDistanceinFt);
+                                    double secondLoadMomentSlope = secondLoadAddMomentAtLoad / ((joistLength / 2.0) + secondLoadDistanceFromMid);
+                                    secondLoadAddMomentAtMidSpan = secondLoadAddMomentAtLoad - secondLoadMomentSlope * secondLoadDistanceFromMid;
+
+                                    moment = moment + firstLoadAddMomentAtMidSpan + secondLoadAddMomentAtMidSpan;
+                                    break;
+                                case "CB":
+                                    moment = moment;
+                                    break;
+                                case "CP":
+                                    firstLoadAddMomentAtLoad = factor * firstLoadValue * joistLength / 4.0;
+                                    moment = moment + firstLoadAddMomentAtLoad;
+                                    break;
+                                case "CA":
+                                    firstLoadAddMomentAtLoad = factor * firstLoadValue * joistLength / 4.0;
+                                    moment = moment + firstLoadAddMomentAtLoad;
+                                    break;
+                                case "C3":
+                                    firstLoadAddMomentAtLoad = factor * firstLoadValue * firstLoadDistanceinFt * (joistLength - firstLoadDistanceinFt) / joistLength;
+                                    moment = moment + firstLoadAddMomentAtLoad;
+                                    break;
+                                case "CZ":
+                                    firstLoadAddMomentAtLoad = factor * firstLoadValue * joistLength / 4.0;
+                                    moment = moment + firstLoadAddMomentAtLoad;
+                                    break;
+                                case "AX":
+                                    double depthInFt = Double.Parse(joist.Description.Text.Split(new string[] { "LH" }, StringSplitOptions.None)[0]) / 12.0;
+                                    double axialLoad = Convert.ToDouble(load.Load1Value.Value);
+                                    moment = moment + axialLoad * depthInFt;
+                                    break;
+                                default:
+                                    break;
+                            }                 
+                        }
+                        joist.Notes.Add(new StringWithUpdateCheck { Text = String.Format("Mf = {0:F0}<lb-ft>", moment), IsUpdated = false });
+                    }
+                    
+                }
+            }
             if (errors != "")
             {
                 string filePath = Path.GetTempPath() + "Errors.txt";
@@ -1302,7 +1399,8 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                     if ((load.CaseNumber.Value == 1 || load.CaseNumber.Value == null)
                                         && load.Load1Value.Value >= 0
                                         && load.LoadInfoCategory.Text != "WL"
-                                        && load.LoadInfoCategory.Text != "IP")
+                                        && load.LoadInfoCategory.Text != "IP"
+                                        && load.LoadInfoCategory.Text != "R")
                                     {
 
                                         copiedLoad = DeepClone(load);
@@ -1311,6 +1409,15 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                     }
                                 }
                                 joist.Loads.AddRange(newLoads);
+
+                                //Switch "R" loads in LC1 to "SL"
+                                foreach (Load load in joist.Loads)
+                                {
+                                    if (load.LoadInfoCategory.Text == "R")
+                                    {
+                                        load.LoadInfoCategory.Text = "SL";
+                                    }
+                                }
 
                                 //ADD JOIST U DL
                                 Load uDL = new Load();

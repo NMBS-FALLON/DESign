@@ -32,13 +32,13 @@
     <IsWebBootstrapper>True</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <PublishUrl>C:\Users\darien.shannon\Desktop\DESign\DESign\Deploy\sales-excel-add-in\</PublishUrl>
-    <InstallUrl>https://github.com/nmbs-fallon/design/deploy/sales-excel-add-in/</InstallUrl>
+    <InstallUrl>https://nmbsdesign.blob.core.windows.net/sales-excel-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.17</ApplicationVersion>
+    <ApplicationVersion>1.0.0.19</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateInterval>0</UpdateInterval>
-    <UpdateIntervalUnits>days</UpdateIntervalUnits>
+    <UpdateInterval>4</UpdateInterval>
+    <UpdateIntervalUnits>hours</UpdateIntervalUnits>
     <ProductName>Sales Excel Add-In</ProductName>
     <PublisherName>DESign</PublisherName>
     <SupportUrl />
