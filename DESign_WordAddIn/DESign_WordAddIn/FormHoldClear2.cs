@@ -547,7 +547,10 @@ namespace DESign_WordAddIn
                         currentJoistSeatInfo.slotGauge = StringManipulation.ConvertLengthtoDecimal("0-" + BPLlineArray[8]);      // slot gauge
 
                         string[] bpl2 = BPLlineArray[7].Split(new string[] { " x " }, StringSplitOptions.RemoveEmptyEntries);
-                        double slotLength = StringManipulation.ConvertLengthtoDecimal("0-" + bpl2[1]) * 12.0;
+
+                        double slotLength = bpl2[1].Contains(" ") ?
+                                             StringManipulation.ConvertLengthtoDecimal("0-" + bpl2[1]) * 12.0 :
+                                             StringManipulation.ConvertLengthtoDecimal("0-0 " + bpl2[1]) * 12.0;
                         double slotSetback = 0.0;
                         if (BPLlineArray[6].Contains("-") == true)
                         {

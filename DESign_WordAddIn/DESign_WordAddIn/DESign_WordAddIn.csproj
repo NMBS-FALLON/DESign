@@ -35,11 +35,11 @@
     <PublishUrl>C:\Users\darien.shannon\Desktop\DESign\DESign\Deploy\design-word-add-in\</PublishUrl>
     <InstallUrl>https://nmbsdesign.blob.core.windows.net/design-word-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.1</ApplicationVersion>
+    <ApplicationVersion>2.0.0.3</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateInterval>0</UpdateInterval>
-    <UpdateIntervalUnits>days</UpdateIntervalUnits>
+    <UpdateInterval>4</UpdateInterval>
+    <UpdateIntervalUnits>hours</UpdateIntervalUnits>
     <ProductName>DESign_WordAddIn</ProductName>
     <PublisherName />
     <SupportUrl />
@@ -291,17 +291,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\blank.bmp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\blankBirdCage.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\blankTPlate.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\buttedHC.bmp" />
   </ItemGroup>
   <ItemGroup>
@@ -323,7 +312,16 @@
     <None Include="Resources\Staggered.tif" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\blankShimPlate.bmp" />
+    <None Include="Resources\blankShimPlate.tif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blank.tif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blankBirdCage.tif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blankTPlate.tif" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
