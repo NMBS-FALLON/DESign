@@ -35,7 +35,7 @@
     <PublishUrl>C:\Users\darien.shannon\Desktop\DESign\DESign\Deploy\design-word-add-in\</PublishUrl>
     <InstallUrl>https://nmbsdesign.blob.core.windows.net/design-word-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.3</ApplicationVersion>
+    <ApplicationVersion>2.0.0.4</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>4</UpdateInterval>
@@ -259,6 +259,7 @@
     <EmbeddedResource Include="Ribbon1.resx">
       <DependentUpon>Ribbon1.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="DESign_WordAddIn_1_TemporaryKey.pfx" />
     <None Include="DESign_WordAddIn_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -331,10 +332,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>DESign_WordAddIn_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>DESign_WordAddIn_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>7FC7EC760E40BE97A992CE478EE1E7E85CCAB70F</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>331BBCDC2DC16332FFA764DB187DA8DFEAF6EE0C</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="..\..\DESign_BASE\DESign_BASE\DESign_BASE.projitems" Label="Shared" />

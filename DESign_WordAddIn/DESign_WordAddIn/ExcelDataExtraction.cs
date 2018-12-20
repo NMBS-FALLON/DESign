@@ -98,14 +98,13 @@ namespace DESign_WordAddIn
 
             for (int i = 1; i <= excelData.GetLength(0); i++)
             {
-                if (excelData[i, 2] != null)
-                {
                     string mark = excelData[i, 1].ToString();
-                    string hc = excelData[i, 5].ToString();
+                    string hc = excelData[i, 5] == null ? "" : excelData[i,5].ToString();
 
                     bool hcLeft = false;
                     bool hcRight = false;
-                    
+
+                    if (hc == "") { hcLeft = false;  hcRight = false; }
                     if (hc == "LEFT") { hcLeft = true; }
                     if (hc == "RIGHT") { hcRight = true; }
                     if (hc == "BOTH") { hcLeft = true; hcRight = true; }
@@ -116,7 +115,7 @@ namespace DESign_WordAddIn
                     {
                         allHoldClearInformation.Add(mark, hcInfo);
                     }
-                }
+   
             }
 
             return allHoldClearInformation;
