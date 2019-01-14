@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using DESign_Sales_Excel_Add_In.Properties;
+using DESign_Sales_Excel_Add_In_2.Properties;
 using DESign_Sales_Excel_Add_In_2.BlueBeam;
 using DESign_Sales_Excel_Add_In_2.Worksheet_Values;
 using Microsoft.Office.Core;
@@ -30,7 +30,6 @@ namespace DESign_Sales_Excel_Add_In_2
       button.Tag = "Sprinkler Form";
       button.Caption = "Add Sprinkler Load";
       button.Style = MsoButtonStyle.msoButtonCaption;
-      button.Click += addSprinklerButton_Click;
       app.SheetBeforeRightClick += app_SheetBeforeRightClick;
     }
 
@@ -52,10 +51,7 @@ namespace DESign_Sales_Excel_Add_In_2
     }
 
 
-    private void addSprinklerButton_Click(CommandBarButton Ctrl, ref bool CancelDefault)
-    {
-      new Tools.FormSprinklerLoading().Show();
-    }
+
 
     private void button1_Click(object sender, RibbonControlEventArgs e)
     {

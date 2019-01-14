@@ -34,7 +34,7 @@
     <PublishUrl>C:\Users\darien.shannon\Desktop\DESign\DESign\Deploy\sales-excel-add-in\</PublishUrl>
     <InstallUrl>https://nmbsdesign.blob.core.windows.net/sales-excel-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.19</ApplicationVersion>
+    <ApplicationVersion>1.0.0.20</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>4</UpdateInterval>
@@ -196,12 +196,6 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Tools\FormSprinklerLoading.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Tools\FormSprinklerLoading.Designer.cs">
-      <DependentUpon>FormSprinklerLoading.cs</DependentUpon>
-    </Compile>
     <Compile Include="Worksheet_Values\BaseType.cs" />
     <Compile Include="Worksheet_Values\Bridging.cs" />
     <Compile Include="Worksheet_Values\Joist.cs" />
@@ -241,6 +235,9 @@
       <DependentUpon>ThisAddIn.Designer.xml</DependentUpon>
     </Compile>
     <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tools\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
