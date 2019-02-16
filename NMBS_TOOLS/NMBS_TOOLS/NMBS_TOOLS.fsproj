@@ -13,7 +13,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <Name>NMBS_TOOLS</Name>
-    <Win32Resource>C:\Users\darien.shannon\Desktop\DESign\DESign\design.res</Win32Resource>
+    <Win32Resource>C:\Users\darien.shannon\code\DESign\design.res</Win32Resource>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

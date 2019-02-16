@@ -790,16 +790,16 @@ module Seperator =
 
         let SDS =
             let isSDSNote (note : string) =
-                Regex.IsMatch(note, "SDS *= *(\d+\.?\d*) *")
+                Regex.IsMatch(note, "[Ss][Dd][Ss] *= *(\d+\.?\d*) *")
             let sdsNotes = generalNotes |> List.filter (fun note -> isSDSNote note.Text)
             let sds =
                 match sdsNotes with
-                | [] -> 100.0
+                | [] -> failwith "No SDS value found! Please specify an SDS value using the syntax \"SDS = {Numerical Value}"
                 | _ -> 
                     let sdsNote = sdsNotes.[0]
                     match sdsNote.Text with
-                    | Regex @"SDS *= *(\d+\.?\d*) *" [sds] -> float sds
-                    | _ -> 100.0
+                    | Regex @"[Ss][Dd][Ss] *= *(\d+\.?\d*) *" [sds] -> float sds
+                    | _ -> failwith "No SDS value found! Please specify an SDS value using the syntax \"SDS = {Numerical Value}"
             sds
                     
         
