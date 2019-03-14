@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ExtractJoistDetails.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FolderSelectDialog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Job.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JoistBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Load.cs" />

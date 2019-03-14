@@ -727,11 +727,11 @@ namespace DESign_BOT
                 }
 
                 int lastRow = 5 + Nailer_A_Array.Length;
-                oSheet.get_Range("B6", "B" + lastRow).Value2 = Marks;
-                oSheet.get_Range("C6", "C" + lastRow).Value2 = Nailer_A_Array;
-                oSheet.get_Range("D6", "D" + lastRow).Value2 = Nailer_B_Array;
-                oSheet.get_Range("E6", "E" + lastRow).Value2 = Nailer_Space_Array;
-                oSheet.get_Range("F6", "F" + lastRow).Value2 = HoldClear;
+                oSheet.get_Range("B7", "B" + lastRow).Value2 = Marks;
+                oSheet.get_Range("C7", "C" + lastRow).Value2 = Nailer_A_Array;
+                oSheet.get_Range("D7", "D" + lastRow).Value2 = Nailer_B_Array;
+                oSheet.get_Range("E7", "E" + lastRow).Value2 = Nailer_Space_Array;
+                oSheet.get_Range("F7", "F" + lastRow).Value2 = HoldClear;
 
                 oXL.Visible = true;
 

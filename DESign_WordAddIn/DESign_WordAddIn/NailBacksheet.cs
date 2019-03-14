@@ -38,6 +38,7 @@ namespace DESign_WordAddIn
         {
             InitializeComponent();
             tBoxScrewSpacing.Text = "24";
+            cbWoodThickness.Text = "3x";
         }
 
         List<TextBox> tBoxAList = new List<TextBox>();
@@ -157,7 +158,7 @@ namespace DESign_WordAddIn
 
             comboBoxNailPlacement.DrawMode = System.Windows.Forms.DrawMode.Normal;
 
-            string[] placementTypes = new string[] { "Staggered", "Non-Staggered", };
+            string[] placementTypes = new string[] { "Staggered", "Non-Staggered" };
 
             comboBoxNailPlacement.DataSource = placementTypes;
 
@@ -193,6 +194,7 @@ namespace DESign_WordAddIn
             List<string> excelSpacing = null;
             string excelInitials = null;
             string excelPattern = null;
+            string excelWoodThickness = null;
 
             if (checkBoxExcelData.Checked)
             {
@@ -209,6 +211,7 @@ namespace DESign_WordAddIn
                     excelSpacing = excelJoistData.Spacing;
                     excelInitials = excelJoistData.Initials;
                     excelPattern = excelJoistData.Pattern;
+                    excelWoodThickness = excelJoistData.WoodThickness;
                 }
                 catch
                 {
@@ -391,22 +394,27 @@ namespace DESign_WordAddIn
             string pattern = "Staggered";
             string initials = "";
             string spacing = "";
+            string woodThickness = "3x";
             if (checkBoxExcelData.Checked)
             {
                 pattern = excelPattern;
                 initials = excelInitials;
+                woodThickness = excelWoodThickness;
+
             }
             else
             {
                 pattern = comboBoxNailPlacement.Text;
                 initials = tBoxDWGBY.Text;
                 spacing = tBoxScrewSpacing.Text;
+                woodThickness = cbWoodThickness.Text;
             }
 
             nailerInformation.WoodLengths = listStringWoodLength;
             nailerInformation.Spacing = spacingList;
             nailerInformation.Pattern = pattern;
             nailerInformation.Initials = initials;
+            nailerInformation.WoodThickness = woodThickness;
 
             return nailerInformation;
 
@@ -527,7 +535,15 @@ namespace DESign_WordAddIn
 
             selection.Find.Execute("CHORD CUT SHEET");
 
-            addTextBox(selection, 420, 135, 120, 20, "WOODNAILER; SEE N1");
+            if (nailerInfo.WoodThickness == "2\"")
+            {
+                addTextBox(selection, 420, 135, 120, 50, "WOODNAILER; SEE N1\r\n*** 2\" WOOD ***");
+            }
+            else
+            {
+                addTextBox(selection, 420, 135, 120, 20, "WOODNAILER; SEE N1");
+            }
+
 
 
 
@@ -635,6 +651,7 @@ namespace DESign_WordAddIn
 
             string nailSpacing = null;
             string screwSpacing = null;
+            string woodThickness = null;
             if (checkBoxExcelData.Checked)
             {
                 var spacings = nailerInfo.Spacing.Distinct();
@@ -648,11 +665,13 @@ namespace DESign_WordAddIn
                     nailSpacing = spacings.First() + "\" MAX";
                     screwSpacing = spacings.First();
                 }
+                woodThickness = nailerInfo.WoodThickness == "3x" ? "2 1/2\"" : "2\"";
             }
             else
             {
                 nailSpacing = tBoxScrewSpacing.Text + "\" MAX";
-                screwSpacing = tBoxScrewSpacing.Text;
+                screwSpacing = tBoxScrewSpacing.Text;                
+                woodThickness = cbWoodThickness.Text == "3x" ? "2 1/2\"" : "2\"";
             }
 
 
@@ -670,6 +689,7 @@ namespace DESign_WordAddIn
             hyphenHalfScrewSpace = StringManipulation.decimalInchestoFraction(dblHalfScrewSpace);
             halfScrewSpace_Inch = hyphenHalfScrewSpace.Split('-')[1];
 
+
             List<Tuple<string, int, int, int>> listOfText = new List<Tuple<string, int, int, int>>();
 
             if (nailerInfo.Pattern == "Non-Staggered")
@@ -679,10 +699,12 @@ namespace DESign_WordAddIn
                 var text2 = new Tuple<string, int, int, int>(nailSpacing, 22, 1073, 150);
                 var text3 = new Tuple<string, int, int, int>(nailSpacing, 22, 252, 325);
                 var text4 = new Tuple<string, int, int, int>(nailSpacing, 22, 1073, 325);
+                var text5 = new Tuple<string, int, int, int>(woodThickness, 22, 600, 565);
                 listOfText.Add(text1);
                 listOfText.Add(text2);
                 listOfText.Add(text3);
                 listOfText.Add(text4);
+                listOfText.Add(text5);
                 NailPlacement = textOnImage(NailPlacement, listOfText);
 
             }
@@ -694,12 +716,14 @@ namespace DESign_WordAddIn
                 var text4 = new Tuple<string, int, int, int>(nailSpacing, 22, 890, 338);
                 var text5 = new Tuple<string, int, int, int>(halfScrewSpace_Inch + "\"\r\nMAX", 20, 182, 328);
                 var text6 = new Tuple<string, int, int, int>(halfScrewSpace_Inch + "\"\r\nMAX", 20, 1183, 328);
+                var text7 = new Tuple<string, int, int, int>(woodThickness, 22, 600, 555);
                 listOfText.Add(text1);
                 listOfText.Add(text2);
                 listOfText.Add(text3);
                 listOfText.Add(text4);
                 listOfText.Add(text5);
                 listOfText.Add(text6);
+                listOfText.Add(text7);
 
                 NailPlacement = textOnImage(NailPlacement, listOfText);
 
@@ -740,7 +764,10 @@ namespace DESign_WordAddIn
                 tableNailBacksheetALL.Cell(2, 4).Range.Text = stringListLengthB[0]; //tboxListB
                 tableNailBacksheetALL.Cell(2, 5).Range.Text = woodWidths[0];
                 tableNailBacksheetALL.Cell(2, 6).Range.Text = woodLengths1[0];
-                tableNailBacksheetALL.Cell(2, 7).Range.Text = "";
+                if (nailerInfo.WoodThickness == "2\"")
+                {
+                    tableNailBacksheetALL.Cell(2, 7).Range.Text = "** 2\" WOOD";
+                }
 
                 for (int i = 1; i <= 7; i++)
                 {
@@ -785,6 +812,11 @@ namespace DESign_WordAddIn
                     tableNailBacksheet.Cell(i + 2, 5).Range.Text = woodWidths[i];
                     tableNailBacksheet.Cell(i + 2, 3).Range.Text = stringListLengthA[i]; //tboxlistA
                     tableNailBacksheet.Cell(i + 2, 4).Range.Text = stringListLengthB[i]; //tboxListB
+                    if (nailerInfo.WoodThickness == "2\"")
+                    {
+                    tableNailBacksheet.Cell(i + 2, 7).Range.Text = "** 2\" WOOD";
+                    }
+
                 }
 
                 for (int row = 1; row <= numberOfMarks + 1; row++)

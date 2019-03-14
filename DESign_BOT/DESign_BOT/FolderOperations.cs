@@ -18,6 +18,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Collections;
 using DESign_BOT;
+using Ookii.Dialogs.WinForms;
+using System.Text.RegularExpressions;
 
 
 
@@ -29,31 +31,46 @@ namespace DESign_BOT
     class FolderOperations
     {
         StringManipulation stringManipulation = new StringManipulation();
-        public List<string> OpenWordFiles()
+        public List<string> GetShopOrderFiles(string[] listOfStringsThatFileCantContain)
         {
             List<string> filePaths = new List<string>();
 
-            FolderBrowserDialog sourcePath = new FolderBrowserDialog();
+            var fsd = new VistaFolderBrowserDialog();
+            fsd.Description = "Select Directory To Shop Orders";
+            fsd.UseDescriptionForTitle = true;
+            fsd.SelectedPath = @"\\nmbsfaln-fs\engr\_MANUALSHOPORDERS\";
+
 
             string folder = null;
 
-            if (sourcePath.ShowDialog() == DialogResult.OK)
+            if (fsd.ShowDialog() == DialogResult.OK)
             {
-                folder = sourcePath.SelectedPath;
-
+                folder = fsd.SelectedPath;
             }
 
             string[] files = System.IO.Directory.GetFiles(folder);
             string extension;
-
             string path;
+            string fileName;
+
             foreach (string s in files)
             {
-               
+
                 path = System.IO.Path.GetFullPath(s);
                 extension = System.IO.Path.GetExtension(path);
+                fileName = System.IO.Path.GetFileName(s);
 
-                if (path.Contains("~$") == false)
+                bool fileIsAllowed = true;
+                foreach (var str in listOfStringsThatFileCantContain)
+                {
+                    if (fileName.Contains(str))
+                    {
+                        fileIsAllowed = false;
+                    }
+                }
+
+
+                if (fileName.Contains("~$") == false && fileIsAllowed)
                 {
                     if (extension == ".docx" || extension == ".doc" || extension == ".rtf")
                     {
@@ -62,7 +79,10 @@ namespace DESign_BOT
                 }
 
             }
+
             return filePaths;
+
+
 
         }
 
@@ -71,7 +91,7 @@ namespace DESign_BOT
             
 
             List<List<List<string>>> AllJoistData = new List<List<List<string>>>();
-            List<string> filePaths = OpenWordFiles();
+            List<string> filePaths = GetShopOrderFiles(new string[] { "AC", "G" });
 
             string totalFiles = Convert.ToString(filePaths.Count());
             int fileCount = 0;
@@ -293,9 +313,85 @@ namespace DESign_BOT
             fileOpenCounter.Close();
             return AllJoistData;
         }
+        public class JoistSummary
+        {
+            public string Mark { get; }
+            public string Sequence { get; }
+            public int Quantity { get; }
 
-       
-       
+            public JoistSummary(string mark, int quantity, string sequence)
+            {
+                this.Mark = mark;
+                this.Sequence = sequence;
+                this.Quantity = quantity;
+            }
+        }
+
+        public List<JoistSummary> GetJoistSummaries()
+        {
+
+
+            List<JoistSummary> joistSummaries = new List<JoistSummary>();
+            List<string> filePaths = GetShopOrderFiles(new string[] { "AC", "G" });
+
+            string totalFiles = Convert.ToString(filePaths.Count());
+            int fileCount = 0;
+
+            Form fileOpenCounter = new Form();
+            fileOpenCounter.Size = new Size(235, 100);
+            fileOpenCounter.Text = "FILE COUNTER";
+            Label fileCounterLabel = new Label();
+            fileCounterLabel.Text = "OPENED FILES:";
+            fileCounterLabel.AutoSize = true;
+            fileCounterLabel.Location = new Point(12, 20);
+            TextBox status = new TextBox();
+            status.Size = new Size(100, 20);
+            status.Location = new Point(110, 16);
+            status.ReadOnly = true;
+
+            fileOpenCounter.Controls.Add(fileCounterLabel);
+            fileOpenCounter.Controls.Add(status);
+
+            fileOpenCounter.Show();
+
+            Word.Application wordApp;
+            wordApp = new Word.Application();
+            wordApp.Visible = false;
+            Word.Document wordDoc = null;
+
+
+
+            foreach (string file in filePaths)
+            {
+                fileCount++;
+                status.Text = String.Format("{0}/{1}", Convert.ToString(fileCount), totalFiles);
+
+                wordDoc = wordApp.Documents.Open(file, ReadOnly: true);
+
+                var docText = wordDoc.Range().Text;
+                var summaryText = docText.Substring(0, docText.IndexOf("MATERIAL"));
+
+                Regex sequenceRegex = new Regex(@"[a-zA-Z\d]+-[a-zA-Z\d]+-([a-zA-Z\d]+) +");
+                var sequenceMatch = sequenceRegex.Match(summaryText);
+                var sequence = sequenceMatch.Success ? Regex.Split(sequenceMatch.Groups[1].Value, @"\D+")[0] : "";
+
+                Regex joistSummaryRegex = new Regex(@"([a-zA-Z\d]+) +(\d+) +([\d|\.]+[LH|K|DLH|G|BG|VG|KA|]+[\d|\/]+) +(\d+-\d+ ?\d?\/?\d?) +\d+ +");
+                var joistSummaryMatches = joistSummaryRegex.Matches(summaryText);
+                for (int i = 0; i < joistSummaryMatches.Count; i++)
+                {
+                    var mark = joistSummaryMatches[i].Groups[1].Value;
+                    var quantity = short.Parse(joistSummaryMatches[i].Groups[2].Value);
+                    joistSummaries.Add(new JoistSummary(mark, quantity, sequence));
+                }
+
+            }
+            wordDoc.Close();
+            wordApp.Quit();
+            fileOpenCounter.Close();
+            return joistSummaries;
+        }
+
+
         public string WoodRequirements()
         {
 

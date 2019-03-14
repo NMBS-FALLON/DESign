@@ -223,12 +223,12 @@ namespace DESign_BOT
 
                 oSheet = (Excel._Worksheet)oWB.ActiveSheet;
                 var numMarks = allNoteInfoArray.GetLength(0);
-                oRng = oSheet.get_Range("B6", "F" + (numMarks + 5).ToString());
+                oRng = oSheet.get_Range("B7", "F" + (numMarks + 6).ToString());
 
                 oRng.Value2 = allNoteInfoArray;
 
                 var numErrors = allErrorsArray.GetLength(0);
-                oRng = oSheet.get_Range("J6", "J" + (numErrors + 5).ToString());
+                oRng = oSheet.get_Range("J7", "J" + (numErrors + 6).ToString());
                 oRng.Value2 = allErrorsArray;
 
                 SaveFileDialog saveFileDialog = new SaveFileDialog();

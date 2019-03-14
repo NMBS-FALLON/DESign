@@ -38,15 +38,17 @@
             this.checkBoxExcelData = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.tBoxScrewSpacing = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.cbWoodThickness = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // btnCreateTable
             // 
             this.btnCreateTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCreateTable.Location = new System.Drawing.Point(32, 272);
-            this.btnCreateTable.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.btnCreateTable.Location = new System.Drawing.Point(27, 268);
+            this.btnCreateTable.Margin = new System.Windows.Forms.Padding(2);
             this.btnCreateTable.Name = "btnCreateTable";
-            this.btnCreateTable.Size = new System.Drawing.Size(105, 28);
+            this.btnCreateTable.Size = new System.Drawing.Size(84, 22);
             this.btnCreateTable.TabIndex = 0;
             this.btnCreateTable.Text = "CREATE";
             this.btnCreateTable.UseVisualStyleBackColor = true;
@@ -55,48 +57,48 @@
             // label1
             // 
             this.label1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.label1.Location = new System.Drawing.Point(12, 186);
+            this.label1.Location = new System.Drawing.Point(10, 188);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(106, 36);
+            this.label1.Size = new System.Drawing.Size(85, 29);
             this.label1.TabIndex = 1;
             this.label1.Text = "Wood Length Tolerance (in.):";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // tboxTolerance
             // 
-            this.tboxTolerance.Location = new System.Drawing.Point(122, 193);
-            this.tboxTolerance.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.tboxTolerance.Location = new System.Drawing.Point(98, 193);
+            this.tboxTolerance.Margin = new System.Windows.Forms.Padding(2);
             this.tboxTolerance.Name = "tboxTolerance";
-            this.tboxTolerance.Size = new System.Drawing.Size(55, 22);
+            this.tboxTolerance.Size = new System.Drawing.Size(45, 20);
             this.tboxTolerance.TabIndex = 2;
             this.tboxTolerance.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(11, 64);
+            this.label2.Location = new System.Drawing.Point(9, 51);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(110, 22);
+            this.label2.Size = new System.Drawing.Size(88, 18);
             this.label2.TabIndex = 4;
             this.label2.Text = "Nail Placement:";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(14, 232);
+            this.label3.Location = new System.Drawing.Point(11, 230);
             this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(68, 17);
+            this.label3.Size = new System.Drawing.Size(54, 13);
             this.label3.TabIndex = 5;
             this.label3.Text = "DWG BY:";
             // 
             // tBoxDWGBY
             // 
-            this.tBoxDWGBY.Location = new System.Drawing.Point(122, 229);
-            this.tBoxDWGBY.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.tBoxDWGBY.Location = new System.Drawing.Point(98, 227);
+            this.tBoxDWGBY.Margin = new System.Windows.Forms.Padding(2);
             this.tBoxDWGBY.Name = "tBoxDWGBY";
-            this.tBoxDWGBY.Size = new System.Drawing.Size(55, 22);
+            this.tBoxDWGBY.Size = new System.Drawing.Size(45, 20);
             this.tBoxDWGBY.TabIndex = 6;
             this.tBoxDWGBY.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.tBoxDWGBY.TextChanged += new System.EventHandler(this.tBoxDWGBY_TextChanged);
@@ -107,10 +109,10 @@
             this.checkBoxExcelData.Checked = true;
             this.checkBoxExcelData.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBoxExcelData.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.8F);
-            this.checkBoxExcelData.Location = new System.Drawing.Point(9, 26);
-            this.checkBoxExcelData.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.checkBoxExcelData.Location = new System.Drawing.Point(7, 21);
+            this.checkBoxExcelData.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxExcelData.Name = "checkBoxExcelData";
-            this.checkBoxExcelData.Size = new System.Drawing.Size(159, 28);
+            this.checkBoxExcelData.Size = new System.Drawing.Size(127, 22);
             this.checkBoxExcelData.TabIndex = 7;
             this.checkBoxExcelData.Text = "Use Excel Data";
             this.checkBoxExcelData.UseVisualStyleBackColor = true;
@@ -119,27 +121,51 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 159);
+            this.label4.Location = new System.Drawing.Point(10, 127);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(92, 17);
+            this.label4.Size = new System.Drawing.Size(69, 13);
             this.label4.TabIndex = 8;
             this.label4.Text = "Spacing (in.):";
             // 
             // tBoxScrewSpacing
             // 
-            this.tBoxScrewSpacing.Location = new System.Drawing.Point(122, 159);
-            this.tBoxScrewSpacing.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.tBoxScrewSpacing.Location = new System.Drawing.Point(98, 127);
+            this.tBoxScrewSpacing.Margin = new System.Windows.Forms.Padding(2);
             this.tBoxScrewSpacing.Name = "tBoxScrewSpacing";
-            this.tBoxScrewSpacing.Size = new System.Drawing.Size(55, 22);
+            this.tBoxScrewSpacing.Size = new System.Drawing.Size(45, 20);
             this.tBoxScrewSpacing.TabIndex = 9;
             this.tBoxScrewSpacing.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // label5
+            // 
+            this.label5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label5.Location = new System.Drawing.Point(10, 155);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(85, 29);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Wood Thickness:";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // cbWoodThickness
+            // 
+            this.cbWoodThickness.FormattingEnabled = true;
+            this.cbWoodThickness.Items.AddRange(new object[] {
+            "3x",
+            "2\""});
+            this.cbWoodThickness.Location = new System.Drawing.Point(98, 160);
+            this.cbWoodThickness.Name = "cbWoodThickness";
+            this.cbWoodThickness.Size = new System.Drawing.Size(45, 21);
+            this.cbWoodThickness.TabIndex = 11;
+            // 
             // FormNailBacksheet
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(591, 329);
+            this.ClientSize = new System.Drawing.Size(473, 297);
+            this.Controls.Add(this.cbWoodThickness);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.tBoxScrewSpacing);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.checkBoxExcelData);
@@ -150,7 +176,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnCreateTable);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "FormNailBacksheet";
             this.Text = "Create Nailer Backsheet";
             this.Load += new System.EventHandler(this.FormNailBacksheet_Load);
@@ -170,6 +196,7 @@
         private System.Windows.Forms.CheckBox checkBoxExcelData;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox tBoxScrewSpacing;
-
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ComboBox cbWoodThickness;
     }
 }

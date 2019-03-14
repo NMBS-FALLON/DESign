@@ -31,6 +31,9 @@ namespace DESign_WordAddIn
             internal string Initials { get; set; }
             internal List<string> Spacing { get; set; }
             internal List<string> WoodLengths { get; set; }
+
+            private string woodThickness = "3x";
+            internal string WoodThickness {  get { return woodThickness; } set { woodThickness = value;  } }
             
         }
 
@@ -74,7 +77,7 @@ namespace DESign_WordAddIn
 
                 Excel.Range last = oSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
 
-                excelData = oSheet.get_Range("B6", "F" + last.Row).Value2;
+                excelData = oSheet.get_Range("B7", "F" + last.Row).Value2;
 
 
                 oWB.Close(0);
@@ -163,10 +166,13 @@ namespace DESign_WordAddIn
 
                     Excel.Range last = oSheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
 
-                    stringJoistMarks = oSheet.get_Range("B6", "E" + last.Row).Value2;
+                    bool isNewSheet = Convert.ToString(oSheet.Cells[4, 2].Value2) == "Wood Thickness:" ? true : false;
+
+                    stringJoistMarks = isNewSheet ? oSheet.get_Range("B7", "E" + last.Row).Value2 : oSheet.get_Range("B6", "E" + last.Row).Value2;
 
                     nailerInformation.Initials = Convert.ToString(oSheet.Cells[2, 3].Value2);
                     nailerInformation.Pattern = Convert.ToString(oSheet.Cells[3, 3].Value2);
+                    nailerInformation.WoodThickness = isNewSheet ? Convert.ToString(oSheet.Cells[4, 3].Value2) : "3x";
 
 
                     oWB.Close(0);

@@ -32,10 +32,10 @@
     <TargetFrameworkProfile />
     <IsWebBootstrapper>True</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\darien.shannon\Desktop\DESign\DESign\Deploy\design-word-add-in\</PublishUrl>
+    <PublishUrl>C:\Users\darien.shannon\code\DESign\Deploy\design-word-add-in\</PublishUrl>
     <InstallUrl>https://nmbsdesign.blob.core.windows.net/design-word-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.4</ApplicationVersion>
+    <ApplicationVersion>2.0.0.6</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>4</UpdateInterval>
@@ -245,6 +245,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="NailBacksheet.resx">
       <DependentUpon>NailBacksheet.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

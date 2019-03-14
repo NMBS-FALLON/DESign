@@ -13,6 +13,13 @@ using DESign_BASE;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
 using DESign_Bot_FS_Tools;
+using System.IO;
+using System.IO.Packaging;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using System.Text.RegularExpressions;
+using Ookii.Dialogs.WinForms;
+
 
 namespace DESign_BOT
 {
@@ -72,10 +79,6 @@ namespace DESign_BOT
 
 
 
-        private void tBoxWoodReq_TextChanged(object sender, EventArgs e)
-        {
-
-        }
 
         private void button4_Click(object sender, EventArgs e)
         {
@@ -230,6 +233,31 @@ namespace DESign_BOT
             {
                 MessageBox.Show("No BOM Selected");
             }
+        }
+
+        private void btnSeqSummaryFromShopOrders_Click(object sender, EventArgs e)
+        {
+
+            var joistSummaries = folderOperations.GetJoistSummaries();
+
+            string joistSummariesAsCsv = "Mark,Quantity,Sequence\n";
+
+            foreach (var joistSummary in joistSummaries)
+            {
+                joistSummariesAsCsv =
+                    joistSummariesAsCsv +
+                    String.Format("{0},{1},{2}\n",
+                                    joistSummary.Mark,
+                                    joistSummary.Quantity,
+                                    joistSummary.Sequence);
+            }
+
+            var fileSave = new VistaSaveFileDialog();
+            if (fileSave.ShowDialog() == DialogResult.OK)
+            {
+                System.IO.File.WriteAllText(fileSave.FileName, joistSummariesAsCsv);
+            }
+
         }
     }
 }
