@@ -238,24 +238,62 @@ namespace DESign_BOT
         private void btnSeqSummaryFromShopOrders_Click(object sender, EventArgs e)
         {
 
-            var joistSummaries = folderOperations.GetJoistSummaries();
+            var (jobNumber, joistSummaries) = folderOperations.GetJoistSummaries();
 
-            string joistSummariesAsCsv = "Mark,Quantity,Sequence\n";
+            var numberOfRows = joistSummaries.Count;
 
-            foreach (var joistSummary in joistSummaries)
+            object[,] joistSummariesArray = new object[numberOfRows, 3];
+
+            for (int i = 0; i < joistSummaries.Count; i++)
             {
-                joistSummariesAsCsv =
-                    joistSummariesAsCsv +
-                    String.Format("{0},{1},{2}\n",
-                                    joistSummary.Mark,
-                                    joistSummary.Quantity,
-                                    joistSummary.Sequence);
+                joistSummariesArray[i, 0] = joistSummaries[i].Mark;
+                joistSummariesArray[i, 1] = joistSummaries[i].Quantity;
+                joistSummariesArray[i, 2] = joistSummaries[i].Sequence;
             }
 
-            var fileSave = new VistaSaveFileDialog();
-            if (fileSave.ShowDialog() == DialogResult.OK)
+            Excel.Application excel = null;
+            Excel._Workbook workbook = null;
+            Excel.Sheets sheets = null;
+            Excel._Worksheet sheet = null;
+
+
+            try
             {
-                System.IO.File.WriteAllText(fileSave.FileName, joistSummariesAsCsv);
+                //Start Excel and get Application object.
+                excel = new Excel.Application();
+                excel.Visible = false;
+
+                //Get a new workbook.
+
+                string excelPath = System.IO.Path.GetTempFileName();
+
+                System.IO.File.WriteAllBytes(excelPath, Properties.Resources.Bolt_Requirements);
+
+                workbook = excel.Workbooks.Open(excelPath);
+
+                sheets = workbook.Worksheets;
+
+                sheet = sheets["Sequence Summary"];
+
+                var startCell = "A2";
+                var endCell = "C" + (numberOfRows + 1).ToString();
+
+                sheet.Range[startCell, endCell].Value2 = joistSummariesArray;
+
+                excel.Visible = true;
+
+                var fileSave = new VistaSaveFileDialog();
+                fileSave.FileName = jobNumber + " Bolt Requirements";
+                if (fileSave.ShowDialog() == DialogResult.OK)
+                {
+                    workbook.SaveAs(fileSave.FileName);
+                }
+
+
+            }
+            catch
+            {
+
             }
 
         }

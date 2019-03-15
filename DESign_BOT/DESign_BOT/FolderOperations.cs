@@ -327,7 +327,7 @@ namespace DESign_BOT
             }
         }
 
-        public List<JoistSummary> GetJoistSummaries()
+        public (string, List<JoistSummary>) GetJoistSummaries()
         {
 
 
@@ -359,7 +359,7 @@ namespace DESign_BOT
             wordApp.Visible = false;
             Word.Document wordDoc = null;
 
-
+            var jobNumber = "";
 
             foreach (string file in filePaths)
             {
@@ -371,9 +371,10 @@ namespace DESign_BOT
                 var docText = wordDoc.Range().Text;
                 var summaryText = docText.Substring(0, docText.IndexOf("MATERIAL"));
 
-                Regex sequenceRegex = new Regex(@"[a-zA-Z\d]+-[a-zA-Z\d]+-([a-zA-Z\d]+) +");
+                Regex sequenceRegex = new Regex(@"([a-zA-Z\d]+-[a-zA-Z\d]+)-([a-zA-Z\d]+) +");
                 var sequenceMatch = sequenceRegex.Match(summaryText);
-                var sequence = sequenceMatch.Success ? Regex.Split(sequenceMatch.Groups[1].Value, @"\D+")[0] : "";
+                jobNumber = sequenceMatch.Success ? sequenceMatch.Groups[1].Value : "";
+                var sequence = sequenceMatch.Success ? Regex.Split(sequenceMatch.Groups[2].Value, @"\D+")[0] : "";
 
                 Regex joistSummaryRegex = new Regex(@"([a-zA-Z\d]+) +(\d+) +([\d|\.]+[LH|K|DLH|G|BG|VG|KA|]+[\d|\/]+) +(\d+-\d+ ?\d?\/?\d?) +\d+ +");
                 var joistSummaryMatches = joistSummaryRegex.Matches(summaryText);
@@ -388,7 +389,8 @@ namespace DESign_BOT
             wordDoc.Close();
             wordApp.Quit();
             fileOpenCounter.Close();
-            return joistSummaries;
+            var jobInfo = (JobNumber: jobNumber, JoistSummaries: joistSummaries);
+            return jobInfo;
         }
 
 
