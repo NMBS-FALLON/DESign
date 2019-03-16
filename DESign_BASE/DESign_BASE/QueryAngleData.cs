@@ -7,7 +7,7 @@ namespace DESign_BASE
     public class QueryAngleData
     {
 
-        public double DblThickness(string tc)
+        static public double DblThickness(string tc)
         {
             var asm = Assembly.GetExecutingAssembly();
             var stream = asm.GetManifestResourceStream(AngleData());
@@ -24,7 +24,7 @@ namespace DESign_BASE
 
             return thickness;
         }
-        public double DblVleg(string tc)
+        static public double DblVleg(string tc)
         {
             var asm = Assembly.GetExecutingAssembly();
             var stream = asm.GetManifestResourceStream(AngleData());
@@ -41,7 +41,7 @@ namespace DESign_BASE
 
             return vLeg;
         }
-        public string WNtcWidth(string tc)
+        static public string WNtcWidth(string tc)
         {
             var asm = Assembly.GetExecutingAssembly();
             var stream = asm.GetManifestResourceStream(AngleData());
@@ -59,7 +59,7 @@ namespace DESign_BASE
             return sTCWidth;
         }
 
-        public string TypTCWidth(string tc)
+        static public string TypTCWidth(string tc)
         {
             var asm = Assembly.GetExecutingAssembly();
             var stream = asm.GetManifestResourceStream(AngleData());
@@ -77,7 +77,7 @@ namespace DESign_BASE
             return sTCWidth;
         }
 
-        public object QuerryObject (string inputAttribute, string inputAttributeValue, string returnAttribute)
+        static public object QuerryObject (string inputAttribute, string inputAttributeValue, string returnAttribute)
         {
             var asm = Assembly.GetExecutingAssembly();
             var stream = asm.GetManifestResourceStream(AngleData());
@@ -92,7 +92,7 @@ namespace DESign_BASE
             return sTCWidth;
         }
 
-        private string AngleData()
+        static private string AngleData()
         {
             
             string[] stringArray = Assembly.GetExecutingAssembly().GetManifestResourceNames();

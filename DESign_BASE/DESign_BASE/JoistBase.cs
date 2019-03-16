@@ -41,15 +41,13 @@ namespace DESign_BASE
 
     public class Joist : JoistBase
     {
-        QueryAngleData queryAngleData = new QueryAngleData();
-
        
         private string tcWidth;
         public string TCWidth
         {
             get
             {
-                tcWidth = queryAngleData.WNtcWidth(TC);
+                tcWidth = QueryAngleData.WNtcWidth(TC);
                 return tcWidth;
             }
            
@@ -59,13 +57,12 @@ namespace DESign_BASE
 
     public class Girder : JoistBase
     {
-        QueryAngleData queryAngleData = new QueryAngleData();
         private string tcWidth;
         public string TCWidth
         {
             get
             {
-                tcWidth = queryAngleData.TypTCWidth(TC);
+                tcWidth = QueryAngleData.TypTCWidth(TC);
                 return tcWidth;
             }
         }
