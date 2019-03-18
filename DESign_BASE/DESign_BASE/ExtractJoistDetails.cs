@@ -10,7 +10,7 @@ namespace DESign_BASE
 {
     public class ExtractJoistDetails
     {
-        public Job JobFromShoporderJoistDetails()
+        static public Job JobFromShoporderJoistDetails()
         {
             Job job = new Job();
             List<Joist> allJoists = new List<Joist>();

@@ -15,19 +15,32 @@ namespace DESign_AutoCAD
     public class MyCommands
     {
 
-        DESign_BASE.ExtractJoistDetails joistDetails = new ExtractJoistDetails();
 
-        [CommandMethod("MyCommandGroup", "DESign_JOIST_TCW", CommandFlags.Modal)]
-        public void tcWidths_joists()
+        [CommandMethod("MyCommandGroup", "DESIGN", CommandFlags.Modal)]
+        public void Design()
         {
+            bool addJoistTcw = false;
+            bool addBoltLength = false;
+            bool addGirderTcw = false;
+
+            using (var dif = new DesignInfoForm())
+            {
+                var result = dif.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
+                {
+                    (addJoistTcw, addBoltLength, addGirderTcw) = dif.Return;
+                }
+            }
+
             Job job = new Job();
-            job = joistDetails.JobFromShoporderJoistDetails();
+
+            job = ExtractJoistDetails.JobFromShoporderJoistDetails();
             if (job.Joists == null && job.Girders == null)
             {
                 return;
             }
 
-            var markInfoList = new List<(string Mark, int quantity, string TcWidth, int BoltSize)>();
+            var joistInfoList = new List<(string Mark, int quantity, string TcWidth, int BoltSize)>();
 
             foreach (var joist in job.Joists)
             {
@@ -39,116 +52,152 @@ namespace DESign_AutoCAD
                 var boltSize = isMerchantBc ?
                                  System.Math.Max((short)3, (short)System.Math.Ceiling(bcVleg + 1)) :
                                  System.Math.Max((short)3, (short)System.Math.Ceiling(bcVleg + (1 - 0.078)));
-                markInfoList.Add((mark, joist.Quantity, tcWidth, boltSize));
+                joistInfoList.Add((mark, joist.Quantity, tcWidth, boltSize));
             }
 
-            var tcWidthMajority =
-                markInfoList
+            var joistTcWidthMajority =
+                joistInfoList
                 .GroupBy(info => info.TcWidth)
                 .Select(group => (TcWidth: group.Key, Sum: group.Sum(info => info.quantity)))
                 .OrderByDescending(info => info.Sum)
                 .First()
                 .TcWidth;
 
+            var boltLengthMajority =
+                joistInfoList
+                .GroupBy(info => info.BoltSize)
+                .Select(group => (BoltSize: group.Key, Sum: group.Sum(info => info.quantity)))
+                .OrderByDescending(info => info.Sum)
+                .First()
+                .BoltSize;
 
             var marksWithMessages = new List<(string Mark, List<string> Messages)>();
 
-            foreach (var (Mark, Quantity, TcWidth, BoltSize) in markInfoList)
+            foreach (var (Mark, Quantity, TcWidth, BoltLength) in joistInfoList)
             {
                 var messages = new List<string>();
-                if (TcWidth != tcWidthMajority) { messages.Add("TCW=" + TcWidth); }
+                if (addJoistTcw && TcWidth != joistTcWidthMajority) { messages.Add("TCW=" + TcWidth); }
+                if (addBoltLength && BoltLength != boltLengthMajority) { messages.Add("BL=" + BoltLength); }
                 if (messages.Count != 0)
                 {
                     marksWithMessages.Add((Mark, messages));
                 }
             }
 
+            foreach (var girder in job.Girders)
+            {
+                var messages = new List<string>();
+                if (addGirderTcw) { messages.Add("TCW=" + girder.TCWidth); }
+                if (messages.Count != 0)
+                {
+                    marksWithMessages.Add((girder.Mark, messages));
+                }
+            }
+
+            removeDesignInfo();
+
             foreach (var (Mark, Messages) in marksWithMessages)
             {
                 var markWithMessage = string.Format("{0} [{1}]", Mark, string.Join(",", Messages));
 
-                Document doc = Application.DocumentManager.MdiActiveDocument;
-                Database db = doc.Database;
-                using (Transaction tr = db.TransactionManager.StartTransaction())
+                Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+
+                using (doc.LockDocument())
                 {
-                    BlockTableRecord btr = (BlockTableRecord)tr.GetObject
-                        (SymbolUtilityServices.GetBlockModelSpaceId(db), OpenMode.ForRead);
-
-                    foreach (ObjectId id in btr)
+                    Database db = doc.Database;
+                    using (Transaction tr = db.TransactionManager.StartTransaction())
                     {
-                        Entity currentEntity = tr.GetObject(id, OpenMode.ForWrite, false) as Entity;
-                        if (currentEntity == null)
+                        BlockTableRecord btr = (BlockTableRecord)tr.GetObject
+                            (SymbolUtilityServices.GetBlockModelSpaceId(db), OpenMode.ForRead);
+
+                        foreach (ObjectId id in btr)
                         {
-                            continue;
-                        }
-                        if (currentEntity.GetType() == typeof(MText))
-                        {
-                            string strippedText = Regex.Replace(((MText)currentEntity).Contents, " ", "");
-                            if (strippedText == Mark)
+                            Entity currentEntity = tr.GetObject(id, OpenMode.ForWrite, false) as Entity;
+                            if (currentEntity == null)
                             {
-                                MText mText = (MText)currentEntity;
-                                string mTextContent = mText.Contents;
-                                string newmTextContent = Regex.Replace(mTextContent, Mark, markWithMessage);
-                                ((MText)currentEntity).Contents = newmTextContent;
+                                continue;
                             }
-                        }
-                        if (currentEntity.GetType() == typeof(DBText))
-                        {
-                            string strippedText = Regex.Replace(((DBText)currentEntity).TextString, " ", "");
-                            if (strippedText == Mark)
+                            if (currentEntity.GetType() == typeof(MText))
                             {
-                                DBText dbText = (DBText)currentEntity;
-                                string dbTextString = dbText.TextString;
-                                string newdbTextString = Regex.Replace(dbTextString, Mark, markWithMessage);
-                                ((DBText)currentEntity).TextString = newdbTextString;
+                                string strippedText = Regex.Replace(((MText)currentEntity).Contents, " ", "");
+                                if (strippedText == Mark)
+                                {
+                                    MText mText = (MText)currentEntity;
+                                    string mTextContent = mText.Contents;
+                                    string newmTextContent = Regex.Replace(mTextContent, Mark, markWithMessage);
+                                    ((MText)currentEntity).Contents = newmTextContent;
+                                }
                             }
-                        }
-                        if (currentEntity.GetType() == typeof(RotatedDimension))
-                        {
-                            string dimText = ((RotatedDimension)currentEntity).DimensionText;
-
-                            if (dimText.Contains(string.Format("-{0}\\X", Mark)) == true ||
-                                dimText.Contains(string.Format("-{0} ", Mark)))
+                            if (currentEntity.GetType() == typeof(DBText))
                             {
-                                string replace = string.Format("-{0}", Mark);
-                                string replacement = string.Format("-{0}", markWithMessage);
-                                string newrdText = Regex.Replace(dimText, replace, replacement);
-                                ((RotatedDimension)currentEntity).DimensionText = newrdText;
+                                string strippedText = Regex.Replace(((DBText)currentEntity).TextString, " ", "");
+                                if (strippedText == Mark)
+                                {
+                                    DBText dbText = (DBText)currentEntity;
+                                    string dbTextString = dbText.TextString;
+                                    string newdbTextString = Regex.Replace(dbTextString, Mark, markWithMessage);
+                                    ((DBText)currentEntity).TextString = newdbTextString;
+                                }
                             }
-
-                            string[] dimTextArray = Regex.Split(dimText, "-");
-                            string mark = dimTextArray[dimTextArray.Length - 1];
-
-                            if (mark == Mark)
+                            if (currentEntity.GetType() == typeof(RotatedDimension))
                             {
-                                string replace = string.Format("-{0}", Mark);
-                                string replacement = string.Format("-{0}", markWithMessage);
-                                string newrdText = Regex.Replace(dimText, replace, replacement);
-                                ((RotatedDimension)currentEntity).DimensionText = newrdText;
+                                string dimText = ((RotatedDimension)currentEntity).DimensionText;
+
+                                if (dimText.Contains(string.Format("-{0}\\X", Mark)) == true ||
+                                    dimText.Contains(string.Format("-{0} ", Mark)))
+                                {
+                                    string replace = string.Format("-{0}", Mark);
+                                    string replacement = string.Format("-{0}", markWithMessage);
+                                    string newrdText = Regex.Replace(dimText, replace, replacement);
+                                    ((RotatedDimension)currentEntity).DimensionText = newrdText;
+                                }
+
+                                string[] dimTextArray = Regex.Split(dimText, "-");
+                                string mark = dimTextArray[dimTextArray.Length - 1];
+
+                                if (mark == Mark)
+                                {
+                                    string replace = string.Format("-{0}", Mark);
+                                    string replacement = string.Format("-{0}", markWithMessage);
+                                    string newrdText = Regex.Replace(dimText, replace, replacement);
+                                    ((RotatedDimension)currentEntity).DimensionText = newrdText;
+                                }
+
                             }
 
                         }
-
+                        tr.Commit();
                     }
-                    tr.Commit();
                 }
 
             }
 
-            System.Windows.Forms.MessageBox.Show(
-                tcWidthMajority + "\" majority TC width.\n");
+            if (addJoistTcw || addBoltLength)
+            {
+                var majorityMessage = "";
+                if (addJoistTcw)
+                {
+                    majorityMessage += joistTcWidthMajority + "\" majority TC width.\n";
+                }
+                if (addBoltLength)
+                {
+                    majorityMessage += boltLengthMajority + "\" majoirty bolt length.\n";
+                }
+                System.Windows.Forms.MessageBox.Show(majorityMessage);
+            }
         }
-
+    
+        
+/*
         [CommandMethod("MyCommandGroup", "DESign_GIRDER_TCW", CommandFlags.Modal)]
         public void tcWidths_Girders()
         {
-            Job job1 = new Job();
-            job1 = joistDetails.JobFromShoporderJoistDetails();
-            if (job1.Joists == null && job1.Girders == null)
+            var job = ExtractJoistDetails.JobFromShoporderJoistDetails();
+            if (job.Joists == null && job.Girders == null)
             {
                 return;
             }
-            List<Girder> girders = job1.Girders;
+            List<Girder> girders = job.Girders;
 
 
             foreach (Girder girder in girders)
@@ -226,8 +275,8 @@ namespace DESign_AutoCAD
         [CommandMethod("MyCommandGroup", "DESign_JOIST_TCW_AND_BL", CommandFlags.Modal)]
         public void tcWidths_joists_with_bolts()
         {
-            Job job = new Job();
-            job = joistDetails.JobFromShoporderJoistDetails();
+            var job = ExtractJoistDetails.JobFromShoporderJoistDetails();
+
             if (job.Joists == null && job.Girders == null)
             {
                 return;
@@ -721,14 +770,17 @@ namespace DESign_AutoCAD
                     tr.Commit();
                 }
             }
-        } */
+        } 
     
 
         [CommandMethod("MyCommandGroup", "DESign_CLEAR", CommandFlags.Modal)]
-        public void tcWidths_clear()
+
+        */
+
+        public void removeDesignInfo()
         {
 
-            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
@@ -774,6 +826,7 @@ namespace DESign_AutoCAD
             return text;
 
         }
+    }
 
-    } 
+
 }
