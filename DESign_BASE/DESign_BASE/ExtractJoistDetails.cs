@@ -109,6 +109,9 @@ namespace DESign_BASE
                 allGirders = allGirders.OrderBy(x => x.StrippedNumber).ToList();
                 job.Joists = allJoists;
                 job.Girders = allGirders;
+
+                oWB.Close();
+                oXL.Quit();
             }
             return job;
         }
