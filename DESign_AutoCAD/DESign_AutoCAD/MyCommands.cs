@@ -19,6 +19,10 @@ namespace DESign_AutoCAD
         [CommandMethod("MyCommandGroup", "DESIGN", CommandFlags.Modal)]
         public void Design()
         {
+
+            removeDesignInfo();
+
+
             bool addJoistTcw = false;
             bool addBoltLength = false;
             bool addGirderTcw = false;
@@ -32,9 +36,15 @@ namespace DESign_AutoCAD
                 }
             }
 
+            
+
             Job job = new Job();
 
-            job = ExtractJoistDetails.JobFromShoporderJoistDetails();
+            if (addJoistTcw || addBoltLength || addGirderTcw)
+            {
+                job = ExtractJoistDetails.JobFromShoporderJoistDetails();
+            }
+
             if (job.Joists == null && job.Girders == null)
             {
                 return;
@@ -94,7 +104,6 @@ namespace DESign_AutoCAD
                 }
             }
 
-            removeDesignInfo();
 
             foreach (var (Mark, Messages) in marksWithMessages)
             {
