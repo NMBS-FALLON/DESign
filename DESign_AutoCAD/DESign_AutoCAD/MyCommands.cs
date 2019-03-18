@@ -26,21 +26,36 @@ namespace DESign_AutoCAD
             bool addJoistTcw = false;
             bool addBoltLength = false;
             bool addGirderTcw = false;
+            bool addWeights = false;
 
             using (var dif = new DesignInfoForm())
             {
                 var result = dif.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK)
                 {
-                    (addJoistTcw, addBoltLength, addGirderTcw) = dif.Return;
+                    (addJoistTcw, addBoltLength, addGirderTcw, addWeights) = dif.Return;
                 }
             }
 
-            
+            var weightFactor = 0.02;
+
+            if (addWeights)
+            {
+                using (var addWeightPercentForm = new WeightFactorForm())
+                {
+                    var result = addWeightPercentForm.ShowDialog();
+                    if (result == System.Windows.Forms.DialogResult.OK)
+                    {
+                        weightFactor = addWeightPercentForm.WeightPercentToAdd;
+                    }
+                }
+            }
+
+
 
             Job job = new Job();
 
-            if (addJoistTcw || addBoltLength || addGirderTcw)
+            if (addJoistTcw || addBoltLength || addGirderTcw || addWeights)
             {
                 job = ExtractJoistDetails.JobFromShoporderJoistDetails();
             }
@@ -50,7 +65,7 @@ namespace DESign_AutoCAD
                 return;
             }
 
-            var joistInfoList = new List<(string Mark, int quantity, string TcWidth, int BoltSize)>();
+            var joistInfoList = new List<(string Mark, int quantity, string TcWidth, int BoltSize, double Weight)>();
 
             foreach (var joist in job.Joists)
             {
@@ -62,7 +77,7 @@ namespace DESign_AutoCAD
                 var boltSize = isMerchantBc ?
                                  System.Math.Max((short)3, (short)System.Math.Ceiling(bcVleg + 1)) :
                                  System.Math.Max((short)3, (short)System.Math.Ceiling(bcVleg + (1 - 0.078)));
-                joistInfoList.Add((mark, joist.Quantity, tcWidth, boltSize));
+                joistInfoList.Add((mark, joist.Quantity, tcWidth, boltSize, joist.WeightInLBS));
             }
 
             var joistTcWidthMajority =
@@ -83,21 +98,24 @@ namespace DESign_AutoCAD
 
             var marksWithMessages = new List<(string Mark, List<string> Messages)>();
 
-            foreach (var (Mark, Quantity, TcWidth, BoltLength) in joistInfoList)
-            {
-                var messages = new List<string>();
-                if (addJoistTcw && TcWidth != joistTcWidthMajority) { messages.Add("TCW=" + TcWidth); }
-                if (addBoltLength && BoltLength != boltLengthMajority) { messages.Add("BL=" + BoltLength); }
-                if (messages.Count != 0)
+
+            foreach (var (Mark, Quantity, TcWidth, BoltLength, Weight) in joistInfoList)
                 {
-                    marksWithMessages.Add((Mark, messages));
+                    var messages = new List<string>();
+                    if (addJoistTcw && TcWidth != joistTcWidthMajority) { messages.Add("TCW=" + TcWidth); }
+                    if (addBoltLength && BoltLength != boltLengthMajority) { messages.Add("BL=" + BoltLength); }
+                    if (addWeights) { messages.Add("WT=" + ((int)(System.Math.Ceiling(Weight * (1 + weightFactor) / 10.0) * 10.0)).ToString()); }
+                    if (messages.Count != 0)
+                    {
+                        marksWithMessages.Add((Mark, messages));
+                    }
                 }
-            }
 
             foreach (var girder in job.Girders)
             {
                 var messages = new List<string>();
                 if (addGirderTcw) { messages.Add("TCW=" + girder.TCWidth); }
+                if (addWeights) { messages.Add("WT=" + ((int)(System.Math.Ceiling(girder.WeightInLBS * (1 + weightFactor) / 10.0) * 10.0)).ToString()); }
                 if (messages.Count != 0)
                 {
                     marksWithMessages.Add((girder.Mark, messages));

@@ -19,7 +19,7 @@ namespace DESign_AutoCAD
     public partial class DesignInfoForm : Form
     {
 
-        public (bool AddJoistTcw, bool AddBoltLength, bool AddGirderTcw) Return { get; set; }
+        public (bool AddJoistTcw, bool AddBoltLength, bool AddGirderTcw, bool AddWeights) Return { get; set; }
         public DesignInfoForm()
         {
             InitializeComponent();
@@ -30,14 +30,24 @@ namespace DESign_AutoCAD
 
         }
 
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.U))
+            {
+                clbInfoSelect.Items.Add("WEIGHT");
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
         private void btnAddInfo_Click(object sender, EventArgs e)
         {
 
             var addJoistTcw = clbInfoSelect.CheckedIndices.Contains(0);
             var addJoistBoltLength = clbInfoSelect.CheckedIndices.Contains(1);
             var addGirderTcw = clbInfoSelect.CheckedIndices.Contains(2);
+            var addWeights = clbInfoSelect.CheckedIndices.Contains(3);
 
-            this.Return = (addJoistTcw, addJoistBoltLength, addGirderTcw);
+            this.Return = (addJoistTcw, addJoistBoltLength, addGirderTcw, addWeights);
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
