@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using DESign_Sales_Excel_Add_In_2.Properties;
+using DESign_Sales_Excel_Add_In.Properties;
 using Microsoft.Office.Interop.Excel;
 using Application = Microsoft.Office.Interop.Excel.Application;
 
@@ -986,6 +986,72 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 Process.Start(filePath);
             }
 
+            var mfLoads =
+                takeoff.Sequences
+                .SelectMany(s => s.Joists)
+                .Where(j => j.Notes.Where(n => n.Text.Contains("Mf =")).Count() != 0)
+                .Select(j => (Mark: j.Mark.Text,
+                              Mf: double.Parse(
+                                     j.Notes
+                                     .Where(n => n.Text.Contains("Mf ="))
+                                     .First()
+                                     .Text
+                                     .Replace("Mf = ", "")
+                                     .Replace("<lb-ft>", "")
+                                     )));
+
+            var inertiaNotes =
+                takeoff.Sequences
+                .SelectMany(s => s.Joists)
+                .Where(j => j.Notes.Where(n => Regex.IsMatch(n.Text, @"I *= *(\d+\.?\d*)")).Count() != 0)
+                .Select(j => (Mark: j.Mark.Text,
+                              I: double.Parse(
+                                  Regex.Match(
+                                     j.Notes
+                                     .Where(n => Regex.IsMatch(n.Text, @"I *= *(\d+\.?\d*)"))
+                                     .First()
+                                     .Text,
+                                     @"I *= *(\d+\.?\d*)")
+                                     .Groups[1]
+                                     .Value
+                                     )));
+            if (mfLoads.Count() != 0 || inertiaNotes.Count() != 0)
+
+            {
+                var dict = new Dictionary<string, (double Mf, double I)>();
+
+                foreach (var mfLoad in mfLoads)
+                {
+                    dict.Add(mfLoad.Mark, (mfLoad.Mf, 0.0));
+                }
+                foreach (var iNote in inertiaNotes)
+                {
+                    var mark = iNote.Mark;
+                    if (dict.ContainsKey(mark))
+                    {
+                        dict[mark] = (dict[mark].Mf, iNote.I);
+                    }
+                    else
+                    {
+                        dict.Add(mark, (0.0, iNote.I));
+                    }
+                }
+
+                var csv = "Mark,Mf,Min I\n";
+
+                foreach (var input in dict)
+                {
+                    csv = csv + string.Format("{0},{1},{2}\n", input.Key, input.Value.Mf, input.Value.I);
+                }
+                
+                var filePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\Moments.csv";
+                if (filePath.Contains("darien.shannon"))
+                {
+                    File.WriteAllText(filePath, csv);
+                }
+                
+            }
+
             return takeoff;
         }
 
@@ -1002,13 +1068,13 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             var excelPath = Path.GetTempFileName();
             File.WriteAllBytes(excelPath, Resources.BLANK_SALES_BOM);
 
-            var oXL2 = new Application();
+            var oXL2 = Globals.ThisAddIn.Application;
             var workbooks = oXL.Workbooks;
             workbook = workbooks.Open(excelPath);
             var sheets = workbook.Worksheets;
             var sheet = new Worksheet();
 
-            oXL2.Visible = false;
+            //oXL2.Visible = false;
 
 
             var sheetIndex = 6;
@@ -1182,7 +1248,6 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             Marshal.ReleaseComObject(workbook);
             Marshal.ReleaseComObject(workbooks);
             Marshal.ReleaseComObject(oWB);
-            Marshal.ReleaseComObject(oXL2);
             GC.Collect();
         }
 

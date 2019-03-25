@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using DESign_Sales_Excel_Add_In_2.Properties;
+using DESign_Sales_Excel_Add_In.Properties;
 using DESign_Sales_Excel_Add_In_2.BlueBeam;
 using DESign_Sales_Excel_Add_In_2.Worksheet_Values;
 using Microsoft.Office.Core;
@@ -80,7 +80,6 @@ namespace DESign_Sales_Excel_Add_In_2
 
             Marshal.ReleaseComObject(workbook);
             Marshal.ReleaseComObject(workbooks);
-            Marshal.ReleaseComObject(oXLTemp);
             GC.Collect();
 
             /*            var mainWindow = (System.Windows.Window)System.Windows.Application.LoadComponent(
