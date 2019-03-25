@@ -12,6 +12,7 @@ using DESign_Sales_Excel_Add_In_2.Worksheet_Values;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Tools.Ribbon;
+using DESign_Sales_Excel_Add_In;
 
 namespace DESign_Sales_Excel_Add_In_2
 {
@@ -61,8 +62,35 @@ namespace DESign_Sales_Excel_Add_In_2
 
         private void btnNewTakeoff_Click(object sender, RibbonControlEventArgs e)
         {
+
+            var takeoffType = new TakeoffType();
+
+            using (var newTakeoffForm = new NewTakeoffForm())
+            {
+                if (newTakeoffForm.ShowDialog() == DialogResult.OK)
+                {
+                    takeoffType = newTakeoffForm.TakeoffType;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
             var excelPath = Path.GetTempFileName();
-            File.WriteAllBytes(excelPath, Resources.TAKEOFF_CONCEPT);
+
+            if (takeoffType == TakeoffType.SteelOnSteel)
+            {
+                File.WriteAllBytes(excelPath, Resources.TAKEOFF_CONCEPT);
+            }
+            else if (takeoffType == TakeoffType.WoodNailer)
+            {
+                File.WriteAllBytes(excelPath, Resources.TAKEOFF_CONCEPT_WN);
+            }
+            else
+            {
+                return;
+            }
 
             var oXLTemp = Globals.ThisAddIn.Application;
             var workbooks = oXLTemp.Workbooks;

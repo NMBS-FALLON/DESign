@@ -198,6 +198,12 @@
     <Compile Include="Convert_Takeoff_Form.Designer.cs">
       <DependentUpon>Convert_Takeoff_Form.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewTakeoffForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewTakeoffForm.Designer.cs">
+      <DependentUpon>NewTakeoffForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="NMBS_Sales_Ribbon.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -214,6 +220,9 @@
     <Compile Include="Worksheet_Values\Serialize.cs" />
     <Compile Include="Worksheet_Values\Takeoff.cs" />
     <Compile Include="Worksheet_Values\UpdateCheck.cs" />
+    <EmbeddedResource Include="NewTakeoffForm.resx">
+      <DependentUpon>NewTakeoffForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="NMBS_Sales_Ribbon.resx">
       <DependentUpon>NMBS_Sales_Ribbon.cs</DependentUpon>
     </EmbeddedResource>
@@ -243,6 +252,7 @@
     </Compile>
     <None Include="Resources\BLANK SALES BOM.xlsm" />
     <None Include="Resources\TAKEOFF CONCEPT.xlsm" />
+    <None Include="Resources\TAKEOFF CONCEPT_WN.xlsm" />
     <None Include="ThisAddIn.Designer.xml">
       <DependentUpon>ThisAddIn.cs</DependentUpon>
     </None>
