@@ -29,6 +29,69 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
         public List<Sequence> Sequences { get; set; }
 
+        public Dictionary<string, (double Mf, double I)> AdditionalTakeoffInfo
+        {
+            get
+            {
+                var mfLoads =
+                    this.Sequences
+                    .SelectMany(s => s.Joists)
+                    .Where(j => j.Notes.Where(n => n.Text.Contains("Mf =")).Count() != 0)
+                    .Select(j => (Mark: j.Mark.Text,
+                                  Mf: double.Parse(
+                                         j.Notes
+                                         .Where(n => n.Text.Contains("Mf ="))
+                                         .First()
+                                         .Text
+                                         .Replace("Mf = ", "")
+                                         .Replace("<lb-ft>", "")
+                                         )));
+
+                var inertiaNotes =
+                    this.Sequences
+                    .SelectMany(s => s.Joists)
+                    .Where(j => j.Notes.Where(n => Regex.IsMatch(n.Text, @"I *= *(\d+\.?\d*)")).Count() != 0)
+                    .Select(j => (Mark: j.Mark.Text,
+                                  I: double.Parse(
+                                      Regex.Match(
+                                         j.Notes
+                                         .Where(n => Regex.IsMatch(n.Text, @"I *= *(\d+\.?\d*)"))
+                                         .First()
+                                         .Text,
+                                         @"I *= *(\d+\.?\d*)")
+                                         .Groups[1]
+                                         .Value
+                                         )));
+
+                var dict = new Dictionary<string, (double Mf, double I)>();
+
+                if (mfLoads.Count() != 0 || inertiaNotes.Count() != 0)
+
+                {
+
+
+                    foreach (var mfLoad in mfLoads)
+                    {
+                        dict.Add(mfLoad.Mark, (mfLoad.Mf, 0.0));
+                    }
+                    foreach (var iNote in inertiaNotes)
+                    {
+                        var mark = iNote.Mark;
+                        if (dict.ContainsKey(mark))
+                        {
+                            dict[mark] = (dict[mark].Mf, iNote.I);
+                        }
+                        else
+                        {
+                            dict.Add(mark, (0.0, iNote.I));
+                        }
+                    }
+                }
+
+                return dict;
+            }
+        }
+
         public Takeoff ImportTakeoff()
         {
             //
@@ -986,71 +1049,6 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 Process.Start(filePath);
             }
 
-            var mfLoads =
-                takeoff.Sequences
-                .SelectMany(s => s.Joists)
-                .Where(j => j.Notes.Where(n => n.Text.Contains("Mf =")).Count() != 0)
-                .Select(j => (Mark: j.Mark.Text,
-                              Mf: double.Parse(
-                                     j.Notes
-                                     .Where(n => n.Text.Contains("Mf ="))
-                                     .First()
-                                     .Text
-                                     .Replace("Mf = ", "")
-                                     .Replace("<lb-ft>", "")
-                                     )));
-
-            var inertiaNotes =
-                takeoff.Sequences
-                .SelectMany(s => s.Joists)
-                .Where(j => j.Notes.Where(n => Regex.IsMatch(n.Text, @"I *= *(\d+\.?\d*)")).Count() != 0)
-                .Select(j => (Mark: j.Mark.Text,
-                              I: double.Parse(
-                                  Regex.Match(
-                                     j.Notes
-                                     .Where(n => Regex.IsMatch(n.Text, @"I *= *(\d+\.?\d*)"))
-                                     .First()
-                                     .Text,
-                                     @"I *= *(\d+\.?\d*)")
-                                     .Groups[1]
-                                     .Value
-                                     )));
-            if (mfLoads.Count() != 0 || inertiaNotes.Count() != 0)
-
-            {
-                var dict = new Dictionary<string, (double Mf, double I)>();
-
-                foreach (var mfLoad in mfLoads)
-                {
-                    dict.Add(mfLoad.Mark, (mfLoad.Mf, 0.0));
-                }
-                foreach (var iNote in inertiaNotes)
-                {
-                    var mark = iNote.Mark;
-                    if (dict.ContainsKey(mark))
-                    {
-                        dict[mark] = (dict[mark].Mf, iNote.I);
-                    }
-                    else
-                    {
-                        dict.Add(mark, (0.0, iNote.I));
-                    }
-                }
-
-                var csv = "Mark,Mf,Min I\n";
-
-                foreach (var input in dict)
-                {
-                    csv = csv + string.Format("{0},{1},{2}\n", input.Key, input.Value.Mf, input.Value.I);
-                }
-                
-                var filePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\Moments.csv";
-                if (filePath.Contains("darien.shannon"))
-                {
-                    File.WriteAllText(filePath, csv);
-                }
-                
-            }
 
             return takeoff;
         }
@@ -1224,6 +1222,40 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             {
                 if (s.Name.Contains("N (") && s.Name != "N (0)") s.Copy(Type.Missing, After: workbook.Sheets["Cover"]);
                 if (s.Name.Contains("Bridging")) s.Copy(Before: workbook.Sheets["Check List"]);
+            }
+
+            //Create Additional Joist Info Tab
+
+            if (this.AdditionalTakeoffInfo.Count != 0)
+            {
+
+                Worksheet additionalTakeoffInfoSheet = workbook.Sheets["Additional Takeoff Info"];
+                additionalTakeoffInfoSheet.Visible = XlSheetVisibility.xlSheetVisible;
+                var numRows = this.AdditionalTakeoffInfo.Count + 1;
+                object[,] additionalTakeoffInfoArray = new object[numRows, 3];
+                additionalTakeoffInfoArray[0, 0] = "Mark";
+                additionalTakeoffInfoArray[0, 1] = "Mf";
+                additionalTakeoffInfoArray[0, 2] = "Min I";
+
+                var i = 0;
+                foreach (var addInfo in AdditionalTakeoffInfo)
+                {
+                    i = i + 1;
+                    additionalTakeoffInfoArray[i, 0] = addInfo.Key;
+                    additionalTakeoffInfoArray[i, 1] = addInfo.Value.Mf;
+                    additionalTakeoffInfoArray[i, 2] = addInfo.Value.I;
+                }
+
+
+                additionalTakeoffInfoSheet.Range["A1", "C" + numRows].Value2 = additionalTakeoffInfoArray;
+                additionalTakeoffInfoSheet.Copy(Before: workbook.Sheets["J (1)"]);
+
+                oXL.DisplayAlerts = false;
+                additionalTakeoffInfoSheet.Delete();
+                additionalTakeoffInfoSheet = workbook.Sheets["Additional Takeoff Info (2)"];
+                additionalTakeoffInfoSheet.Name = "Additional Takeoff Info";
+                oXL.DisplayAlerts = true;
+
             }
 
             newCover.Activate();

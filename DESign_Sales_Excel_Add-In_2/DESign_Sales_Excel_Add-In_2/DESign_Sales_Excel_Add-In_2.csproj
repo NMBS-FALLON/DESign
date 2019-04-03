@@ -220,6 +220,9 @@
     <Compile Include="Worksheet_Values\Serialize.cs" />
     <Compile Include="Worksheet_Values\Takeoff.cs" />
     <Compile Include="Worksheet_Values\UpdateCheck.cs" />
+    <EmbeddedResource Include="Convert_Takeoff_Form.resx">
+      <DependentUpon>Convert_Takeoff_Form.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="NewTakeoffForm.resx">
       <DependentUpon>NewTakeoffForm.cs</DependentUpon>
     </EmbeddedResource>

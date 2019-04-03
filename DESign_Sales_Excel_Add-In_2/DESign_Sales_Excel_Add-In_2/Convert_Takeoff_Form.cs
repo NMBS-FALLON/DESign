@@ -38,5 +38,10 @@ namespace DESign_Sales_Excel_Add_In_2
     private void dataGridSeperateSeismic_CellContentClick(object sender, DataGridViewCellEventArgs e)
     {
     }
-  }
+
+        private void Convert_Takeoff_Form_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
 }
