@@ -19,6 +19,7 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Text.RegularExpressions;
 using Ookii.Dialogs.WinForms;
+using DESign.BomTools;
 
 
 namespace DESign_BOT
@@ -106,9 +107,8 @@ namespace DESign_BOT
 
         private void btnQuickTCWidth_Click(object sender, EventArgs e)
         {
-            ExtractJoistDetails extractJoistDetails = new ExtractJoistDetails();
             Job job = new Job();
-            job = extractJoistDetails.JobFromShoporderJoistDetails();
+            job = ExtractJoistDetails.JobFromShoporderJoistDetails();
 
             Excel.Application oXL;
             Excel._Workbook oWB;
@@ -145,9 +145,8 @@ namespace DESign_BOT
 
         private void btnWoodReqFromJoistDetails_Click(object sender, EventArgs e)
         {
-            ExtractJoistDetails extractJoistDetails = new ExtractJoistDetails();
             Job job = new Job();
-            job = extractJoistDetails.JobFromShoporderJoistDetails();
+            job = ExtractJoistDetails.JobFromShoporderJoistDetails();
 
             double dblFiveInch = 0.0;
             double dblSevenInch = 0.0;
@@ -296,6 +295,38 @@ namespace DESign_BOT
 
             }
 
+        }
+
+        private void BtnGetBomNotes_Click(object sender, EventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog openBom = new System.Windows.Forms.OpenFileDialog();
+            openBom.Filter = "Excel files|*.xlsm";
+            openBom.Title = "Select BOM";
+            if (openBom.ShowDialog() == (System.Windows.Forms.DialogResult.OK))
+            {
+                var bomFilePath = openBom.FileName;
+                using (var bom = Import.GetBom(bomFilePath))
+                {
+                    var job = Import.GetJob(bom);
+                    using (var package = NotesToExcel.CreateBomInfoSheetFromJob(job))
+                    {
+                        var bomNotesSave = new VistaSaveFileDialog();
+                        bomNotesSave.Title = "Save BOM Notes";
+                        bomNotesSave.AddExtension = true;
+                        bomNotesSave.DefaultExt = "xlsx";
+                        bomNotesSave.FileName = openBom.FileName.Replace(".xlsx", "") + "_BOM Notes";
+                        if (bomNotesSave.ShowDialog() == DialogResult.OK)
+                        {
+                            using (var fs = new FileStream(bomNotesSave.FileName, FileMode.Create))
+                            {
+                                package.SaveAs(fs);
+                            }
+                        }
+
+
+                    }
+                }
+            }
         }
     }
 }

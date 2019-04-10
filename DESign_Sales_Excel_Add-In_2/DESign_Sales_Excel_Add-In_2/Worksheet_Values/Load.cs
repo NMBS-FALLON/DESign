@@ -61,7 +61,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
     public StringWithUpdateCheck Load2DistanceFt { get; set; }
     public DoubleWithUpdateCheck Load2DistanceIn { get; set; }
     public DoubleWithUpdateCheck CaseNumber { get; set; }
-    public StringWithUpdateCheck LoadNote { get; set; }
+    public StringWithUpdateCheck Reference { get; set; }
 
     public bool IsNull
     {
@@ -87,8 +87,8 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             Load2DistanceIn.IsUpdated == false &&
             CaseNumber.Value == null &&
             CaseNumber.IsUpdated == false &&
-            LoadNote.Text == null &&
-            LoadNote.IsUpdated == false)
+            Reference.Text == null &&
+            Reference.IsUpdated == false)
           isNull = true;
         else
           isNull = false;

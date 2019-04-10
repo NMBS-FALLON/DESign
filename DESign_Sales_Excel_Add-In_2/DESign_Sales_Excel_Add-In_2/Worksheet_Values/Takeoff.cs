@@ -352,7 +352,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                 Value = ToNullableDouble((string)baseTypesCells[rowCount + i, 25]),
                                 IsUpdated = isUpdated[rowCount + i - 1, 24]
                             };
-                            load.LoadNote = new StringWithUpdateCheck
+                            load.Reference = new StringWithUpdateCheck
                             { Text = (string)baseTypesCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] };
                             if (load.IsNull == false) loads.Add(load);
 
@@ -598,7 +598,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                         else
                             load.CaseNumber = new DoubleWithUpdateCheck
                             { Value = (double?)marksCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] };
-                        load.LoadNote = new StringWithUpdateCheck
+                        load.Reference = new StringWithUpdateCheck
                         { Text = (string)marksCells[rowCount + i, 27], IsUpdated = isUpdated[rowCount + i - 1, 26] };
                         if (load.IsNull == false) loads.Add(load);
 
@@ -941,6 +941,73 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                         errors += "\r\n";
                     }
                 }
+
+            // adjust load distances based on reference
+            foreach (var seq in sequences)
+            {
+                foreach (var joist in seq.Joists)
+                {
+                    var baseLength =
+                        joist.BaseLengthFt.Value == null ? 0.0 : (double)joist.BaseLengthFt.Value
+                        + (joist.BaseLengthIn.Value == null ? 0.0 : (double)joist.BaseLengthIn.Value) / 12.0;
+                    var tcxlLength =
+                        joist.TcxlLengthFt.Value == null ? 0.0 : (double)joist.TcxlLengthFt.Value
+                        + (joist.TcxlLengthIn.Value == null ? 0.0 : (double)joist.TcxlLengthIn.Value) / 12.0;
+                    var tcxrLength =
+                        joist.TcxrLengthFt.Value == null ? 0.0 : (double)joist.TcxrLengthFt.Value
+                        + (joist.TcxrLengthIn.Value == null ? 0.0 : (double)joist.TcxrLengthIn.Value) / 12.0;
+
+                   foreach (var load in joist.Loads)
+                    {
+                    
+                        if (load.Reference.Text == "RBL")
+                        {
+                            if (load.Load1DistanceFt.Text != null && load.Load1DistanceFt.Text.Contains("P"))
+                            {
+                                var numPanelPoints = int.Parse(Regex.Match(joist.DescriptionAdjusted.Text, @"\d*.?\d*[a-zA-Z]+(\d+)N").Groups[1].Value);
+                                var load1PanelPoint = int.Parse(Regex.Match(load.Load1DistanceFt.Text, @"P(\d+)").Groups[1].Value);
+                                load.Load1DistanceFt.Text = "P" + (numPanelPoints - load1PanelPoint).ToString();
+                            }
+                            else
+                            {
+                                double? currentLoad1Distance = null;
+                                if (load.Load1DistanceFt.Text != null && load.Load1DistanceFt.Text != "")
+                                {
+                                    currentLoad1Distance = 
+                                        double.Parse(load.Load1DistanceFt.Text) +
+                                        (load.Load1DistanceIn.Value == null ? 0.0 : (double)load.Load1DistanceIn.Value) / 12.0;
+                                }
+
+                                var newLoad1Distance =
+                                    currentLoad1Distance == null ? null : baseLength - currentLoad1Distance;
+                                load.Load1DistanceFt.Text = newLoad1Distance == null ? null : newLoad1Distance.ToString();
+                                load.Load1DistanceIn.Value = 0.0;
+                            }
+                            if (load.Load2DistanceFt.Text != null && load.Load2DistanceFt.Text.Contains("P"))
+                            {
+                                var numPanelPoints = int.Parse(Regex.Match(joist.DescriptionAdjusted.Text, @"\d*.?\d*[a-zA-Z]+(\d+)N").Groups[1].Value);
+                                var Load2PanelPoint = int.Parse(Regex.Match(load.Load2DistanceFt.Text, @"P(\d+)").Groups[1].Value);
+                                load.Load2DistanceFt.Text = "P" + (numPanelPoints - Load2PanelPoint).ToString();
+                            }
+                            else
+                            {
+                                double? currentLoad2Distance = null;
+                                if (load.Load2DistanceFt.Text != null && load.Load2DistanceFt.Text != "")
+                                {
+                                    currentLoad2Distance =
+                                        double.Parse(load.Load2DistanceFt.Text) +
+                                        (load.Load2DistanceIn.Value == null ? 0.0 : (double)load.Load2DistanceIn.Value) / 12.0;
+                                }
+
+                                var newLoad2Distance =
+                                    currentLoad2Distance == null ? null : baseLength - currentLoad2Distance;
+                                load.Load2DistanceFt.Text = newLoad2Distance == null ? null : newLoad2Distance.ToString();
+                                load.Load2DistanceIn.Value = 0.0;
+                            }
+                        }
+                    }
+                }
+            }
 
             foreach (var seq in sequences)
                 foreach (var joist in seq.Joists)
@@ -1368,7 +1435,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                 uDL.Load2Value = new DoubleWithUpdateCheck { Value = null };
                                 uDL.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
                                 uDL.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                                uDL.LoadNote = new StringWithUpdateCheck { Text = null };
+                                uDL.Reference = new StringWithUpdateCheck { Text = null };
                                 uDL.CaseNumber = new DoubleWithUpdateCheck { Value = 3 };
                                 joist.Loads.Add(uDL);
 
@@ -1396,7 +1463,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                 uSM.Load2Value = new DoubleWithUpdateCheck { Value = null };
                                 uSM.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
                                 uSM.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
-                                uSM.LoadNote = new StringWithUpdateCheck { Text = null };
+                                uSM.Reference = new StringWithUpdateCheck { Text = null };
                                 uSM.CaseNumber = new DoubleWithUpdateCheck { Value = 3 };
                                 joist.Loads.Add(uSM);
                             }

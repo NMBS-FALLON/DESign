@@ -433,13 +433,12 @@ namespace DESign_WordAddIn
             ExcelDataExtraction.NailerInformation nailerInfo = GetNailerInformation();
             List<string> woodLengths1 = nailerInfo.WoodLengths;
             List<string> woodWidths = new List<string>(TCs.Count);
-            DESign_BASE.QueryAngleData queryAngleData = new DESign_BASE.QueryAngleData();
             List<double> horizontalLegs = new List<double>();
 
 
             for (int i = 0; i <= TCs.Count - 1; i++)
             {
-                woodWidths.Add(queryAngleData.WNtcWidth(TCs[i]) + "\"");
+                woodWidths.Add(QueryAngleData.WNtcWidth(TCs[i]) + "\"");
             }
 
             if ((TCs.Contains("A50A28") || TCs.Contains("A48A28") || TCs.Contains("A48A29")) &&
