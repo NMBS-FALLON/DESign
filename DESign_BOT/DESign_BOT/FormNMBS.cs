@@ -328,5 +328,17 @@ namespace DESign_BOT
                 }
             }
         }
+
+        private void BtnSeperateSeismic_Click(object sender, EventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog openBom = new System.Windows.Forms.OpenFileDialog();
+            openBom.Filter = "Excel files|*.xlsm";
+            openBom.Title = "Select BOM";
+            if (openBom.ShowDialog() == (System.Windows.Forms.DialogResult.OK))
+            {
+                var bomFilePath = openBom.FileName;
+                SeismicSeperator.SeperateSeismic(bomFilePath);
+            }
+        }
     }
 }

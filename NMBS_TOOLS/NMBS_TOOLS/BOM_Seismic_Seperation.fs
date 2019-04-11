@@ -72,6 +72,8 @@ module Seperator =
     let parseObjToFloatOptionWithFailure (o: obj) =
         let result = floatOptionFromObj o
         handleResultWithFailure result
+
+
     
     module Load = 
 
@@ -325,8 +327,18 @@ module Seperator =
             Category = "CL"
             Position = "TC"
             Load1Value = this.Load * 1000.0
-            Load1DistanceFt = parseObjToFloatOptionWithFailure this.LocationFt
-            Load1DistanceIn = parseObjToFloatOptionWithFailure this.LocationIn
+            Load1DistanceFt =
+                match this.LocationFt with
+                | v when box "P" = v -> -1.0 |> Some
+                | _ -> parseObjToFloatOptionWithFailure this.LocationFt
+            Load1DistanceIn =
+                match this.LocationIn with
+                | :? string as v ->
+                    if v.Contains("#") then
+                        v.Replace("#", "") |> double |> Some
+                    else
+                        parseObjToFloatOptionWithFailure this.LocationIn
+                | _ -> parseObjToFloatOptionWithFailure this.LocationIn
             Load2Value = None
             Load2DistanceFt = None
             Load2DistanceIn = None
@@ -675,8 +687,8 @@ module Seperator =
                                 let mutable locationFt = load.Load1DistanceFt
                                 let mutable locationIn = load.Load1DistanceIn
             
-                                if (string locationFt) = "P" then
-                                    let panel = System.Int32.Parse((string locationIn).Replace("#", ""))
+                                if (locationFt) = Some -1.0 then
+                                    let panel = System.Int32.Parse((string locationIn.Value))
                                     let ft, inch = getPanelDim panel girder.GirderGeometry
                                     locationFt <- Some ft
                                     locationIn <- Some inch                   
@@ -694,7 +706,7 @@ module Seperator =
             workbook.SaveAs(title)
     
     let getAllInfo (reportPath:string) getInfoFunction modifyWorkbookFunctions =
-        let tempExcelApp = new Microsoft.Office.Interop.Excel.ApplicationClass(Visible = false)
+        let tempExcelApp = new Microsoft.Office.Interop.Excel.ApplicationClass(Visible = true)
         tempExcelApp.DisplayAlerts = false |> ignore
         tempExcelApp.AutomationSecurity = Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable |> ignore
         let workbooks = tempExcelApp.Workbooks
@@ -1134,9 +1146,9 @@ module Seperator =
 
                     let blankLoadWorksheet = bom.Worksheets.["L_A"] :?> Worksheet
                     blankLoadWorksheet.Visible <- Microsoft.Office.Interop.Excel.XlSheetVisibility.xlSheetVisible
-                    blankLoadWorksheet.Copy(bom.Worksheets.[indexOfLastLoadSheet + 1])
+                    blankLoadWorksheet.Copy(Type.Missing, bom.Worksheets.[indexOfLastLoadSheet])
                     blankLoadWorksheet.Visible <- Microsoft.Office.Interop.Excel.XlSheetVisibility.xlSheetHidden
-                    let newLoadSheet = (bom.Worksheets.[indexOfLastLoadSheet + 1]) :?> Worksheet
+                    let newLoadSheet = (bom.Worksheets.["L_A (2)"]) :?> Worksheet
                     newLoadSheet.Name <- "L (" + string(lastLoadSheetNumber + 1) + ")"
                     newLoadSheet
 
