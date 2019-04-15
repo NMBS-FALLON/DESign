@@ -448,6 +448,15 @@ namespace DESign_WordAddIn
                 throw new System.Exception();
             }
 
+            if (
+                TCs
+                .Select (tc => QueryAngleData.WNtcWidth(tc))
+                .Distinct()
+                .Count() > 1)
+            {
+                MessageBox.Show("Shop Order must be split due to TC sizes");
+                throw new System.Exception();
+            }
                         
 
 

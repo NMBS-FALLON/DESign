@@ -20,6 +20,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using System.Text.RegularExpressions;
 using Ookii.Dialogs.WinForms;
 using DESign.BomTools;
+using System.Runtime.InteropServices;
 
 
 namespace DESign_BOT
@@ -328,9 +329,9 @@ namespace DESign_BOT
                 }
             }
         }
-
         private void BtnSeperateSeismic_Click(object sender, EventArgs e)
         {
+
             System.Windows.Forms.OpenFileDialog openBom = new System.Windows.Forms.OpenFileDialog();
             openBom.Filter = "Excel files|*.xlsm";
             openBom.Title = "Select BOM";
@@ -339,6 +340,8 @@ namespace DESign_BOT
                 var bomFilePath = openBom.FileName;
                 SeismicSeperator.SeperateSeismic(bomFilePath);
             }
+
+            
         }
     }
 }
