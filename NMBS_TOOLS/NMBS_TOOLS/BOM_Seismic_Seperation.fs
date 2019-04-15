@@ -366,8 +366,8 @@ module Seperator =
         NotesString : string option
         AdditionalJoists : Load.T list
         GirderGeometry : GirderGeometry
-        LiveLoadUNO : string
-        LiveLoadSpecialNotes : Note List
+        //LiveLoadUNO : string
+        //LiveLoadSpecialNotes : Note List
         }
 
         member this.LoadNoteList =
@@ -424,15 +424,18 @@ module Seperator =
             let UDL = DL / minSpace
             UDL, DL
 
-
-        member this.SDS sds =
-            let udl, _ = this.UDL_PDL this.LiveLoadUNO this.LiveLoadSpecialNotes
+        member this.SDS sds liveLoadUNO liveLoadSpecialNotes=
+            let udl, _ = this.UDL_PDL liveLoadUNO liveLoadSpecialNotes
             let SDS = udl * 0.14 * sds
             Load.create("U", "SM", "TC", SDS,
                           None, None, None, None, None, None, [3])
 
-        member this.DeadLoads =
-            let _,dl = this.UDL_PDL this.LiveLoadUNO this.LiveLoadSpecialNotes
+        member this.PanelLocations =
+            let geom = this.GirderGeometry
+            [for i = 1 to geom.NumPanels do yield getPanelDim i geom]
+
+        member this.DeadLoads liveLoadUNO liveLoadSpecialNotes =
+            let _,dl = this.UDL_PDL liveLoadUNO liveLoadSpecialNotes
             let geom = this.GirderGeometry
             [for i = 1 to geom.NumPanels do
                 let distanceFt, distanceIn = getPanelDim i geom
@@ -441,41 +444,121 @@ module Seperator =
                                  None, None, None, None, [3]) ]
             
 
-        member this.LC3Loads (loadNotes :LoadNote list) (sds : float) =
-                let additionalJoistLoads =
-                    this.AdditionalJoists
-                    |> List.map (fun load -> {load with LoadCases = [3]})
 
-                let thisMarksLoads =
-                    loadNotes                   
-                    |> List.filter (fun note ->
-                        match this.LoadNoteList with
-                        | Some loadNoteList -> loadNoteList |> List.contains note.LoadNumber
-                        | None -> false)
-                    |> List.map (fun note -> note.Load)
-                
-                 
-                let sds_From_UDLs_And_UTLs =
-                    thisMarksLoads
-                    |> List.filter (fun load -> load.Type = "U" && (load.Category = "DL" || load.Category = "TL") && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
-                    |> List.map (fun load ->
-                        let categoryFactor = if load.Category = "DL" then 1.0 else 0.5
-                        let load1Value = 0.14 * sds * load.Load1Value * categoryFactor
-                        let load2Value =
-                            match (load.Load2Value) with
-                            | Some v -> Some (0.14 * sds * v * categoryFactor)
-                            | None -> None
-                        {load with Category = "SM"; Load1Value = load1Value; Load2Value = load2Value; LoadCases = [3]})
-                
-                let directLoadsToLC3 =
-                    thisMarksLoads
-                    |> List.filter (fun load -> load.Category <> "WL" && load.Category <> "SM" && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
-                    |> List.map (fun load -> {load with LoadCases = [3]})                 
-                
+
+        member this.Lc3and4Loads (loadNotes :LoadNote list) (sds : float) (liveLoadUNO : string) (liveLoadSpecialNotes : Note List) (inwardPressureUNO : string) (inwardPressureSpecialNotes : Note List)=
+            
+            let additionalJoistLoads =
+                this.AdditionalJoists
+                |> List.map (fun load -> {load with LoadCases = [3]})
+
+            let thisMarksLoads =
+                loadNotes                   
+                |> List.filter (fun note ->
+                    match this.LoadNoteList with
+                    | Some loadNoteList -> loadNoteList |> List.contains note.LoadNumber
+                    | None -> false)
+                |> List.map (fun note -> note.Load)
+                    
+                     
+            let sds_From_UDLs_And_UTLs =
+                thisMarksLoads
+                |> List.filter (fun load -> load.Type = "U" && (load.Category = "DL" || load.Category = "TL") && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
+                |> List.map (fun load ->
+                    let categoryFactor = if load.Category = "DL" then 1.0 else 0.5
+                    let load1Value = 0.14 * sds * load.Load1Value * categoryFactor
+                    let load2Value =
+                        match (load.Load2Value) with
+                        | Some v -> Some (0.14 * sds * v * categoryFactor)
+                        | None -> None
+                    {load with Category = "SM"; Load1Value = load1Value; Load2Value = load2Value; LoadCases = [3]})
+                    
+            let directLoadsToLC3 =
+                thisMarksLoads
+                |> List.filter (fun load -> load.Category <> "WL" && load.Category <> "IP" && load.Category <> "SM" && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
+                |> List.map (fun load -> {load with LoadCases = [3]})                 
+                    
+           
+            let size = this.GirderSize
+            let sizeAsArray = size.Split( [|"G"; "BG"; "VG"; "N"; "K"|], StringSplitOptions.RemoveEmptyEntries)
+            let load = sizeAsArray.[2]
+            let minSpace =
+                let geometry = this.GirderGeometry
+                let aSpace = geometry.A_Ft + geometry.A_In / 12.0
+                let bSpace = geometry.B_Ft + geometry.B_In / 12.0
+                let minPanelSpace = List.min (geometry.Panels |> List.map (fun geom -> geom.LengthFt + geom.LengthIn / 12.0))
+                List.min [aSpace; bSpace; minPanelSpace]
+
+            let TL = float load
+
+            let liveLoadSpecialNote =
+                match this.SpecialNoteList with
+                | Some list -> 
+                    [for liveLoadSpecialNote in liveLoadSpecialNotes do
+                         if List.contains liveLoadSpecialNote.Number list then
+                             yield liveLoadSpecialNote.Text]
+                | None -> []
+
+            let liveLoad =
+                match liveLoadSpecialNote with
+                | [] -> liveLoadUNO
+                | _ -> liveLoadSpecialNote.[0] 
+                     
+
+            let LL =
+                match liveLoad with
+                | Regex @" *[LS] *= *(\d+\.?\d*) *[Kk] *" [value] -> float value
+                | Regex @" *[LS] *= *(\d+\.?\d*) *% *" [percent] ->
+                    let fraction = float percent/100.0
+                    TL*fraction
+                | _ -> 0.0
+
+            let inwardPressureSpecialNote =
+                match this.SpecialNoteList with
+                | Some list -> 
+                    [for inwardPressureSpecialNote in inwardPressureSpecialNotes do
+                         if List.contains inwardPressureSpecialNote.Number list then
+                             yield inwardPressureSpecialNote.Text]
+                | None -> []
+
+            let inwardPressure =
+                match inwardPressureSpecialNote with
+                | [] -> inwardPressureUNO
+                | _ -> inwardPressureSpecialNote.[0] 
+                     
+
+            let IP =
+                match inwardPressure with
+                | Regex @" *IP *= *(\d+\.?\d*) *[Kk] *" [value] -> float value
+                | Regex @" *IP *= *(\d+\.?\d*) *% *" [percent] ->
+                    let fraction = float percent/100.0
+                    TL*fraction
+                | _ -> 0.0
+
+            let llPercent = LL / TL
+            let ipPercent = IP / TL
+            let dlPercent = (TL - LL) / TL
+            let TL1 = 1.0
+            let TL2 = dlPercent + 0.75*(llPercent + ipPercent)
+            let TL3 = 0.85 + ipPercent
+
+
+
+            let requiresLc4Loads = not (TL1 > TL2 || TL3 > TL2)
+
+            let liveLoads =
+                [ for panelFt, panelIn in this.PanelLocations do
+                    yield Load.create("C", "LL", "TC", LL * 1000.0, (Some panelFt), (Some panelIn), None, None, None, None, [4])]
+
+            
+            
+
+
+            let lc3Loads =
                 []
                 |> List.append sds_From_UDLs_And_UTLs
-                |> List.append [this.SDS sds]
-                |> List.append this.DeadLoads
+                |> List.append [this.SDS sds liveLoadUNO liveLoadSpecialNotes]
+                |> List.append (this.DeadLoads liveLoadUNO liveLoadSpecialNotes)
                 |> List.append additionalJoistLoads
                 |> List.append directLoadsToLC3
                 |> List.map
@@ -488,6 +571,35 @@ module Seperator =
                             | None -> None
 
                         {load with Load1Value = load1Value; Load2Value = load2Value})
+
+            let lc1ToLC4 =
+                thisMarksLoads
+                |> List.filter (fun load -> load.Category <> "SM" && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
+                |> List.filter (fun load -> load.Load1Value > 0.0)
+                |> List.map (fun load -> {load with LoadCases = [4]})   
+
+            let lc4Loads =
+                []
+                |> List.append liveLoads
+                |> List.append (this.DeadLoads liveLoadUNO liveLoadSpecialNotes)
+                |> List.append additionalJoistLoads
+                |> List.append lc1ToLC4
+                |> List.map
+                    (fun load ->
+                        let load1Value = Math.Ceiling load.Load1Value
+                        
+                        let load2Value = load.Load2Value |> Option.map Math.Ceiling
+
+                        {load with Load1Value = load1Value; Load2Value = load2Value; LoadCases = [4]})
+               
+                
+
+            if requiresLc4Loads then
+                lc4Loads
+                |> List.append lc3Loads
+            else
+               lc3Loads
+                
 
 
     type BOM = 
@@ -670,8 +782,6 @@ module Seperator =
                                 TcxrLengthIn = toDouble(string sheet1.[currentIndex, colIndex + 10])
                                 NotesString =  nullableToOption<string> sheet1.[currentIndex, colIndex + 25]
                                 AdditionalJoists = []
-                                LiveLoadUNO = ""
-                                LiveLoadSpecialNotes = []
                                 GirderGeometry = geometry
                                 }]
                 girders
@@ -696,9 +806,6 @@ module Seperator =
                     let additionalJoists = girder.AdditionalJoists |> List.append additionalLoads
                     yield {girder with AdditionalJoists = additionalJoists}]
 
-            let addLiveLoadInfoToGirders (girders: Girder list, liveLoadUNO : string, liveLoadSpecialNotes : Note list) =
-                [for girder in girders do
-                    yield {girder with LiveLoadUNO = liveLoadUNO; LiveLoadSpecialNotes = liveLoadSpecialNotes}]
                     
     let saveWorkbook (title : string) (workbook : Workbook) =
             let title = title.Replace(".xlsm", " (IMPORT).xlsm")
@@ -789,11 +896,22 @@ module Seperator =
         let isLiveLoadNote (note: string) =
                 Regex.IsMatch(note, "[LS] *= *(\d+\.?\d*) *([Kk%]) *")
 
+        
+
         let liveLoadUNO =
             let liveLoadNotes = generalNotes |> List.filter (fun note -> isLiveLoadNote note.Text)
             match liveLoadNotes with
             | [] -> "L = 0.0K"
             | _ -> liveLoadNotes.[0].Text
+
+        let isInwardPressureNote (note : string) =
+            Regex.IsMatch(note, "IP *= *(\d+\.?\d*) *([Kk%]) *")
+
+        let inwardPressureUNO =
+            let inwardPressureNotes = generalNotes |> List.filter (fun note -> isInwardPressureNote note.Text)
+            match inwardPressureNotes with
+            | [] -> "IP = 0.0K"
+            | _ -> inwardPressureNotes.[0].Text
 
         let isSlopeLoadNote (note: string) =
             Regex.IsMatch(note, "SP *: *(\d+\.?\d*)/(\d+\.?\d*)")
@@ -835,6 +953,9 @@ module Seperator =
 
         let liveLoadSpecialNotes =
             (specialNotes |> List.filter (fun note -> isLiveLoadNote note.Text))
+
+        let inwardPressureSpecialNotes =
+            (specialNotes |> List.filter (fun note -> isInwardPressureNote note.Text))
 
         
 
@@ -883,14 +1004,13 @@ module Seperator =
                     CleanBomInfo.CleanGirders.getAdditionalJoistsFromArray additionalJoistsAsArray
 
                 let girders = (CleanBomInfo.CleanGirders.addAdditionalJoistLoadsToGirders (girders, additionalJoists))
-                let girders = (CleanBomInfo.CleanGirders.addLiveLoadInfoToGirders (girders, liveLoadUNO, liveLoadSpecialNotes))
                 girders
 
-        (joists, girders, loads, SDS)
+        (joists, girders, loads, SDS, liveLoadUNO, liveLoadSpecialNotes, inwardPressureUNO, inwardPressureSpecialNotes)
 
 
     module Modifiers =
-        let seperateSeismic (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list * float) : Unit =
+        let seperateSeismic (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list * float * string * Note list * string * Note list) : Unit =
 
             bom.Unprotect()
             //for sheet in bom.Worksheets do
@@ -955,7 +1075,7 @@ module Seperator =
     *)
 
             let addLC3LoadsToLoadNotes() =
-                let joists, girders, loads, SDS = bomInfo
+                let joists, girders, loads, SDS, liveLoadUNO, liveLoadSpecialNotes, inwardPressureUNO, inwardPressureSpecialNotes = bomInfo
                 let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS) = false)
                 let joistSheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("J ("))
                 if (List.isEmpty joistSheetNames) then ()
@@ -983,7 +1103,7 @@ module Seperator =
                             else
                                 sheet.Range("AA16", "AA45").Value2 <- array.[*,array.GetLength(1)..] ///////////////////////////////////////////////////////////////////////////
 
-                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads SDS) = false)
+                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes) = false)
                 let girderWorksheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("G ("))
                 if (List.isEmpty girderWorksheetNames) then ()
                 else
@@ -1015,10 +1135,10 @@ module Seperator =
 
             let addLC3Loads() =
 
-                let joists, girders, loads, SDS = bomInfo
+                let joists, girders, loads, SDS, liveLoadUNO, liveLoadSpecialNotes, inwardPressureUNO, inwardPressureSpecialNotes = bomInfo
 
                 let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS) = false)
-                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.LC3Loads loads SDS) = false)
+                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes) = false)
 
                 let getJoistLoadArray (joist : Joist) = 
                     let loadArray =
@@ -1064,7 +1184,7 @@ module Seperator =
                 let getGirderLoadArray (girder : Girder) = 
                     let loadArray =
                         let mutable markAdded = false
-                        [for load in (girder.LC3Loads loads SDS) do
+                        [for load in (girder.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes) do
                              let refObj =
                                 match load.Ref with
                                 | Some r -> box r
@@ -1177,11 +1297,6 @@ module Seperator =
         getAllInfo bomPath getInfo [Modifiers.seperateSeismic]
 
 
-    let seperateSeismicAndAdjustSinglePitches bomPath =
-        getAllInfo bomPath getInfo [Modifiers.seperateSeismic; Modifiers.adjustSinglePitchJoists]
-
-    let adjustSinglePitchJoists bomPath =
-        getAllInfo bomPath getInfo [Modifiers.adjustSinglePitchJoists]
 
 
 
