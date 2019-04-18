@@ -14,7 +14,11 @@ module Seperator =
     open NMBS_Tools.ArrayExtensions
     open System.Text.RegularExpressions
 
-
+    type SeperatorInfo =
+        {
+            SeperateSeismic : bool
+            CheckInwardPressureOnGirders : bool
+        }
 
     let (|Regex|_|) pattern input =
             let m = Regex.Match(input, pattern)
@@ -301,17 +305,34 @@ module Seperator =
 
 
 
-        member this.LC3Loads (loadNotes :LoadNote list) sds =
-            
-            match this.UDL, (this.Sds sds) with
-            | Some udl, Some sds ->
-                loadNotes
-                |> List.filter (fun note -> this.LoadNoteList |> List.contains note.LoadNumber)
+        member this.LC3Loads (loadNotes :LoadNote list) sds (seperatorInfo : SeperatorInfo) =
+
+            let thisMarksLoads =
+                loadNotes                   
+                |> List.filter
+                    (fun note ->
+                        this.LoadNoteList |> List.contains note.LoadNumber)
                 |> List.map (fun note -> note.Load)
-                |> List.filter (fun load -> load.Category <> "WL" && load.Category <> "SM" && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
-                |> List.map (fun load -> {load with LoadCases = [3]})
-                |> List.append [udl; sds]
-            | _ -> []
+
+            let hasSeismic =
+                thisMarksLoads
+                |> Seq.exists (fun l -> l.Category = "SM" && (l.LoadCases = [] || l.LoadCases |> Seq.contains 1))
+            
+            let lc3Loads =
+                if hasSeismic && seperatorInfo.SeperateSeismic then
+                    match this.UDL, (this.Sds sds) with
+                    | Some udl, Some sds ->
+                        loadNotes
+                        |> List.filter (fun note -> this.LoadNoteList |> List.contains note.LoadNumber)
+                        |> List.map (fun note -> note.Load)
+                        |> List.filter (fun load -> load.Category <> "WL" && load.Category <> "SM" && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
+                        |> List.map (fun load -> {load with LoadCases = [3]})
+                        |> List.append [udl; sds]
+                    | _ -> []
+                else
+                    []
+            
+            lc3Loads
 
 
     type _AdditionalJoist =
@@ -446,7 +467,7 @@ module Seperator =
 
 
 
-        member this.Lc3and4Loads (loadNotes :LoadNote list) (sds : float) (liveLoadUNO : string) (liveLoadSpecialNotes : Note List) (inwardPressureUNO : string) (inwardPressureSpecialNotes : Note List)=
+        member this.Lc3and4Loads (loadNotes :LoadNote list) (sds : float) (liveLoadUNO : string) (liveLoadSpecialNotes : Note List) (inwardPressureUNO : string) (inwardPressureSpecialNotes : Note List) (seperatorInfo : SeperatorInfo)=
             
             let additionalJoistLoads =
                 this.AdditionalJoists
@@ -459,8 +480,15 @@ module Seperator =
                     | Some loadNoteList -> loadNoteList |> List.contains note.LoadNumber
                     | None -> false)
                 |> List.map (fun note -> note.Load)
+
+            let hasSeismic =
+                thisMarksLoads
+                |> Seq.exists (fun l -> l.Category = "SM" && (l.LoadCases = [] || l.LoadCases |> Seq.contains 1))
+
+            let hasUniformInwardPressure =
+                thisMarksLoads
+                |> Seq.exists (fun l -> l.Type = "U" && l.Category = "IP")
                     
-                     
             let sds_From_UDLs_And_UTLs =
                 thisMarksLoads
                 |> List.filter (fun load -> load.Type = "U" && (load.Category = "DL" || load.Category = "TL") && (load.LoadCases = [] || (load.LoadCases |> List.contains 1)))
@@ -504,14 +532,22 @@ module Seperator =
                 | [] -> liveLoadUNO
                 | _ -> liveLoadSpecialNote.[0] 
                      
-
+              
             let LL =
-                match liveLoad with
-                | Regex @" *[LS] *= *(\d+\.?\d*) *[Kk] *" [value] -> float value
-                | Regex @" *[LS] *= *(\d+\.?\d*) *% *" [percent] ->
-                    let fraction = float percent/100.0
-                    TL*fraction
-                | _ -> 0.0
+                if (hasUniformInwardPressure && seperatorInfo.CheckInwardPressureOnGirders) || (seperatorInfo.SeperateSeismic && hasSeismic) then
+                    match liveLoad with
+                    | Regex @" *[LS] *= *(\d+\.?\d*) *[Kk] *" [value] -> float value
+                    | Regex @" *[LS] *= *(\d+\.?\d*) *% *" [percent] ->
+                        let fraction = float percent/100.0
+                        TL*fraction
+                    | _ ->
+                        printfn "Mark: %s No Inward Pressure Value Found!" this.Mark
+                        printfn "Terminating script, hit [ENTER] to exit."
+                        Console.ReadLine() |> ignore
+                        failwith (sprintf "Mark: %s No Inward Pressure Value Found!" this.Mark)
+
+                else
+                    0.0
 
             let inwardPressureSpecialNote =
                 match this.SpecialNoteList with
@@ -528,12 +564,20 @@ module Seperator =
                      
 
             let IP =
-                match inwardPressure with
-                | Regex @" *IP *= *(\d+\.?\d*) *[Kk] *" [value] -> float value
-                | Regex @" *IP *= *(\d+\.?\d*) *% *" [percent] ->
-                    let fraction = float percent/100.0
-                    TL*fraction
-                | _ -> 0.0
+                if (seperatorInfo.CheckInwardPressureOnGirders && hasUniformInwardPressure) then
+                    match inwardPressure with
+                    | Regex @" *IP *= *(\d+\.?\d*) *[Kk] *" [value] -> float value
+                    | Regex @" *IP *= *(\d+\.?\d*) *% *" [percent] ->
+                        let fraction = float percent/100.0
+                        TL*fraction
+                    | _ ->
+                        printfn "Mark: %s No Inward Pressure Value Found!" this.Mark
+                        printfn "Terminating script, hit [ENTER] to exit."
+                        Console.ReadLine() |> ignore
+                        failwith (sprintf "Mark: %s No Inward Pressure Value Found!" this.Mark)
+
+                else
+                    0.0
 
             let llPercent = LL / TL
             let ipPercent = IP / TL
@@ -544,33 +588,35 @@ module Seperator =
 
 
 
-            let requiresLc4Loads = not (TL1 > TL2 || TL3 > TL2)
-
             let liveLoads =
                 [ for panelFt, panelIn in this.PanelLocations do
                     yield Load.create("C", "LL", "TC", LL * 1000.0, (Some panelFt), (Some panelIn), None, None, None, None, [4])]
 
             
             
-
+            let requiresLc3Loads = hasSeismic && seperatorInfo.SeperateSeismic
+            let requiresLc4Loads = (hasUniformInwardPressure && seperatorInfo.CheckInwardPressureOnGirders) && not (TL1 > TL2 || TL3 > TL2)
 
             let lc3Loads =
-                []
-                |> List.append sds_From_UDLs_And_UTLs
-                |> List.append [this.SDS sds liveLoadUNO liveLoadSpecialNotes]
-                |> List.append (this.DeadLoads liveLoadUNO liveLoadSpecialNotes)
-                |> List.append additionalJoistLoads
-                |> List.append directLoadsToLC3
-                |> List.map
-                    (fun load ->
-                        let load1Value = Math.Ceiling load.Load1Value
+                if requiresLc3Loads then
+                    []
+                    |> List.append sds_From_UDLs_And_UTLs
+                    |> List.append [this.SDS sds liveLoadUNO liveLoadSpecialNotes]
+                    |> List.append (this.DeadLoads liveLoadUNO liveLoadSpecialNotes)
+                    |> List.append additionalJoistLoads
+                    |> List.append directLoadsToLC3
+                    |> List.map
+                        (fun load ->
+                            let load1Value = Math.Ceiling load.Load1Value
 
-                        let load2Value =
-                            match load.Load2Value with
-                            | Some v -> Some (Math.Ceiling v)
-                            | None -> None
+                            let load2Value =
+                                match load.Load2Value with
+                                | Some v -> Some (Math.Ceiling v)
+                                | None -> None
 
-                        {load with Load1Value = load1Value; Load2Value = load2Value})
+                            {load with Load1Value = load1Value; Load2Value = load2Value})
+                else
+                    []
 
             let lc1ToLC4 =
                 thisMarksLoads
@@ -579,26 +625,25 @@ module Seperator =
                 |> List.map (fun load -> {load with LoadCases = [4]})   
 
             let lc4Loads =
-                []
-                |> List.append liveLoads
-                |> List.append (this.DeadLoads liveLoadUNO liveLoadSpecialNotes)
-                |> List.append additionalJoistLoads
-                |> List.append lc1ToLC4
-                |> List.map
-                    (fun load ->
-                        let load1Value = Math.Ceiling load.Load1Value
+                if requiresLc4Loads then
+                    []
+                    |> List.append liveLoads
+                    |> List.append (this.DeadLoads liveLoadUNO liveLoadSpecialNotes)
+                    |> List.append additionalJoistLoads
+                    |> List.append lc1ToLC4
+                    |> List.map
+                        (fun load ->
+                            let load1Value = Math.Ceiling load.Load1Value
                         
-                        let load2Value = load.Load2Value |> Option.map Math.Ceiling
+                            let load2Value = load.Load2Value |> Option.map Math.Ceiling
 
-                        {load with Load1Value = load1Value; Load2Value = load2Value; LoadCases = [4]})
+                            {load with Load1Value = load1Value; Load2Value = load2Value; LoadCases = [4]})
+                else
+                    []
                
                 
 
-            if requiresLc4Loads then
-                lc4Loads
-                |> List.append lc3Loads
-            else
-               lc3Loads
+            List.concat [lc3Loads ; lc4Loads]
                 
 
 
@@ -808,8 +853,8 @@ module Seperator =
 
                     
     let saveWorkbook (title : string) (workbook : Workbook) =
-            let title = title.Replace(".xlsm", " (IMPORT).xlsm")
-            let title = title.Replace(".xlsx", " (IMPORT).xlsx")
+            let title = title.ToUpper().Replace(".XLSM", " (IMPORT).XLSM")
+            let title = title.ToUpper().Replace(".XLSX", " (IMPORT).XLSX")
             workbook.SaveAs(title)
     
     let getAllInfo (reportPath:string) getInfoFunction modifyWorkbookFunctions =
@@ -901,7 +946,7 @@ module Seperator =
         let liveLoadUNO =
             let liveLoadNotes = generalNotes |> List.filter (fun note -> isLiveLoadNote note.Text)
             match liveLoadNotes with
-            | [] -> "L = 0.0K"
+            | [] -> ""
             | _ -> liveLoadNotes.[0].Text
 
         let isInwardPressureNote (note : string) =
@@ -910,7 +955,7 @@ module Seperator =
         let inwardPressureUNO =
             let inwardPressureNotes = generalNotes |> List.filter (fun note -> isInwardPressureNote note.Text)
             match inwardPressureNotes with
-            | [] -> "IP = 0.0K"
+            | [] -> ""
             | _ -> inwardPressureNotes.[0].Text
 
         let isSlopeLoadNote (note: string) =
@@ -1010,7 +1055,7 @@ module Seperator =
 
 
     module Modifiers =
-        let seperateSeismic (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list * float * string * Note list * string * Note list) : Unit =
+        let seperateSeismic (seperatorInfo : SeperatorInfo) (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list * float * string * Note list * string * Note list): Unit =
 
             bom.Unprotect()
             //for sheet in bom.Worksheets do
@@ -1076,7 +1121,7 @@ module Seperator =
 
             let addLC3LoadsToLoadNotes() =
                 let joists, girders, loads, SDS, liveLoadUNO, liveLoadSpecialNotes, inwardPressureUNO, inwardPressureSpecialNotes = bomInfo
-                let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS) = false)
+                let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS seperatorInfo) = false)
                 let joistSheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("J ("))
                 if (List.isEmpty joistSheetNames) then ()
                 else
@@ -1103,7 +1148,7 @@ module Seperator =
                             else
                                 sheet.Range("AA16", "AA45").Value2 <- array.[*,array.GetLength(1)..] ///////////////////////////////////////////////////////////////////////////
 
-                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes) = false)
+                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes seperatorInfo) = false)
                 let girderWorksheetNames = workSheetNames |> List.filter (fun name -> name.Contains ("G ("))
                 if (List.isEmpty girderWorksheetNames) then ()
                 else
@@ -1137,13 +1182,13 @@ module Seperator =
 
                 let joists, girders, loads, SDS, liveLoadUNO, liveLoadSpecialNotes, inwardPressureUNO, inwardPressureSpecialNotes = bomInfo
 
-                let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS) = false)
-                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes) = false)
+                let joistsWithLC3Loads = joists |> List.filter (fun joist -> List.isEmpty (joist.LC3Loads loads SDS seperatorInfo) = false)
+                let girdersWithLC3Loads = girders |> List.filter (fun girder -> List.isEmpty (girder.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes seperatorInfo) = false)
 
                 let getJoistLoadArray (joist : Joist) = 
                     let loadArray =
                         let mutable markAdded = false
-                        [for load in (joist.LC3Loads loads SDS) do
+                        [for load in (joist.LC3Loads loads SDS seperatorInfo) do
                              let refObj =
                                 match load.Ref with
                                 | Some r -> box r
@@ -1184,7 +1229,7 @@ module Seperator =
                 let getGirderLoadArray (girder : Girder) = 
                     let loadArray =
                         let mutable markAdded = false
-                        [for load in (girder.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes) do
+                        [for load in (girder.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes seperatorInfo) do
                              let refObj =
                                 match load.Ref with
                                 | Some r -> box r
@@ -1227,12 +1272,24 @@ module Seperator =
                         if List.isEmpty joistsWithLC3Loads then
                             None 
                         else
-                            Some ((joists |> List.map getJoistLoadArray) |> Array2D.joinMany (Array2D.joinByRows))
+                            joists
+                            |> List.filter
+                                (fun j ->
+                                    not (Seq.isEmpty (j.LC3Loads loads SDS seperatorInfo)))
+                            |> List.map getJoistLoadArray
+                            |> Array2D.joinMany (Array2D.joinByRows)
+                            |> Some
                     let girderLoads = 
                         if List.isEmpty girdersWithLC3Loads then
                             None
                         else
-                            Some ((girders |> List.map getGirderLoadArray) |> Array2D.joinMany (Array2D.joinByRows))
+                            girders
+                            |> List.filter
+                                (fun g ->
+                                    not (Seq.isEmpty (g.Lc3and4Loads loads SDS liveLoadUNO liveLoadSpecialNotes inwardPressureUNO inwardPressureSpecialNotes seperatorInfo)))
+                            |> List.map getGirderLoadArray
+                            |> Array2D.joinMany (Array2D.joinByRows)
+                            |> Some
                     
                     match joistLoads, girderLoads with
                         | Some joistLoads, Some girderLoads -> Array2D.joinByRows joistLoads girderLoads
@@ -1286,15 +1343,16 @@ module Seperator =
                     
 
             
-            changeSmLoadsToLC3()
+            if seperatorInfo.SeperateSeismic then
+                changeSmLoadsToLC3()
             addLC3LoadsToLoadNotes()
             addLC3Loads()
 
         let adjustSinglePitchJoists (bom : Workbook) (bomInfo : Joist list * Girder list * LoadNote list * float) : Unit =
             ()
 
-    let seperateSeismic bomPath =
-        getAllInfo bomPath getInfo [Modifiers.seperateSeismic]
+    let seperateSeismic bomPath seperatorInfo=
+        getAllInfo bomPath getInfo [Modifiers.seperateSeismic seperatorInfo]
 
 
 
