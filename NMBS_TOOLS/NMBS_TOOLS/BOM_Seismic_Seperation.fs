@@ -540,11 +540,7 @@ module Seperator =
                     | Regex @" *[LS] *= *(\d+\.?\d*) *% *" [percent] ->
                         let fraction = float percent/100.0
                         TL*fraction
-                    | _ ->
-                        printfn "Mark: %s No Inward Pressure Value Found!" this.Mark
-                        printfn "Terminating script, hit [ENTER] to exit."
-                        Console.ReadLine() |> ignore
-                        failwith (sprintf "Mark: %s No Inward Pressure Value Found!" this.Mark)
+                    | _ -> failwith (sprintf "Mark: %s No Inward Pressure Value Found!" this.Mark)
 
                 else
                     0.0
@@ -570,11 +566,7 @@ module Seperator =
                     | Regex @" *IP *= *(\d+\.?\d*) *% *" [percent] ->
                         let fraction = float percent/100.0
                         TL*fraction
-                    | _ ->
-                        printfn "Mark: %s No Inward Pressure Value Found!" this.Mark
-                        printfn "Terminating script, hit [ENTER] to exit."
-                        Console.ReadLine() |> ignore
-                        failwith (sprintf "Mark: %s No Inward Pressure Value Found!" this.Mark)
+                    | _ -> failwith (sprintf "Mark: %s No Inward Pressure Value Found!" this.Mark)
 
                 else
                     0.0

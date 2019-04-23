@@ -332,13 +332,36 @@ namespace DESign_BOT
         private void BtnSeperateSeismic_Click(object sender, EventArgs e)
         {
 
-            System.Windows.Forms.OpenFileDialog openBom = new System.Windows.Forms.OpenFileDialog();
-            openBom.Filter = "Excel files|*.xlsm";
-            openBom.Title = "Select BOM";
-            if (openBom.ShowDialog() == (System.Windows.Forms.DialogResult.OK))
+            var seperatorInfo = new DESign.BomTools.SeismicSeperator.SeperatorInfo(false, false);
+
+            using (var modifyBomForm = new ModifyBomForm())
             {
-                var bomFilePath = openBom.FileName;
-                SeismicSeperator.SeperateSeismic(bomFilePath);
+                var result = modifyBomForm.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
+                {
+                    seperatorInfo = modifyBomForm.SeperatorInfo;
+                }
+            }
+
+            if (seperatorInfo.SeperateSeismic || seperatorInfo.CheckInwardPressureOnGirders)
+            {
+                System.Windows.Forms.OpenFileDialog openBom = new System.Windows.Forms.OpenFileDialog();
+                openBom.Filter = "Excel files|*.xlsm";
+                openBom.Title = "Select BOM";
+                if (openBom.ShowDialog() == (System.Windows.Forms.DialogResult.OK))
+                {
+                    var bomFilePath = openBom.FileName;
+
+                    try
+                    {
+                        SeismicSeperator.seperateSeismic(bomFilePath, seperatorInfo);
+                    }
+                    catch (Exception exception)
+                    {
+                        MessageBox.Show(exception.Message);
+                    }
+
+                }
             }
 
             

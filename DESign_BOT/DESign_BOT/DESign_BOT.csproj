@@ -27,7 +27,7 @@
     <UpdateUrl>https://nmbsdesign.blob.core.windows.net/design-bot/</UpdateUrl>
     <ProductName>DESign BOT</ProductName>
     <PublisherName>DESign</PublisherName>
-    <ApplicationRevision>8</ApplicationRevision>
+    <ApplicationRevision>10</ApplicationRevision>
     <ApplicationVersion>2.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -75,8 +75,9 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="bom-tools">
-      <HintPath>..\..\..\bom-tools\src\bom-tools-library\bin\Release\netstandard2.0\bom-tools.dll</HintPath>
+    <Reference Include="bom-tools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\bom-tools\src\bin\Release\netstandard2.0\bom-tools.dll</HintPath>
     </Reference>
     <Reference Include="DESign_Bot_FS_Tools">
       <HintPath>..\..\DESign Bot FS Tools\DESign Bot FS Tools\bin\Debug\DESign_Bot_FS_Tools.dll</HintPath>
@@ -164,6 +165,12 @@
     <Compile Include="FormNMBS.Designer.cs">
       <DependentUpon>FormNMBS.cs</DependentUpon>
     </Compile>
+    <Compile Include="ModifyBomForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModifyBomForm.Designer.cs">
+      <DependentUpon>ModifyBomForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringManipulation.cs" />
@@ -175,6 +182,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormNMBS.resx">
       <DependentUpon>FormNMBS.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModifyBomForm.resx">
+      <DependentUpon>ModifyBomForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
