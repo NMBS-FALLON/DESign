@@ -1010,6 +1010,51 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             }
 
             foreach (var seq in sequences)
+            {
+                foreach (var joist in seq.Joists)
+                {
+                    if (joist.IsGirder)
+                    {
+                        foreach (var load in joist.Loads)
+                        {
+                            if (load.Load1DistanceFt.Text != null && load.Load1DistanceFt.Text.Contains("P"))
+                            {
+                                var panelPointNumber = int.Parse(load.Load1DistanceFt.Text.Replace("P", ""));
+                                var numPanels = int.Parse(joist.Description.Text.Split(new char[] { 'G', 'N' }, StringSplitOptions.None)[1]);
+                                var baseLengthFt =
+                                    joist.BaseLengthFt.Value == null ? 0.0 : (double)joist.BaseLengthFt.Value;
+                                var baseLengthInAsFt =
+                                    joist.BaseLengthIn.Value == null ? 0.0 : (double)joist.BaseLengthIn.Value / 12.0;
+                                var baseLength = baseLengthFt + baseLengthInAsFt;
+                                var panelSpacing = baseLength / (double)numPanels;
+                                var panelLocation = panelSpacing * panelPointNumber;
+                                var panelLocationFt = Math.Floor(panelLocation);
+                                var panelLocationIn = Math.Floor((panelLocation - panelLocationFt) * 12.0);
+                                load.Load1DistanceFt.Text = panelLocationFt.ToString();
+                                load.Load1DistanceIn.Value = panelLocationIn;
+                            }
+                            if (load.Load2DistanceFt.Text != null && load.Load2DistanceFt.Text.Contains("P"))
+                            {
+                                var panelPointNumber = int.Parse(load.Load2DistanceFt.Text.Replace("P", ""));
+                                var numPanels = int.Parse(joist.Description.Text.Split(new char[] { 'G', 'N' }, StringSplitOptions.None)[1]);
+                                var baseLengthFt =
+                                    joist.BaseLengthFt.Value == null ? 0.0 : (double)joist.BaseLengthFt.Value;
+                                var baseLengthInAsFt =
+                                    joist.BaseLengthIn.Value == null ? 0.0 : (double)joist.BaseLengthIn.Value / 12.0;
+                                var baseLength = baseLengthFt + baseLengthInAsFt;
+                                var panelSpacing = baseLength / (double)numPanels;
+                                var panelLocation = panelSpacing * panelPointNumber;
+                                var panelLocationFt = Math.Floor(panelLocation);
+                                var panelLocationIn = Math.Floor((panelLocation - panelLocationFt) * 12.0);
+                                load.Load2DistanceFt.Text = panelLocationFt.ToString();
+                                load.Load2DistanceIn.Value = panelLocationIn;
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var seq in sequences)
                 foreach (var joist in seq.Joists)
                     if (joist.isComposite)
                     {
@@ -1146,6 +1191,95 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
             var sheetCount = 0;
 
+            Worksheet blankWorkSheet = sheets["J (1)"];
+
+            Worksheet newWorksheet()
+            {
+                List<string> workSheetNames = new List<string>();
+                foreach (Worksheet workSheet in sheets)
+                {
+                    var workSheetName = workSheet.Name;
+                    workSheetNames.Add(workSheetName);
+                }
+                var lastJoistSheetNumber =
+                    workSheetNames
+                    .Where(s => s.Contains("J ("))
+                    .Max(s => int.Parse(s.Replace("J (", "").Replace(")", "")));
+
+
+                blankWorkSheet.Copy(Type.Missing, After: sheets[String.Format("J ({0})", lastJoistSheetNumber)]);
+
+                var nextJoistSheetNumber = lastJoistSheetNumber + 1;
+                return workbook.Sheets[String.Format("J ({0})", nextJoistSheetNumber)];
+
+            }
+
+
+
+            foreach (var sequence in Sequences)
+            {
+                int rowIndex = 7;
+                const int lastRowIndex = 41;
+
+                Worksheet ws = newWorksheet();
+                CellInsert(ws, 5, 3, sequence.Name.Text, sequence.Name.IsUpdated);
+                foreach (var joist in sequence.Joists)
+                {
+                    var rowsNeededForThisJoist = Math.Max(1, Math.Max(joist.Loads.Count, joist.Notes.Count));
+                    for (int i = 1; i <= rowsNeededForThisJoist; i++)
+                    {
+                        if (rowIndex > lastRowIndex)
+                        {
+                            ws = newWorksheet();
+                            CellInsert(ws, 5, 3, sequence.Name.Text, sequence.Name.IsUpdated);
+                            rowIndex = 7;
+                        }
+
+                        if (i == 1)
+                        {
+                            CellInsert(ws, rowIndex, 1, joist.Mark.Text, joist.Mark.IsUpdated);
+                            CellInsert(ws, rowIndex, 2, joist.Quantity.Value, joist.Quantity.IsUpdated);
+                            CellInsert(ws, rowIndex, 3, joist.DescriptionAdjusted.Text, joist.DescriptionAdjusted.IsUpdated);
+                            CellInsert(ws, rowIndex, 4, joist.BaseLengthFt.Value, joist.BaseLengthFt.IsUpdated);
+                            CellInsert(ws, rowIndex, 5, joist.BaseLengthIn.Value, joist.BaseLengthIn.IsUpdated);
+                            CellInsert(ws, rowIndex, 6, joist.TcxlQuantity.Value, joist.TcxlQuantity.IsUpdated);
+                            CellInsert(ws, rowIndex, 7, joist.TcxlLengthFt.Value, joist.TcxlLengthFt.IsUpdated);
+                            CellInsert(ws, rowIndex, 8, joist.TcxlLengthIn.Value, joist.TcxlLengthIn.IsUpdated);
+                            CellInsert(ws, rowIndex, 9, joist.TcxrQuantity.Value, joist.TcxrQuantity.IsUpdated);
+                            CellInsert(ws, rowIndex, 10, joist.TcxrLengthFt.Value, joist.TcxrLengthFt.IsUpdated);
+                            CellInsert(ws, rowIndex, 11, joist.TcxrLengthIn.Value, joist.TcxrLengthIn.IsUpdated);
+                            CellInsert(ws, rowIndex, 12, joist.SeatDepthLE.Value, joist.SeatDepthLE.IsUpdated);
+                            CellInsert(ws, rowIndex, 13, joist.SeatDepthRE.Value, joist.SeatDepthRE.IsUpdated);
+                            CellInsert(ws, rowIndex, 14, joist.BcxQuantity.Value, joist.BcxQuantity.IsUpdated);
+                            CellInsert(ws, rowIndex, 15, joist.Uplift.Value, joist.Uplift.IsUpdated);
+                        }
+                        if (i <= joist.Loads.Count)
+                        {
+                            var load = joist.Loads[i - 1];
+                            CellInsert(ws, rowIndex, 16, load.LoadInfoType.Text, load.LoadInfoType.IsUpdated);
+                            CellInsert(ws, rowIndex, 17, load.LoadInfoCategory.Text, load.LoadInfoCategory.IsUpdated);
+                            CellInsert(ws, rowIndex, 18, load.LoadInfoPosition.Text, load.LoadInfoPosition.IsUpdated);
+                            CellInsert(ws, rowIndex, 19, load.Load1Value.Value, load.Load1Value.IsUpdated);
+                            CellInsert(ws, rowIndex, 20, load.Load1DistanceFt.Text, load.Load1DistanceFt.IsUpdated);
+                            CellInsert(ws, rowIndex, 21, load.Load1DistanceIn.Value, load.Load1DistanceIn.IsUpdated);
+                            CellInsert(ws, rowIndex, 22, load.Load2Value.Value, load.Load2Value.IsUpdated);
+                            CellInsert(ws, rowIndex, 23, load.Load2DistanceFt.Text, load.Load2DistanceFt.IsUpdated);
+                            CellInsert(ws, rowIndex, 24, load.Load2DistanceIn.Value, load.Load2DistanceIn.IsUpdated);
+                            CellInsert(ws, rowIndex, 25, load.CaseNumber.Value, load.CaseNumber.IsUpdated);
+                        }
+                        if (i <= joist.Notes.Count)
+                        {
+                            var note = joist.Notes[i - 1];
+                            CellInsert(ws, rowIndex, 26, note.Text, note.IsUpdated);
+                        }
+                        rowIndex++;
+                    }
+                    rowIndex++;
+                }
+
+            }
+
+/*
             foreach (var sequence in Sequences)
             {
                 sheetCount++;
@@ -1235,7 +1369,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 SkipLoop:;
                 }
             }
-
+*/
 
             //COPY COVER SHEET INTO NEW TAKEOFF
             Worksheet cover = oWB.Sheets["Cover"];
@@ -1327,7 +1461,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
             newCover.Activate();
 
-            Worksheet blankWS = workbook.Sheets["J(BLANK)"];
+            Worksheet blankWS = workbook.Sheets["J (1)"];
             oXL.DisplayAlerts = false;
             blankWS.Delete();
             oXL.DisplayAlerts = true;
