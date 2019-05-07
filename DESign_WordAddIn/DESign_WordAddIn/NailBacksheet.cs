@@ -195,6 +195,7 @@ namespace DESign_WordAddIn
             string excelInitials = null;
             string excelPattern = null;
             string excelWoodThickness = null;
+            bool isPanelized = cbIsPanelized.Checked;
 
             if (checkBoxExcelData.Checked)
             {
@@ -212,6 +213,7 @@ namespace DESign_WordAddIn
                     excelInitials = excelJoistData.Initials;
                     excelPattern = excelJoistData.Pattern;
                     excelWoodThickness = excelJoistData.WoodThickness;
+                    isPanelized = excelJoistData.IsPanelized;
                 }
                 catch
                 {
@@ -415,6 +417,7 @@ namespace DESign_WordAddIn
             nailerInformation.Pattern = pattern;
             nailerInformation.Initials = initials;
             nailerInformation.WoodThickness = woodThickness;
+            nailerInformation.IsPanelized = isPanelized;
 
             return nailerInformation;
 
@@ -754,6 +757,7 @@ namespace DESign_WordAddIn
             bool areWoodLengthsEqual = StringManipulation.areStringElementsEqual(woodLengths1);
             bool areWoodWithsEqual = StringManipulation.areStringElementsEqual(woodWidths);
 
+
             if (areAsEqual && areBsEqual && areWoodLengthsEqual && areWoodWithsEqual == true)
             {
                 Word.Table tableNailBacksheetALL = Globals.ThisAddIn.Application.ActiveDocument.Tables.Add(selection.Range, 2, 7);
@@ -847,6 +851,11 @@ namespace DESign_WordAddIn
 
 
 
+            }
+
+            if (nailerInfo.IsPanelized)
+            {
+                addTextBox(selection, 382, 415, 180, 20, "Panelized Inc. - No Mid-Span Joints");
             }
 
 

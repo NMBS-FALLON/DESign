@@ -40,12 +40,14 @@
             this.tBoxScrewSpacing = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.cbWoodThickness = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.cbIsPanelized = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnCreateTable
             // 
             this.btnCreateTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCreateTable.Location = new System.Drawing.Point(27, 268);
+            this.btnCreateTable.Location = new System.Drawing.Point(26, 294);
             this.btnCreateTable.Margin = new System.Windows.Forms.Padding(2);
             this.btnCreateTable.Name = "btnCreateTable";
             this.btnCreateTable.Size = new System.Drawing.Size(84, 22);
@@ -89,9 +91,9 @@
             this.label3.Location = new System.Drawing.Point(11, 230);
             this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(54, 13);
+            this.label3.Size = new System.Drawing.Size(47, 13);
             this.label3.TabIndex = 5;
-            this.label3.Text = "DWG BY:";
+            this.label3.Text = "Dwg By:";
             // 
             // tBoxDWGBY
             // 
@@ -159,17 +161,38 @@
             this.cbWoodThickness.Size = new System.Drawing.Size(45, 21);
             this.cbWoodThickness.TabIndex = 11;
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(11, 259);
+            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(79, 13);
+            this.label6.TabIndex = 5;
+            this.label6.Text = "Panelized Job?";
+            // 
+            // cbIsPanelized
+            // 
+            this.cbIsPanelized.AutoSize = true;
+            this.cbIsPanelized.Location = new System.Drawing.Point(98, 259);
+            this.cbIsPanelized.Name = "cbIsPanelized";
+            this.cbIsPanelized.Size = new System.Drawing.Size(15, 14);
+            this.cbIsPanelized.TabIndex = 12;
+            this.cbIsPanelized.UseVisualStyleBackColor = true;
+            // 
             // FormNailBacksheet
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(473, 297);
+            this.ClientSize = new System.Drawing.Size(473, 338);
+            this.Controls.Add(this.cbIsPanelized);
             this.Controls.Add(this.cbWoodThickness);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.tBoxScrewSpacing);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.checkBoxExcelData);
             this.Controls.Add(this.tBoxDWGBY);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.tboxTolerance);
@@ -198,5 +221,7 @@
         private System.Windows.Forms.TextBox tBoxScrewSpacing;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox cbWoodThickness;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.CheckBox cbIsPanelized;
     }
 }

@@ -34,6 +34,8 @@ namespace DESign_WordAddIn
 
             private string woodThickness = "3x";
             internal string WoodThickness {  get { return woodThickness; } set { woodThickness = value;  } }
+
+            internal bool IsPanelized { get; set; }
             
         }
 
@@ -173,6 +175,9 @@ namespace DESign_WordAddIn
                     nailerInformation.Initials = Convert.ToString(oSheet.Cells[2, 3].Value2);
                     nailerInformation.Pattern = Convert.ToString(oSheet.Cells[3, 3].Value2);
                     nailerInformation.WoodThickness = isNewSheet ? Convert.ToString(oSheet.Cells[4, 3].Value2) : "3x";
+                    nailerInformation.IsPanelized =
+                        (oSheet.Cells[5, 3].Value2 == null || oSheet.Cells[5, 3].Value2 == "") ? false :
+                        (Convert.ToString(oSheet.Cells[5, 3].Value2) == "Yes" ? true : false);
 
 
                     oWB.Close(0);
