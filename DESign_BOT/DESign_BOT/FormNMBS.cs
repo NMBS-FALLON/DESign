@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using Ookii.Dialogs.WinForms;
 using DESign.BomTools;
 using System.Runtime.InteropServices;
+using System.Deployment.Application;
 
 
 namespace DESign_BOT
@@ -39,8 +40,9 @@ namespace DESign_BOT
 
         private void Form1_Load(object sender, EventArgs e)
         {
- 
-            
+            System.Version v = ApplicationDeployment.CurrentDeployment.CurrentVersion;
+            this.Text = "DESign BOT (v" + v.Revision.ToString() + ")";
+
         }
 
         public void btnCreateNewBOM_Click(object sender, EventArgs e)
