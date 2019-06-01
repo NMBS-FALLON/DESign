@@ -60,7 +60,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
     public DoubleWithUpdateCheck Load2Value { get; set; }
     public StringWithUpdateCheck Load2DistanceFt { get; set; }
     public DoubleWithUpdateCheck Load2DistanceIn { get; set; }
-    public DoubleWithUpdateCheck CaseNumber { get; set; }
+    public IntWithUpdateCheck CaseNumber { get; set; }
     public StringWithUpdateCheck Reference { get; set; }
 
     public bool IsNull
@@ -113,7 +113,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
         var isWL = LoadInfoCategory.Text == "WL" || LoadInfoCategory.Text == "WLU";
         var isNegative = Load1Value.Value < 0.0;
         var isBackedOutLoad = LoadInfoType.Text == "CP" && LoadInfoCategory.Text == "CL" && isNegative;
-        var isInLC1 = CaseNumber.Value == 1 || CaseNumber.Value == null;
+        var isInLC1 = CaseNumber.Value == null || CaseNumber.Value == 1;
 
         if (isWL == false && isNegative && isInLC1 && isBackedOutLoad == false)
           errors.Add("Non-WL negative value in LC1; Please confirm.");

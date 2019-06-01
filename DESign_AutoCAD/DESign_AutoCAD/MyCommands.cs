@@ -75,8 +75,8 @@ namespace DESign_AutoCAD
                 var bcVleg = QueryAngleData.DblVleg(bcSize);
                 var isMerchantBc = !bcSize.Contains("A");
                 var boltSize = isMerchantBc ?
-                                 System.Math.Max((short)3, (short)System.Math.Ceiling(bcVleg + 1)) :
-                                 System.Math.Max((short)3, (short)System.Math.Ceiling(bcVleg + (1 - 0.078)));
+                                 System.Math.Max((short)4, (short)System.Math.Ceiling(bcVleg + 1)) :
+                                 System.Math.Max((short)4, (short)System.Math.Ceiling(bcVleg + (1 - 0.078)));
                 joistInfoList.Add((mark, joist.Quantity, tcWidth, boltSize, joist.WeightInLBS));
             }
 

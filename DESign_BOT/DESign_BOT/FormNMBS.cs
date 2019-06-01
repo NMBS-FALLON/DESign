@@ -40,8 +40,16 @@ namespace DESign_BOT
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            System.Version v = ApplicationDeployment.CurrentDeployment.CurrentVersion;
-            this.Text = "DESign BOT (v" + v.Revision.ToString() + ")";
+            try
+            {
+                System.Version v = ApplicationDeployment.CurrentDeployment.CurrentVersion;
+                this.Text = "DESign BOT (v" + v.Revision.ToString() + ")";
+            }
+            catch
+            {
+
+            }
+            
 
         }
 

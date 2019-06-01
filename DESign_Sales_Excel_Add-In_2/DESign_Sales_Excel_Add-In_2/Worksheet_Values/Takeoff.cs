@@ -29,13 +29,13 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
         public List<Sequence> Sequences { get; set; }
 
-        public Dictionary<string, (double Mf, double I)> AdditionalTakeoffInfo
+        public Dictionary<string, (double Mf, double MinI, double TlDeflect, double LlDeflect, bool ErfoAtLe, bool ErfoAtRe, string WnSpacing)> AdditionalTakeoffInfo
         {
             get
             {
+                var joists = this.Sequences.SelectMany(s => s.Joists);
                 var mfLoads =
-                    this.Sequences
-                    .SelectMany(s => s.Joists)
+                    joists
                     .Where(j => j.Notes.Where(n => n.Text.Contains("Mf =")).Count() != 0)
                     .Select(j => (Mark: j.Mark.Text,
                                   Mf: double.Parse(
@@ -48,8 +48,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                          )));
 
                 var inertiaNotes =
-                    this.Sequences
-                    .SelectMany(s => s.Joists)
+                    joists
                     .Where(j => j.Notes.Where(n => Regex.IsMatch(n.Text, @"I *= *(\d+\.?\d*)")).Count() != 0)
                     .Select(j => (Mark: j.Mark.Text,
                                   I: double.Parse(
@@ -63,29 +62,35 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                          .Value
                                          )));
 
-                var dict = new Dictionary<string, (double Mf, double I)>();
+                var DeflectionRequirements =
+                    joists
+                    .Select(j => (Mark: j.Mark.Text,
+                                  DeflectionRequirements: GetDeflectionReq(j)));
 
-                if (mfLoads.Count() != 0 || inertiaNotes.Count() != 0)
 
+                var Erfos =
+                    joists
+                    .Select(j => (Mark: j.Mark.Text,
+                                  Erfos: GetErfos(j)));
+
+                var WoodNailer =
+                    joists
+                    .Select(j => (Mark: j.Mark.Text,
+                                  WoodNailerSpacing: j.WnSpacing.Text));
+
+
+                var allMarks = joists.Select(j => j.Mark.Text);
+
+                var dict = new Dictionary<string, (double Mf, double MinI, double TlDeflect, double LlDeflect, bool ErfoAtLe, bool ErfoAtRe, string WnSpacing)>();
+
+                foreach (var mark in allMarks)
                 {
-
-
-                    foreach (var mfLoad in mfLoads)
-                    {
-                        dict.Add(mfLoad.Mark, (mfLoad.Mf, 0.0));
-                    }
-                    foreach (var iNote in inertiaNotes)
-                    {
-                        var mark = iNote.Mark;
-                        if (dict.ContainsKey(mark))
-                        {
-                            dict[mark] = (dict[mark].Mf, iNote.I);
-                        }
-                        else
-                        {
-                            dict.Add(mark, (0.0, iNote.I));
-                        }
-                    }
+                    var mf = mfLoads.Where(v => v.Mark == mark).Any() ? mfLoads.Where(v => v.Mark == mark).First().Mf : 0.0;
+                    var minI = inertiaNotes.Where(v => v.Mark == mark).Any() ? inertiaNotes.Where(v => v.Mark == mark).First().I : 0.0;
+                    var (tlDeflect, llDeflect) = DeflectionRequirements.Where(v => v.Mark == mark).Any() ? DeflectionRequirements.Where(v => v.Mark == mark).First().DeflectionRequirements : (1.0, 1.0);
+                    var (erfoAtLe, erfoAtRe) = Erfos.Where(v => v.Mark == mark).Any() ? Erfos.Where(v => v.Mark == mark).First().Erfos : (false, false);
+                    var wnSpacing = WoodNailer.Where(v => v.Mark == mark).Any() ? WoodNailer.Where(v => v.Mark == mark).First().WoodNailerSpacing : "";
+                    dict.Add(mark, (mf, minI, tlDeflect, llDeflect, erfoAtLe, erfoAtRe, wnSpacing));
                 }
 
                 return dict;
@@ -98,6 +103,9 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             var marksWS = (_Worksheet)oWB.Worksheets["Marks"];
             var baseTypesWS = (_Worksheet)oWB.Worksheets["Base Types"];
             var cover = (_Worksheet)oWB.Worksheets["Cover"];
+
+            var isNewSheet = baseTypesWS.Range["E3"].Value != null && baseTypesWS.Range["E3"].Value.Contains("D1");
+
 
             double? sds = null;
             if (cover.Range["K12"].Value != null && cover.Range["K12"].Value.Contains("SDS")) sds = cover.Range["M12"].Value;
@@ -259,49 +267,126 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 foreach (var rowsForThisBaseType in rowsPerBaseTypeList)
                 {
                     var baseType = new BaseType();
-                    try
-                    {
+                 //   try
+                 //   {
                         baseType.Name = new StringWithUpdateCheck
                         { Text = (string)baseTypesCells[rowCount, 1], IsUpdated = isUpdated[rowCount - 1, 0] };
-                        baseType.Description = new StringWithUpdateCheck
-                        { Text = (string)baseTypesCells[rowCount, 3], IsUpdated = isUpdated[rowCount - 1, 2] };
-                        baseType.BaseLengthFt = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] };
-                        baseType.BaseLengthIn = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] };
-                        baseType.TcxlQuantity = new IntWithUpdateCheck
-                        { Value = (int?)(double?)baseTypesCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] };
-                        baseType.TcxlLengthFt = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] };
-                        baseType.TcxlLengthIn = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] };
-                        baseType.TcxrQuantity = new IntWithUpdateCheck
-                        { Value = (int?)(double?)baseTypesCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] };
-                        baseType.TcxrLengthFt = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] };
-                        baseType.TcxrLengthIn = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] };
-                        baseType.SeatDepthLE = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
-                        baseType.SeatDepthRE = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
-                        if (Convert.ToString(baseTypesCells[rowCount, 14]).ToUpper().Contains("BE"))
-                            baseType.BcxQuantity = new IntWithUpdateCheck { Value = -1, IsUpdated = isUpdated[rowCount - 1, 13] };
-                        else if (Convert.ToString(baseTypesCells[rowCount, 14]).ToUpper().Contains("1E"))
-                            baseType.BcxQuantity = new IntWithUpdateCheck { Value = -2, IsUpdated = isUpdated[rowCount - 1, 13] };
+                        baseType.Description =
+                            isNewSheet ?
+                            new StringWithUpdateCheck {  Text = "NEW SHEET" , IsUpdated = isUpdated[rowCount - 1, 34]} :
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 3], IsUpdated = isUpdated[rowCount - 1, 2] };
+                        baseType.Depth =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 3], IsUpdated = isUpdated[rowCount - 1, 2] } :
+                            new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                        baseType.Series =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] } :
+                            new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                        baseType.D1 =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] } :
+                            new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                        baseType.D2 =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] } :
+                            new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                        baseType.D3 =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] } :
+                            new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                        baseType.D4 =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] } :
+                            new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                        baseType.BaseLengthFt = 
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] }:
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] };
+                        baseType.BaseLengthIn =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] }:
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] };
+                        baseType.TcxlQuantity =
+                            isNewSheet ?
+                            new IntWithUpdateCheck { Value = null, IsUpdated = false}:
+                            new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] };
+                        baseType.TcxlLengthFt =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] }:
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] };
+                        baseType.TcxlLengthIn =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] }:
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] };
+                        baseType.TcxrQuantity =
+                            isNewSheet ?
+                            new IntWithUpdateCheck { Value = null, IsUpdated = false } :
+                            new IntWithUpdateCheck { Value = (int?)(double?)baseTypesCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] };
+                        baseType.TcxrLengthFt =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] }:
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] };
+                        baseType.TcxrLengthIn =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] }:
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] };
+                        baseType.SeatDepthLE =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] }:
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
+                        baseType.SeatDepthRE =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 16], IsUpdated = isUpdated[rowCount - 1, 15] }:
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
+
+                        baseType.BcxQuantity = new IntWithUpdateCheck { Value = null, IsUpdated = false };
+
+                        if (isNewSheet)
+                        {
+                            baseType.BcxQuantity =
+                                Convert.ToString(baseTypesCells[rowCount, 17]) == "BE" || Convert.ToString(baseTypesCells[rowCount, 17]).Contains("2") ?
+                                new IntWithUpdateCheck { Value = -1, IsUpdated = isUpdated[rowCount - 1, 16] } :
+                                new IntWithUpdateCheck { Value = null, IsUpdated = isUpdated[rowCount - 1, 16] }; 
+                        }
                         else
-                            baseType.BcxQuantity = new IntWithUpdateCheck
-                            { Value = (int?)(double?)baseTypesCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
-                        baseType.Uplift = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] };
-                        baseType.Erfos = new StringWithUpdateCheck
-                        { Text = (string)baseTypesCells[rowCount, 27], IsUpdated = isUpdated[rowCount - 1, 26] };
-                        baseType.DeflectionTL = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 28], IsUpdated = isUpdated[rowCount - 1, 27] };
-                        baseType.DeflectionLL = new DoubleWithUpdateCheck
-                        { Value = (double?)baseTypesCells[rowCount, 29], IsUpdated = isUpdated[rowCount - 1, 28] };
-                        baseType.WnSpacing = new StringWithUpdateCheck
-                        { Text = (string)baseTypesCells[rowCount, 30], IsUpdated = isUpdated[rowCount - 1, 29] };
+                        {
+                            if (Convert.ToString(baseTypesCells[rowCount, 14]).ToUpper().Contains("BE"))
+                                baseType.BcxQuantity = new IntWithUpdateCheck { Value = -1, IsUpdated = isUpdated[rowCount - 1, 13] };
+                            else if (Convert.ToString(baseTypesCells[rowCount, 14]).ToUpper().Contains("1E"))
+                                baseType.BcxQuantity = new IntWithUpdateCheck { Value = -2, IsUpdated = isUpdated[rowCount - 1, 13] };
+                            else
+                                baseType.BcxQuantity = new IntWithUpdateCheck
+                                { Value = (int?)(double?)baseTypesCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
+                        }
+
+
+
+
+                        baseType.Uplift =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = null , IsUpdated = false } :
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] };
+                        baseType.Erfos =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 18], IsUpdated = isUpdated[rowCount - 1, 17] }:
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 27], IsUpdated = isUpdated[rowCount - 1, 26] };
+                        baseType.DeflectionTL =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 19], IsUpdated = isUpdated[rowCount - 1, 18] }:
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 28], IsUpdated = isUpdated[rowCount - 1, 27] };
+                        baseType.DeflectionLL =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 20], IsUpdated = isUpdated[rowCount - 1, 19] }:
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 29], IsUpdated = isUpdated[rowCount - 1, 28] };
+                        baseType.WnSpacing =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 21], IsUpdated = isUpdated[rowCount - 1, 20] }:
+                            new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount, 30], IsUpdated = isUpdated[rowCount - 1, 29] };
+                        baseType.MinInertia =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount, 22], IsUpdated = isUpdated[rowCount - 1, 21] } :
+                            new DoubleWithUpdateCheck { Value = null, IsUpdated = false };
 
 
                         var loads = new List<Load>();
@@ -314,50 +399,121 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                 baseTypeStrings.Add(baseTypesCells[rowCount + i, 2].ToString());
 
                             var load = new Load();
-                            load.LoadInfoType = new StringWithUpdateCheck
-                            { Text = (string)baseTypesCells[rowCount + i, 16], IsUpdated = isUpdated[rowCount + i - 1, 15] };
-                            load.LoadInfoCategory = new StringWithUpdateCheck
-                            { Text = (string)baseTypesCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
-                            load.LoadInfoPosition = new StringWithUpdateCheck
-                            { Text = (string)baseTypesCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
-                            load.Load1Value = new DoubleWithUpdateCheck
-                            { Value = (double?)baseTypesCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
-                            if (baseTypesCells[rowCount + i, 20] is double)
-                                load.Load1DistanceFt = new StringWithUpdateCheck
-                                {
-                                    Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 20]),
-                                    IsUpdated = isUpdated[rowCount + i - 1, 19]
-                                };
-                            else
-                                load.Load1DistanceFt = new StringWithUpdateCheck
-                                { Text = (string)baseTypesCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
-
-                            load.Load1DistanceIn = new DoubleWithUpdateCheck
-                            { Value = (double?)baseTypesCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
-                            load.Load2Value = new DoubleWithUpdateCheck
-                            { Value = (double?)baseTypesCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
-                            if (baseTypesCells[rowCount + i, 23] is double)
-                                load.Load2DistanceFt = new StringWithUpdateCheck
-                                {
-                                    Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 23]),
-                                    IsUpdated = isUpdated[rowCount + i - 1, 22]
-                                };
-                            else
-                                load.Load2DistanceFt = new StringWithUpdateCheck
-                                { Text = (string)baseTypesCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
-                            load.Load2DistanceIn = new DoubleWithUpdateCheck
-                            { Value = (double?)baseTypesCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] };
-                            load.CaseNumber = new DoubleWithUpdateCheck
+                            load.LoadInfoType =
+                                isNewSheet ?
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] }:
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 16], IsUpdated = isUpdated[rowCount + i - 1, 15] };
+                            load.LoadInfoCategory =
+                                isNewSheet ?
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] }:
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
+                            load.LoadInfoPosition =
+                                isNewSheet ?
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] }:
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
+                            load.Load1Value =
+                                isNewSheet ?
+                                new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] }:
+                                new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                            if (isNewSheet)
                             {
-                                Value = ToNullableDouble((string)baseTypesCells[rowCount + i, 25]),
+                                if (baseTypesCells[rowCount + i, 27] is double)
+                                    load.Load1DistanceFt = new StringWithUpdateCheck
+                                    {
+                                        Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 27]),
+                                        IsUpdated = isUpdated[rowCount + i - 1, 26]
+                                    };
+                                else
+                                    load.Load1DistanceFt = new StringWithUpdateCheck
+                                    { Text = (string)baseTypesCells[rowCount + i, 27], IsUpdated = isUpdated[rowCount + i - 1, 26] };
+                            }
+                            else
+                            {
+                                if (baseTypesCells[rowCount + i, 20] is double)
+                                    load.Load1DistanceFt = new StringWithUpdateCheck
+                                    {
+                                        Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 20]),
+                                        IsUpdated = isUpdated[rowCount + i - 1, 19]
+                                    };
+                                else
+                                    load.Load1DistanceFt = new StringWithUpdateCheck
+                                    { Text = (string)baseTypesCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
+                            }
+
+                            load.Load1DistanceIn =
+                                isNewSheet ?
+                                new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 28], IsUpdated = isUpdated[rowCount + i - 1, 27] }:
+                                new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
+                            load.Load2Value =
+                                isNewSheet ?
+                                new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 29], IsUpdated = isUpdated[rowCount + i - 1, 28] }:
+                                new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                            if (isNewSheet)
+                            {
+                                if (baseTypesCells[rowCount + i, 30] is double)
+                                    load.Load2DistanceFt = new StringWithUpdateCheck
+                                    {
+                                        Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 30]),
+                                        IsUpdated = isUpdated[rowCount + i - 1, 29]
+                                    };
+                                else
+                                    load.Load2DistanceFt = new StringWithUpdateCheck
+                                    { Text = (string)baseTypesCells[rowCount + i, 30], IsUpdated = isUpdated[rowCount + i - 1, 29] };
+                            }
+                            else
+                            {
+                                if (baseTypesCells[rowCount + i, 23] is double)
+                                    load.Load2DistanceFt = new StringWithUpdateCheck
+                                    {
+                                        Text = Convert.ToString((double?)baseTypesCells[rowCount + i, 23]),
+                                        IsUpdated = isUpdated[rowCount + i - 1, 22]
+                                    };
+                                else
+                                    load.Load2DistanceFt = new StringWithUpdateCheck
+                                    { Text = (string)baseTypesCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
+                            }
+
+                            load.Load2DistanceIn =
+                                isNewSheet ?
+                                new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 31], IsUpdated = isUpdated[rowCount + i - 1, 30] }:
+                                new DoubleWithUpdateCheck { Value = (double?)baseTypesCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] };
+
+                        if (isNewSheet)
+                        {
+                            int? value = null;
+                            if (baseTypesCells[rowCount + i, 32] != null)
+                            {
+                                value = int.Parse((string)baseTypesCells[rowCount + i, 32]);
+                            }
+                            load.CaseNumber = new IntWithUpdateCheck
+                            {
+                                Value = value,
+                                IsUpdated = isUpdated[rowCount + i - 1, 31]
+                            };
+                        }
+                        else
+                        {
+                            int? value = null;
+                            if (baseTypesCells[rowCount + i, 25] != null)
+                            {
+                                value = int.Parse((string)baseTypesCells[rowCount + i, 25]);
+                            }
+                            load.CaseNumber = new IntWithUpdateCheck
+                            {
+                                Value = value,
                                 IsUpdated = isUpdated[rowCount + i - 1, 24]
                             };
-                            load.Reference = new StringWithUpdateCheck
-                            { Text = (string)baseTypesCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] };
+                        }
+                            load.Reference =
+                                isNewSheet ?
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 33], IsUpdated = isUpdated[rowCount + i - 1, 32] }:
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] };
                             if (load.IsNull == false) loads.Add(load);
 
-                            var note = new StringWithUpdateCheck
-                            { Text = (string)baseTypesCells[rowCount + i, 31], IsUpdated = isUpdated[rowCount + i - 1, 30] };
+                            var note =
+                                isNewSheet ?
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 34], IsUpdated = isUpdated[rowCount + i - 1, 33] }:
+                                new StringWithUpdateCheck { Text = (string)baseTypesCells[rowCount + i, 31], IsUpdated = isUpdated[rowCount + i - 1, 30] };
                             if (note.Text != null) notes.Add(note);
                             if (note.Text == null && note.IsUpdated) notes.Add(note);
                         }
@@ -368,8 +524,8 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
                         baseTypes.Add(baseType);
                         rowCount = rowCount + rowsForThisBaseType;
-                    }
-                    catch
+               //     }
+               /*     catch
                     {
                         if (errorMessageShown2 == false)
                         {
@@ -379,7 +535,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
     THIS MUST BE FIXED BEFORE CONVERTING THE TAKEOFF.", baseType.Name.Text));
                             errorMessageShown2 = true;
                         }
-                    }
+                    } */
                 }
             }
 
@@ -424,6 +580,15 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     if (baseType.SeatDepthRE.Value == null) baseType.SeatDepthRE = bT.SeatDepthRE;
                     if (baseType.BcxQuantity.Value == null) baseType.BcxQuantity = bT.BcxQuantity;
                     if (baseType.Uplift.Value == null) baseType.Uplift = bT.Uplift;
+                    if (baseType.Erfos.Text == null) baseType.Erfos = bT.Erfos;
+                    if (baseType.DeflectionTL.Text == null) baseType.DeflectionTL = bT.DeflectionTL;
+                    if (baseType.DeflectionLL.Text == null) baseType.DeflectionLL = bT.DeflectionLL;
+                    if (baseType.Depth.Text == null) baseType.Depth = bT.Depth;
+                    if (baseType.Series.Text == null) baseType.Series = bT.Series;
+                    if (baseType.D1.Text == null) baseType.D1 = bT.D1;
+                    if (baseType.D2.Text == null) baseType.D2 = bT.D2;
+                    if (baseType.D3.Text == null) baseType.D3 = bT.D3;
+                    if (baseType.D4.Text == null) baseType.D4 = bT.D4;
                     baseType.Loads.AddRange(bT.Loads);
                     baseType.Notes.AddRange(bT.Notes);
                 }
@@ -501,53 +666,126 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             foreach (var rowsForThisMark in rowsPerMarkList)
             {
                 var joist = new Joist();
-                try
-                {
+             //   try
+             //   {
                     joist.Mark = new StringWithUpdateCheck
-                    { Text = (string)marksCells[rowCount, 1], IsUpdated = isUpdated[rowCount - 1, 0] };
+                    { Text = Convert.ToString(marksCells[rowCount, 1]), IsUpdated = isUpdated[rowCount - 1, 0] };
                     joist.Quantity = new IntWithUpdateCheck
                     { Value = (int?)(double?)marksCells[rowCount, 3], IsUpdated = isUpdated[rowCount - 1, 2] };
-                    joist.Description = new StringWithUpdateCheck
-                    { Text = (string)marksCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] };
-                    joist.BaseLengthFt = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] };
-                    joist.BaseLengthIn = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] };
-                    joist.TcxlQuantity = new IntWithUpdateCheck
-                    { Value = (int?)(double?)marksCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] };
-                    joist.TcxlLengthFt = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] };
-                    joist.TcxlLengthIn = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] };
-                    joist.TcxrQuantity = new IntWithUpdateCheck
-                    { Value = (int?)(double?)marksCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] };
-                    joist.TcxrLengthFt = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] };
-                    joist.TcxrLengthIn = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
-                    joist.SeatDepthLE = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
-                    joist.SeatDepthRE = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
-                    if (Convert.ToString(marksCells[rowCount, 15]).ToUpper().Contains("BE"))
-                        joist.BcxQuantity = new IntWithUpdateCheck
-                        { Value = joist.Quantity.Value * 2, IsUpdated = isUpdated[rowCount - 1, 14] };
-                    else if (Convert.ToString(marksCells[rowCount, 15]).ToUpper().Contains("1E"))
-                        joist.BcxQuantity = new IntWithUpdateCheck
-                        { Value = joist.Quantity.Value, IsUpdated = isUpdated[rowCount - 1, 14] };
+                    joist.Description =
+                        isNewSheet ?
+                        new StringWithUpdateCheck { Text = "NEW SHEET", IsUpdated = false }:
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] };
+                joist.Depth =
+                        isNewSheet ?
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 4], IsUpdated = isUpdated[rowCount - 1, 3] } :
+                        new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                joist.Series =
+                    isNewSheet ?
+                    new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] } :
+                    new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                joist.D1 =
+                    isNewSheet ?
+                    new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] } :
+                    new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                joist.D2 =
+                    isNewSheet ?
+                    new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] } :
+                    new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                joist.D3 =
+                    isNewSheet ?
+                    new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] } :
+                    new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                joist.D4 =
+                    isNewSheet ?
+                    new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] } :
+                    new StringWithUpdateCheck { Text = null, IsUpdated = false };
+                joist.BaseLengthFt =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] }:
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 5], IsUpdated = isUpdated[rowCount - 1, 4] };
+                    joist.BaseLengthIn =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] }:
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 6], IsUpdated = isUpdated[rowCount - 1, 5] };
+                    joist.TcxlQuantity =
+                        isNewSheet ?
+                        new IntWithUpdateCheck { Value = null, IsUpdated = false }:
+                        new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 7], IsUpdated = isUpdated[rowCount - 1, 6] };
+                    joist.TcxlLengthFt =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] }:
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 8], IsUpdated = isUpdated[rowCount - 1, 7] };
+                    joist.TcxlLengthIn =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] }:
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 9], IsUpdated = isUpdated[rowCount - 1, 8] };
+                    joist.TcxrQuantity =
+                        isNewSheet ?
+                        new IntWithUpdateCheck { Value = null, IsUpdated = false }:
+                        new IntWithUpdateCheck { Value = (int?)(double?)marksCells[rowCount, 10], IsUpdated = isUpdated[rowCount - 1, 9] };
+                    joist.TcxrLengthFt =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] } :
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 11], IsUpdated = isUpdated[rowCount - 1, 10] };
+                    joist.TcxrLengthIn =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] }:
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 12], IsUpdated = isUpdated[rowCount - 1, 11] };
+                    joist.SeatDepthLE =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 16], IsUpdated = isUpdated[rowCount - 1, 15] }:
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 13], IsUpdated = isUpdated[rowCount - 1, 12] };
+                    joist.SeatDepthRE =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 17], IsUpdated = isUpdated[rowCount - 1, 16] }:
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 14], IsUpdated = isUpdated[rowCount - 1, 13] };
+                    if (isNewSheet)
+                    {
+                        if (Convert.ToString(marksCells[rowCount, 18]).ToUpper().Contains("BE") || Convert.ToString(marksCells[rowCount, 18]).ToUpper().Contains("2"))
+                            joist.BcxQuantity = new IntWithUpdateCheck
+                            { Value = joist.Quantity.Value * 2, IsUpdated = isUpdated[rowCount - 1, 17] };
+                        else
+                            joist.BcxQuantity = new IntWithUpdateCheck
+                            { Value = null, IsUpdated = isUpdated[rowCount - 1, 17] };
+                    }
                     else
-                        joist.BcxQuantity = new IntWithUpdateCheck
-                        { Value = (int?)(double?)marksCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] };
-                    joist.Uplift = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 16], IsUpdated = isUpdated[rowCount - 1, 15] };
-                    joist.Erfos = new StringWithUpdateCheck
-                    { Text = (string)marksCells[rowCount, 28], IsUpdated = isUpdated[rowCount - 1, 27] };
-                    joist.DeflectionTL = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 29], IsUpdated = isUpdated[rowCount - 1, 28] };
-                    joist.DeflectionLL = new DoubleWithUpdateCheck
-                    { Value = (double?)marksCells[rowCount, 30], IsUpdated = isUpdated[rowCount - 1, 29] };
-                    joist.WnSpacing = new StringWithUpdateCheck
-                    { Text = (string)marksCells[rowCount, 31], IsUpdated = isUpdated[rowCount - 1, 30] };
+                    {
+                        if (Convert.ToString(marksCells[rowCount, 15]).ToUpper().Contains("BE"))
+                            joist.BcxQuantity = new IntWithUpdateCheck
+                            { Value = joist.Quantity.Value * 2, IsUpdated = isUpdated[rowCount - 1, 14] };
+                        else if (Convert.ToString(marksCells[rowCount, 15]).ToUpper().Contains("1E"))
+                            joist.BcxQuantity = new IntWithUpdateCheck
+                            { Value = joist.Quantity.Value, IsUpdated = isUpdated[rowCount - 1, 14] };
+                        else
+                            joist.BcxQuantity = new IntWithUpdateCheck
+                            { Value = (int?)(double?)marksCells[rowCount, 15], IsUpdated = isUpdated[rowCount - 1, 14] };
+                    }
+                    joist.Uplift =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = null, IsUpdated = false}:
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 16], IsUpdated = isUpdated[rowCount - 1, 15] };
+                    joist.Erfos =
+                        isNewSheet ?
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 19], IsUpdated = isUpdated[rowCount - 1, 18] }:
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 28], IsUpdated = isUpdated[rowCount - 1, 27] };
+                    joist.DeflectionTL =
+                        isNewSheet ?
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 20], IsUpdated = isUpdated[rowCount - 1, 19] }:
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 29], IsUpdated = isUpdated[rowCount - 1, 28] };
+                    joist.DeflectionLL =
+                        isNewSheet ?
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 21], IsUpdated = isUpdated[rowCount - 1, 20] }:
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 30], IsUpdated = isUpdated[rowCount - 1, 29] };
+                    joist.WnSpacing =
+                        isNewSheet ?
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 22], IsUpdated = isUpdated[rowCount - 1, 21] } :
+                        new StringWithUpdateCheck { Text = (string)marksCells[rowCount, 31], IsUpdated = isUpdated[rowCount - 1, 30] };
+
+                    joist.MinInertia =
+                        isNewSheet ?
+                        new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount, 23], IsUpdated = isUpdated[rowCount - 1, 22]}:
+                        new DoubleWithUpdateCheck { Value = null, IsUpdated = false};
 
                     var baseTypesOnMark = new List<StringWithUpdateCheck>();
                     var loads = new List<Load>();
@@ -560,50 +798,120 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
 
                         var load = new Load();
-                        load.LoadInfoType = new StringWithUpdateCheck
-                        { Text = (string)marksCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
-                        load.LoadInfoCategory = new StringWithUpdateCheck
-                        { Text = (string)marksCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
-                        load.LoadInfoPosition = new StringWithUpdateCheck
-                        { Text = (string)marksCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
-                        load.Load1Value = new DoubleWithUpdateCheck
-                        { Value = (double?)marksCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
-                        if (marksCells[rowCount + i, 21] is double)
-                            load.Load1DistanceFt = new StringWithUpdateCheck
+                        load.LoadInfoType =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] }:
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 17], IsUpdated = isUpdated[rowCount + i - 1, 16] };
+                        load.LoadInfoCategory =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] }:
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 18], IsUpdated = isUpdated[rowCount + i - 1, 17] };
+                        load.LoadInfoPosition =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] }:
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 19], IsUpdated = isUpdated[rowCount + i - 1, 18] };
+                        load.Load1Value =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 27], IsUpdated = isUpdated[rowCount + i - 1, 26] }:
+                            new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 20], IsUpdated = isUpdated[rowCount + i - 1, 19] };
+                        if (isNewSheet)
+                        {
+                            if (marksCells[rowCount + i, 28] is double)
+                                load.Load1DistanceFt = new StringWithUpdateCheck
+                                {
+                                    Text = Convert.ToString((double?)marksCells[rowCount + i, 28]),
+                                    IsUpdated = isUpdated[rowCount + i - 1, 27]
+                                };
+                            else
+                                load.Load1DistanceFt = new StringWithUpdateCheck
+                                { Text = (string)marksCells[rowCount + i, 28], IsUpdated = isUpdated[rowCount + i - 1, 27] };
+                        }
+                        else
+                        {
+                            if (marksCells[rowCount + i, 21] is double)
+                                load.Load1DistanceFt = new StringWithUpdateCheck
+                                {
+                                    Text = Convert.ToString((double?)marksCells[rowCount + i, 21]),
+                                    IsUpdated = isUpdated[rowCount + i - 1, 20]
+                                };
+                            else
+                                load.Load1DistanceFt = new StringWithUpdateCheck
+                                { Text = (string)marksCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
+                        }
+                        load.Load1DistanceIn =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 29], IsUpdated = isUpdated[rowCount + i - 1, 28] }:
+                            new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
+                        load.Load2Value =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 30], IsUpdated = isUpdated[rowCount + i - 1, 29] }:
+                            new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
+                        if (isNewSheet)
+                        {
+                            if (marksCells[rowCount + i, 31] is double)
+                                load.Load2DistanceFt = new StringWithUpdateCheck
+                                {
+                                    Text = Convert.ToString((double?)marksCells[rowCount + i, 31]),
+                                    IsUpdated = isUpdated[rowCount + i - 1, 30]
+                                };
+                            else
+                                load.Load2DistanceFt = new StringWithUpdateCheck
+                                { Text = (string)marksCells[rowCount + i, 31], IsUpdated = isUpdated[rowCount + i - 1, 30] };
+                        }
+                        else
+                        {
+                            if (marksCells[rowCount + i, 24] is double)
+                                load.Load2DistanceFt = new StringWithUpdateCheck
+                                {
+                                    Text = Convert.ToString((double?)marksCells[rowCount + i, 24]),
+                                    IsUpdated = isUpdated[rowCount + i - 1, 23]
+                                };
+                            else
+                                load.Load2DistanceFt = new StringWithUpdateCheck
+                                { Text = (string)marksCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] };
+                        }
+                        load.Load2DistanceIn =
+                            isNewSheet ?
+                            new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 32], IsUpdated = isUpdated[rowCount + i - 1, 31] }:
+                            new DoubleWithUpdateCheck { Value = (double?)marksCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] };
+
+                        if (isNewSheet)
+                        {
+                            int? value = null;
+                            if (marksCells[rowCount + i, 33] != null)
                             {
-                                Text = Convert.ToString((double?)marksCells[rowCount + i, 21]),
-                                IsUpdated = isUpdated[rowCount + i - 1, 20]
-                            };
-                        else
-                            load.Load1DistanceFt = new StringWithUpdateCheck
-                            { Text = (string)marksCells[rowCount + i, 21], IsUpdated = isUpdated[rowCount + i - 1, 20] };
-                        load.Load1DistanceIn = new DoubleWithUpdateCheck
-                        { Value = (double?)marksCells[rowCount + i, 22], IsUpdated = isUpdated[rowCount + i - 1, 21] };
-                        load.Load2Value = new DoubleWithUpdateCheck
-                        { Value = (double?)marksCells[rowCount + i, 23], IsUpdated = isUpdated[rowCount + i - 1, 22] };
-                        if (marksCells[rowCount + i, 21] is double)
-                            load.Load2DistanceFt = new StringWithUpdateCheck
+                                value = int.Parse((string)marksCells[rowCount + i, 33]);
+                            }
+                            load.CaseNumber = new IntWithUpdateCheck
                             {
-                                Text = Convert.ToString((double?)marksCells[rowCount + i, 24]),
-                                IsUpdated = isUpdated[rowCount + i - 1, 23]
+                                Value = value,
+                                IsUpdated = isUpdated[rowCount + i - 1, 32]
                             };
+                        }
                         else
-                            load.Load2DistanceFt = new StringWithUpdateCheck
-                            { Text = (string)marksCells[rowCount + i, 24], IsUpdated = isUpdated[rowCount + i - 1, 23] };
-                        load.Load2DistanceIn = new DoubleWithUpdateCheck
-                        { Value = (double?)marksCells[rowCount + i, 25], IsUpdated = isUpdated[rowCount + i - 1, 24] };
-                        if (marksCells[rowCount + i, 26] is string)
-                            load.CaseNumber = new DoubleWithUpdateCheck
-                            { Value = Convert.ToDouble(marksCells[rowCount + i, 26]), IsUpdated = isUpdated[rowCount + i - 1, 25] };
-                        else
-                            load.CaseNumber = new DoubleWithUpdateCheck
-                            { Value = (double?)marksCells[rowCount + i, 26], IsUpdated = isUpdated[rowCount + i - 1, 25] };
-                        load.Reference = new StringWithUpdateCheck
-                        { Text = (string)marksCells[rowCount + i, 27], IsUpdated = isUpdated[rowCount + i - 1, 26] };
+                        {
+                            int? value = null;
+                            if (marksCells[rowCount + i, 26] != null)
+                            {
+                                value = int.Parse((string)marksCells[rowCount + i, 26]);
+                            }
+                            load.CaseNumber = new IntWithUpdateCheck
+                            {
+                                Value = value,
+                                IsUpdated = isUpdated[rowCount + i - 1, 25]
+                            };
+                        }
+
+                        load.Reference =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 34], IsUpdated = isUpdated[rowCount + i - 1, 33] }:
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 27], IsUpdated = isUpdated[rowCount + i - 1, 26] };
                         if (load.IsNull == false) loads.Add(load);
 
-                        var note = new StringWithUpdateCheck
-                        { Text = (string)marksCells[rowCount + i, 32], IsUpdated = isUpdated[rowCount + i - 1, 31] };
+                        var note =
+                            isNewSheet ?
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 35], IsUpdated = isUpdated[rowCount + i - 1, 34] }:
+                            new StringWithUpdateCheck { Text = (string)marksCells[rowCount + i, 32], IsUpdated = isUpdated[rowCount + i - 1, 31] };
                         if (note.Text != null) notes.Add(note);
                         if (note.Text == null && note.IsUpdated) notes.Add(note);
                     }
@@ -615,8 +923,8 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
                     joistLines.Add(joist);
                     rowCount = rowCount + rowsForThisMark;
-                }
-                catch
+              //  }
+              /*  catch
                 {
                     if (errorMessageShown == false)
                     {
@@ -626,7 +934,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
     THIS MUST BE FIXED BEFORE CONVERTING THE TAKEOFF.", joist.Mark.Text));
                         errorMessageShown = true;
                     }
-                }
+                } */
             }
 
             //Seperate Sequences
@@ -735,7 +1043,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
                         foreach (var bT in matchedBaseType)
                             //ADD VALUES    ???DO I NEED TO CHECK ANYTHING THAT MAY BE UPDATED??? IF SO HOW TO IMPLEMENT?
-                            AddBaseType(joist, bT);
+                            AddBaseType(joist, bT, isNewSheet);
                     }
                     //ADD BASETYPES DESIGNATED [ALL], [ALL J] (ALL JOISTS), & [ALL G] (ALL GIRDERS). 
 
@@ -777,27 +1085,27 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
 
                     if (all.Any())
                         foreach (var bT1 in all)
-                            AddBaseType(joist, DeepClone(bT1));
+                            AddBaseType(joist, DeepClone(bT1), isNewSheet);
 
                     if (allJoist.Any() && joist.IsGirder == false)
                         foreach (var bT1 in allJoist)
-                            AddBaseType(joist, DeepClone(bT1));
+                            AddBaseType(joist, DeepClone(bT1), isNewSheet);
 
                     if (allGirder.Any() && joist.IsGirder)
                         foreach (var bT1 in allGirder)
-                            AddBaseType(joist, DeepClone(bT1));
+                            AddBaseType(joist, DeepClone(bT1), isNewSheet);
 
                     if (allSequence.Any())
                         foreach (var bT1 in allSequence)
-                            AddBaseType(joist, DeepClone(bT1));
+                            AddBaseType(joist, DeepClone(bT1), isNewSheet);
 
                     if (allJoistSequence.Any() && joist.IsGirder == false)
                         foreach (var bT1 in allJoistSequence)
-                            AddBaseType(joist, DeepClone(bT1));
+                            AddBaseType(joist, DeepClone(bT1), isNewSheet);
 
                     if (allGirderSequence.Any() && joist.IsGirder)
                         foreach (var bT1 in allGirderSequence)
-                            AddBaseType(joist, DeepClone(bT1));
+                            AddBaseType(joist, DeepClone(bT1), isNewSheet);
                 }
 
             // Checks:
@@ -1059,7 +1367,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                     if (joist.isComposite)
                     {
                         var moment = 0.0;
-                        var loadsInCase1 = joist.Loads.Where(l => l.CaseNumber.Value == null || l.CaseNumber.Value == 1.0);
+                        var loadsInCase1 = joist.Loads.Where(l => l.CaseNumber.Value == null || l.CaseNumber.Value == 1);
                         foreach (var load in loadsInCase1)
                         {
                             var factor = 1.0;
@@ -1154,7 +1462,40 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                         { Text = string.Format("Mf = {0:F0}<lb-ft>", moment), IsUpdated = false });
                     }
 
-            if (errors != "")
+            foreach (var seq in sequences)
+            {
+                var (typicalWnSpacing, typicalTlDeflect, typicalLlDeflect) = GetTypicalValues(sequences);
+                foreach (var joist in seq.Joists)
+                {
+                    var inertiaNote = joist.MinInertia.Value == null || joist.MinInertia.Value == 0.0 ? "" : String.Format("MIN I = {0}", joist.MinInertia.Value);
+                    var erfoNote = joist.Erfos.HasNoText ? "" : String.Format("ERFOS @ {0}", joist.Erfos.Text);
+                    var wnSpacingNote =
+                        joist.WnSpacing.HasNoText == false && joist.WnSpacing.Text != typicalWnSpacing ?
+                        String.Format("SCREW SPACING = {0}", joist.WnSpacing.Text) :
+                        "";
+                    var (tlDeflection, llDeflection) = GetDeflectionReq(joist);
+                    var tlDeflectNote =
+                        tlDeflection != 1.0 && (typicalTlDeflect != "" && tlDeflection != double.Parse(typicalTlDeflect)) ?
+                        String.Format("TL DEFLECT = {0}", tlDeflection) :
+                        "";
+                    var llDeflectNote =
+                        llDeflection != 1.0 && (typicalLlDeflect != "" && llDeflection != double.Parse(typicalLlDeflect)) ?
+                        String.Format("LL DEFLECT = {0}", llDeflection) :
+                        "";
+
+
+
+                    if (inertiaNote != "") { joist.Notes.Add(new StringWithUpdateCheck { Text = inertiaNote, IsUpdated = joist.MinInertia.IsUpdated }); }
+                    if (erfoNote != "") { joist.Notes.Add(new StringWithUpdateCheck { Text = erfoNote, IsUpdated = joist.Erfos.IsUpdated }); }
+                    if (wnSpacingNote != "") { joist.Notes.Add(new StringWithUpdateCheck { Text = wnSpacingNote, IsUpdated = joist.WnSpacing.IsUpdated }); }
+                    if (tlDeflectNote != "") { joist.Notes.Add(new StringWithUpdateCheck { Text = tlDeflectNote, IsUpdated = joist.DeflectionTL.IsUpdated }); }
+                    if (llDeflectNote != "") { joist.Notes.Add(new StringWithUpdateCheck { Text = llDeflectNote, IsUpdated = joist.DeflectionLL.IsUpdated }); }
+                }
+            }
+                
+
+
+                    if (errors != "")
             {
                 var filePath = Path.GetTempPath() + "Errors.txt";
                 File.WriteAllText(filePath, "Takeoff Errors:\r\n\r\n" + errors);
@@ -1215,7 +1556,6 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             }
 
 
-
             foreach (var sequence in Sequences)
             {
                 int rowIndex = 7;
@@ -1265,7 +1605,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                             CellInsert(ws, rowIndex, 22, load.Load2Value.Value, load.Load2Value.IsUpdated);
                             CellInsert(ws, rowIndex, 23, load.Load2DistanceFt.Text, load.Load2DistanceFt.IsUpdated);
                             CellInsert(ws, rowIndex, 24, load.Load2DistanceIn.Value, load.Load2DistanceIn.IsUpdated);
-                            CellInsert(ws, rowIndex, 25, load.CaseNumber.Value, load.CaseNumber.IsUpdated);
+                            CellInsert(ws, rowIndex, 25, load.CaseNumber.Value , load.CaseNumber.IsUpdated);
                         }
                         if (i <= joist.Notes.Count)
                         {
@@ -1384,6 +1724,13 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             Worksheet newCover = workbook.Sheets["Cover (2)"];
             newCover.Name = "Cover";
 
+            //input typical values
+            var (typicalWnSpacing, typicalTlDeflection, typicalLlDeflection) = GetTypicalValues(Sequences);
+
+            CellInsert(newCover, 8, 13, typicalWnSpacing, false);
+            CellInsert(newCover, 9, 13, typicalLlDeflection, false);
+            CellInsert(newCover, 9, 17, typicalTlDeflection, false);
+
             var bridgingRow = 39;
             var columnIndex = 0;
             Bridging = Bridging.Where(br => !(br.Size == "" && br.HorX == "" && br.PlanFeet == 0.0)).ToList();
@@ -1433,22 +1780,24 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                 Worksheet additionalTakeoffInfoSheet = workbook.Sheets["Additional Takeoff Info"];
                 additionalTakeoffInfoSheet.Visible = XlSheetVisibility.xlSheetVisible;
                 var numRows = this.AdditionalTakeoffInfo.Count + 1;
-                object[,] additionalTakeoffInfoArray = new object[numRows, 3];
-                additionalTakeoffInfoArray[0, 0] = "Mark";
-                additionalTakeoffInfoArray[0, 1] = "Mf";
-                additionalTakeoffInfoArray[0, 2] = "Min I";
+                object[,] additionalTakeoffInfoArray = new object[numRows - 1, 8];
 
                 var i = 0;
                 foreach (var addInfo in AdditionalTakeoffInfo)
                 {
-                    i = i + 1;
                     additionalTakeoffInfoArray[i, 0] = addInfo.Key;
                     additionalTakeoffInfoArray[i, 1] = addInfo.Value.Mf;
-                    additionalTakeoffInfoArray[i, 2] = addInfo.Value.I;
+                    additionalTakeoffInfoArray[i, 2] = addInfo.Value.MinI;
+                    additionalTakeoffInfoArray[i, 3] = addInfo.Value.TlDeflect;
+                    additionalTakeoffInfoArray[i, 4] = addInfo.Value.LlDeflect;
+                    additionalTakeoffInfoArray[i, 5] = addInfo.Value.ErfoAtLe;
+                    additionalTakeoffInfoArray[i, 6] = addInfo.Value.ErfoAtRe;
+                    additionalTakeoffInfoArray[i, 7] = addInfo.Value.WnSpacing;
+                    i = i + 1;
                 }
 
 
-                additionalTakeoffInfoSheet.Range["A1", "C" + numRows].Value2 = additionalTakeoffInfoArray;
+                additionalTakeoffInfoSheet.Range["A2", "H" + numRows].Value2 = additionalTakeoffInfoArray;
                 additionalTakeoffInfoSheet.Copy(Before: workbook.Sheets["J (1)"]);
 
                 oXL.DisplayAlerts = false;
@@ -1570,7 +1919,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                 uDL.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
                                 uDL.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
                                 uDL.Reference = new StringWithUpdateCheck { Text = null };
-                                uDL.CaseNumber = new DoubleWithUpdateCheck { Value = 3 };
+                                uDL.CaseNumber = new IntWithUpdateCheck { Value = 3 };
                                 joist.Loads.Add(uDL);
 
                                 //ADD JOIST U SM 
@@ -1598,7 +1947,7 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
                                 uSM.Load2DistanceFt = new StringWithUpdateCheck { Text = null };
                                 uSM.Load2DistanceIn = new DoubleWithUpdateCheck { Value = null };
                                 uSM.Reference = new StringWithUpdateCheck { Text = null };
-                                uSM.CaseNumber = new DoubleWithUpdateCheck { Value = 3 };
+                                uSM.CaseNumber = new IntWithUpdateCheck { Value = 3 };
                                 joist.Loads.Add(uSM);
                             }
                             else
@@ -1623,14 +1972,44 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             }
         }
 
-        private void AddBaseType(Joist joist, BaseType bT1)
+        private void AddBaseType(Joist joist, BaseType bT1, bool isNewSheet)
         {
-            if (joist.Description.Text != null && bT1.Description.Text != null)
-                joist.AddError("Base Type description interferes with original; using original ");
-            if (joist.Description.Text == null && bT1.Description.Text != null) joist.Description = bT1.Description;
+            bool Empty (string s) { return s == null || s == ""; }
+            if (isNewSheet == false)
+            {
+                if (joist.Description.Text != null && joist.Description.Text != "" && bT1.Description.Text != null && bT1.Description.Text != "")
+                    joist.AddError("Base Type 'Description' interferes with original; using original ");
+                if (joist.Description.Text == null && bT1.Description.Text != null) joist.Description = bT1.Description;
+            }
+
+            if (joist.Depth.Text != null && joist.Depth.Text != "" && bT1.Depth.Text != null && bT1.Depth.Text != "")
+                joist.AddError("Base Type 'Depth' interferes with original; using original ");
+            if ((joist.Depth.Text == null || joist.Depth.Text == "") && (bT1.Depth.Text != null || bT1.Depth.Text != "")) joist.Depth = bT1.Depth;
+
+            if (joist.Series.Text != null && joist.Series.Text != "" && bT1.Series.Text != null && bT1.Series.Text != "")
+                joist.AddError("Base Type 'Series' interferes with original; using original ");
+            if ((joist.Series.Text == null || joist.Series.Text == "") && (bT1.Series.Text != null || bT1.Series.Text != "")) joist.Series = bT1.Series;
+
+            if (joist.D1.Text != null && joist.D1.Text != "" && bT1.D1.Text != null && bT1.D1.Text != "")
+                joist.AddError("Base Type 'D1' interferes with original; using original ");
+            if ((joist.D1.Text == null || joist.D1.Text == "") && (bT1.D1.Text != null || bT1.D1.Text != "")) joist.D1 = bT1.D1;
+
+            if (joist.D2.Text != null && joist.D2.Text != "" && bT1.D2.Text != null && bT1.D2.Text != "")
+                joist.AddError("Base Type 'D2' interferes with original; using original ");
+            if ((joist.D2.Text == null || joist.D2.Text == "") && (bT1.D2.Text != null || bT1.D2.Text != "")) joist.D2 = bT1.D2;
+
+            if (joist.D3.Text != null && joist.D3.Text != "" && bT1.D3.Text != null && bT1.D3.Text != "")
+                joist.AddError("Base Type 'D3' interferes with original; using original ");
+            if ((joist.D3.Text == null || joist.D3.Text == "") && (bT1.D3.Text != null || bT1.D3.Text != "")) joist.D3 = bT1.D3;
+
+            if (joist.D4.Text != null && joist.D4.Text != "" && bT1.D4.Text != null && bT1.D4.Text != "")
+                joist.AddError("Base Type 'D4' interferes with original; using original ");
+            if ((joist.D4.Text == null || joist.D4.Text == "") && (bT1.D4.Text != null || bT1.D4.Text != "")) joist.D4 = bT1.D4;
+
             if (joist.BaseLengthFt.Value != null && bT1.BaseLengthFt.Value != null)
                 joist.AddError("Base Type base length ft. interferes with original; using original ");
             if (joist.BaseLengthFt.Value == null && bT1.BaseLengthFt.Value != null) joist.BaseLengthFt = bT1.BaseLengthFt;
+
             if (joist.BaseLengthIn.Value != null && bT1.BaseLengthIn.Value != null)
                 joist.AddError("Base Type base length in. interferes with original; using original ");
             if (joist.BaseLengthIn.Value == null && bT1.BaseLengthIn.Value != null) joist.BaseLengthIn = bT1.BaseLengthIn;
@@ -1664,18 +2043,16 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             if (joist.Uplift.Value != null && bT1.Uplift.Value != null)
                 joist.AddError("Base Type uplift interferes with original; using original ");
             if (joist.Uplift.Value == null && bT1.Uplift.Value != null) joist.Uplift = bT1.Uplift;
-            if (joist.Erfos.Text != null && bT1.Erfos.Text != null)
-                joist.AddError("Base Type erfos interferes with original; using original ");
-            if (joist.Erfos.Text == null && bT1.Erfos.Text != null) joist.Erfos = bT1.Erfos;
-            if (joist.DeflectionTL.Value != null && bT1.DeflectionTL.Value != null)
-                joist.AddError("Base Type TL deflection interferes with original; using original ");
-            if (joist.DeflectionTL.Value == null && bT1.DeflectionTL.Value != null) joist.DeflectionTL = bT1.DeflectionTL;
-            if (joist.DeflectionLL.Value != null && bT1.DeflectionLL.Value != null)
-                joist.AddError("Base Type LL deflection interferes with original; using original ");
-            if (joist.DeflectionLL.Value == null && bT1.DeflectionLL.Value != null) joist.DeflectionLL = bT1.DeflectionLL;
-            if (joist.WnSpacing.Text != null && bT1.WnSpacing.Text != null)
-                joist.AddError("Base Type WN spacing interferes with original; using original ");
-            if (joist.WnSpacing.Text == null && bT1.WnSpacing.Text != null) joist.WnSpacing = bT1.WnSpacing;
+
+            if (Empty(joist.Erfos.Text) && !Empty(bT1.Erfos.Text)) joist.Erfos = bT1.Erfos;
+
+            if (Empty(joist.DeflectionTL.Text) && !Empty(bT1.DeflectionTL.Text)) joist.DeflectionTL = bT1.DeflectionTL;
+
+            if (Empty(joist.DeflectionLL.Text ) && !Empty(bT1.DeflectionLL.Text)) joist.DeflectionLL = bT1.DeflectionLL;
+
+            if (Empty(joist.WnSpacing.Text)  && !Empty(bT1.WnSpacing.Text)) joist.WnSpacing = bT1.WnSpacing;
+
+            if (joist.MinInertia.Value == null && bT1.MinInertia.Value != null) joist.MinInertia = bT1.MinInertia;
 
 
             //ADD THE LOADS
@@ -1731,6 +2108,100 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
             }
 
             marksSheet.get_Range("A6", "C" + lastUsedRow).Value2 = array;
+        }
+
+        (double TlDeflecitonReq, double LlDeflectionReq) GetDeflectionReq(Joist joist)
+        {
+            double getDeflectionReq_(string deflectionString, double baseLength)
+            {
+                var criteriaList = deflectionString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                for (var i = 0; i < criteriaList.Length; i++)
+                {
+                    var criteria = criteriaList[i];
+                    if (criteria.Contains("\""))
+                    {
+                        var inchValue = double.Parse(criteria.Replace("\"", ""));
+                        var deflectionReq = baseLength / inchValue;
+                        criteriaList[i] = deflectionReq.ToString();
+                    }
+                }
+
+                var criteriaListAsDouble = criteriaList.Select(value => double.Parse(value));
+                var requirement = criteriaListAsDouble.Any() ? criteriaListAsDouble.Max() : 1.0;
+                return requirement;
+            }
+
+            var percentLiveLoad = 0.6;
+            if (joist.IsGirder && !joist.D3.HasNoText)
+            {
+                var totalLoad = double.Parse(joist.D2.Text);
+                var liveLoad = double.Parse(joist.D3.Text);
+                percentLiveLoad = Math.Max(0.6, liveLoad / totalLoad);
+            }
+
+            var baseLengthFt = joist.BaseLengthFt.Value == null ? 0.0 : (double)joist.BaseLengthFt.Value;
+            var baseLengthIn = joist.BaseLengthIn.Value == null ? 0.0 : (double)joist.BaseLengthIn.Value;
+
+            var baseLengthInInches = baseLengthFt * 12.0 + baseLengthIn;
+
+            var tlDeflectionString = joist.DeflectionTL.Text == null ? "" : joist.DeflectionTL.Text;
+            var llDeflectionString = joist.DeflectionLL.Text == null ? "" : joist.DeflectionLL.Text;
+
+            var tlDeflectionReq = getDeflectionReq_(tlDeflectionString, baseLengthInInches);
+            var llDeflectionReq = getDeflectionReq_(llDeflectionString, baseLengthInInches) * (percentLiveLoad / 0.6);
+            return (tlDeflectionReq, llDeflectionReq);
+
+        }
+
+        (string TypicalWnSpacing, string TypicalTlDeflect, string TypicalLlDeflect) GetTypicalValues (List<Sequence> sequences)
+        {
+            var joists = sequences.SelectMany(s => s.Joists);
+            string getWnSpacing (Joist joist)
+            {
+                return joist.WnSpacing.HasNoText ? "" : joist.WnSpacing.Text;
+            }
+
+            var groupedAndOrderedWnSpacing =
+                joists
+                .GroupBy(j => getWnSpacing(j))
+                .OrderByDescending(s => s.Count());
+            var typicalWnSpacing = groupedAndOrderedWnSpacing.Any() ? groupedAndOrderedWnSpacing.First().Key : "";
+
+            var groupedAndOrderedTlDeflect =
+                joists
+                .GroupBy(j => GetDeflectionReq(j).TlDeflecitonReq)
+                .OrderByDescending(s => s.Count());
+            var typicalTlDefletion = groupedAndOrderedTlDeflect.Any() ? groupedAndOrderedTlDeflect.First().Key.ToString() : "";
+
+            var groupedAndOrderLlDeflect =
+                joists
+                .GroupBy(j => GetDeflectionReq(j).LlDeflectionReq)
+                .OrderByDescending(s => s.Count());
+            var typicalLlDeflect = groupedAndOrderLlDeflect.Any() ? groupedAndOrderLlDeflect.First().Key.ToString() : "";
+
+            return (typicalWnSpacing, typicalTlDefletion, typicalLlDeflect);
+
+        }
+
+
+
+        (bool ErfoAtLe, bool ErfoAtRe) GetErfos(Joist joist)
+        {
+            var erfoString = joist.Erfos.Text == null ? "" : joist.Erfos.Text;
+            if (erfoString == "LE")
+            {
+                return (true, false);
+            }
+            if (erfoString == "RE")
+            {
+                return (false, true);
+            }
+            if (erfoString == "BE")
+            {
+                return (true, true);
+            }
+            return (false, false);
         }
 
         public class Sequence

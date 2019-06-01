@@ -28,11 +28,45 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
     public List<StringWithUpdateCheck> BaseTypesOnMark { get; set; }
     public IntWithUpdateCheck Quantity { get; set; }
 
-    public StringWithUpdateCheck Description
+    public StringWithUpdateCheck Depth { get; set; }
+    public StringWithUpdateCheck Series { get; set; }
+    public StringWithUpdateCheck D1 { get; set; }
+    public StringWithUpdateCheck D2 { get; set; }
+    public StringWithUpdateCheck D3 { get; set; }
+    public StringWithUpdateCheck D4 { get; set; }
+
+        public StringWithUpdateCheck Description
     {
       get
       {
         var newDescription = DeepClone(description);
+        if (newDescription.Text == "NEW SHEET")
+                {
+                    newDescription.IsUpdated = Depth.IsUpdated || Series.IsUpdated || D1.IsUpdated || D2.IsUpdated || D3.IsUpdated || D4.IsUpdated;
+                    
+                    var depth = Depth.Text == null ? "": Depth.Text;
+                    var series = Series.Text == null ? "": Series.Text;
+                    if (series == "*") { series = "G";  }
+                    if (series == "+") { series = "K"; }
+                    if (series == "-") { series = "LH";  }
+                    if (series.Contains("G"))
+                    {
+                        var d1 = D1.Text == null ? "" : D1.Text;
+                        var d2 = D2.Text == null ? "" : D2.Text;
+                        var d3 = D3.Text == null ? "" : D3.Text;
+                        var d4 = D4.Text == null ? "" : D4.Text;
+                        var extra1 = d3 != "" ? "/" : "";
+                        newDescription.Text = depth + series + d1 + "N" + d2 + extra1 + d3 + "K" + d4;
+                    }
+                    else
+                    {
+                        var d1 = D1.Text == null ? "" : D1.Text;
+                        var d2 = D2.Text == null ? "" : D2.Text;
+                        var extra1 = d2 != "" ? "/" : "";
+                        newDescription.Text = depth + series + d1 + extra1 + d2;
+                    }
+                    
+                }
         if (newDescription.Text != null && newDescription.Text.Contains("<"))
         {
           string[] seperators = {"<", ">", "-"};
@@ -148,9 +182,11 @@ namespace DESign_Sales_Excel_Add_In_2.Worksheet_Values
     public DoubleWithUpdateCheck Uplift { get; set; }
     public List<Load> Loads { get; set; }
     public StringWithUpdateCheck Erfos { get; set; }
-    public DoubleWithUpdateCheck DeflectionTL { get; set; }
-    public DoubleWithUpdateCheck DeflectionLL { get; set; }
+    public StringWithUpdateCheck DeflectionTL { get; set; }
+    public StringWithUpdateCheck DeflectionLL { get; set; }
     public StringWithUpdateCheck WnSpacing { get; set; }
+
+    public DoubleWithUpdateCheck MinInertia { get; set; }
     public List<StringWithUpdateCheck> Notes { get; set; }
 
     public bool IsGirder
