@@ -804,12 +804,17 @@ namespace DESign_WordAddIn
                     }
                 }
 
-                if (thisJoistSeatInfo.TC == "3028" || thisJoistSeatInfo.TC == "3031")
+                if (thisJoistSeatInfo.TC == "3025" || thisJoistSeatInfo.TC == "3028" || thisJoistSeatInfo.TC == "3031")
                 {
 
                     if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * 3.0) + 3.001 && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * 3.0) + 3.001)
                     {
                         thisHCSeatInfo.buttedSeat = true;
+                        if (thisJoistSeatInfo.TC == "3025")
+                        {
+                            thisHCSeatInfo.HCMaterial = "3025";
+                            diffInHCandTC = 0;
+                        }
                         if (thisJoistSeatInfo.TC == "3028")
                         {
                             thisHCSeatInfo.HCMaterial = "3028";
@@ -827,6 +832,7 @@ namespace DESign_WordAddIn
                     {
                         thisHCSeatInfo.buttedSeat = true;
                         thisHCSeatInfo.HCMaterial = "3528";
+                        if (thisJoistSeatInfo.TC == "3025") { diffInHCandTC = 1; }
                         if (thisJoistSeatInfo.TC == "3028") { diffInHCandTC = 0; }
                         if (thisJoistSeatInfo.TC == "3031") { diffInHCandTC = -1; }
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * 3.0) / 12.0);
@@ -835,6 +841,7 @@ namespace DESign_WordAddIn
                     else
                     {
                         thisHCSeatInfo.HCMaterial = thisJoistSeatInfo.TC;
+                        if (thisJoistSeatInfo.TC == "3025") { diffInHCandTC = 0; }
                         if (thisJoistSeatInfo.TC == "3028") { diffInHCandTC = 0; }
                         if (thisJoistSeatInfo.TC == "3031") { diffInHCandTC = -1; }
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor*3.0) / 12.0 - 0.25 / 12.0);

@@ -608,7 +608,7 @@ namespace DESign_BOT
 
             nucorBOMdata = classExtractBOMData.NucorBOMJoistInfo();
 
-            if (nucorBOMdata[0].Count() != 0)
+            if (nucorBOMdata[0].Count() > 0 || nucorBOMdata[1].Count > 0)
             {
                 
 
