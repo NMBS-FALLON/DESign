@@ -12,7 +12,7 @@ using DESign_BOT;
 using DESign_BASE;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
-using DESign_Bot_FS_Tools;
+//using DESign_Bot_FS_Tools;
 using System.IO;
 using System.IO.Packaging;
 using DocumentFormat.OpenXml.Packaging;
@@ -224,6 +224,7 @@ namespace DESign_BOT
 
         }
 
+        /*
         private void button4_Click_1(object sender, EventArgs e)
         {
             string reportPath = "";
@@ -244,7 +245,7 @@ namespace DESign_BOT
                 MessageBox.Show("No BOM Selected");
             }
         }
-
+        */
         private void btnSeqSummaryFromShopOrders_Click(object sender, EventArgs e)
         {
 
