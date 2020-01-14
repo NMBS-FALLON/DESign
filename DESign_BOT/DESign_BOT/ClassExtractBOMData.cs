@@ -64,20 +64,28 @@ namespace DESign_BOT
                     Excel.Sheets sheet = oWB.Worksheets;
 
                     Excel.Worksheet worksheet = null;
-               
+
+                    int visibleSheetCount = 0;
+
+                    
 
 
                     List<int> joistWorksheetIndices = new List<int>();
 
                     for (int i = 1; i <= oWB.Sheets.Count; i++)
                     {
-                        worksheet = (Excel.Worksheet)sheet.get_Item(i);
-                        object workSheetTitle = worksheet.get_Range("AS1", Missing.Value).Value2;
-                        string workSheetTitleString = (workSheetTitle ?? String.Empty).ToString();
-                        if (workSheetTitleString.ToUpper().Contains("JOIST") && workSheetTitleString.Contains("BILL") == true)
+                        try
                         {
-                            joistWorksheetIndices.Add(i);
+                            worksheet = (Excel.Worksheet)sheet.get_Item(i);
+                            object workSheetTitle = worksheet.get_Range("AS1", Missing.Value).Value2;
+                            string workSheetTitleString = (workSheetTitle ?? String.Empty).ToString();
+                            if (workSheetTitleString.ToUpper().Contains("JOIST") && workSheetTitleString.Contains("BILL") == true)
+                            {
+                                joistWorksheetIndices.Add(i);
+                            }
                         }
+                        catch { }
+                        
                     }
 
 
@@ -213,13 +221,17 @@ namespace DESign_BOT
 
                     for (int i = 1; i <= oWB.Sheets.Count; i++)
                     {
-                        worksheet = (Excel.Worksheet)sheet.get_Item(i);
-                        object workSheetTitle = worksheet.get_Range("AQ1", Missing.Value).Value2;
-                        string workSheetTitleString = (workSheetTitle ?? String.Empty).ToString();
-                        if (workSheetTitleString.ToUpper().Contains("GIRDER") && workSheetTitleString.Contains("BILL") == true)
+                        try
                         {
-                            girderWorksheetIndices.Add(i);
+                            worksheet = (Excel.Worksheet)sheet.get_Item(i);
+                            object workSheetTitle = worksheet.get_Range("AQ1", Missing.Value).Value2;
+                            string workSheetTitleString = (workSheetTitle ?? String.Empty).ToString();
+                            if (workSheetTitleString.ToUpper().Contains("GIRDER") && workSheetTitleString.Contains("BILL") == true)
+                            {
+                                girderWorksheetIndices.Add(i);
+                            }
                         }
+                        catch { }
                     }
 
 
@@ -297,11 +309,20 @@ namespace DESign_BOT
 
                                 object netUpliftPLF = girderSheetMultiArray[j + 26, 9];
 
+                                
+
 
                                 double dblNetUpliftPLF = 0;
                                 if (netUpliftPLF != null | (netUpliftPLF ?? String.Empty).ToString() != "")
                                 {
-                                    dblNetUpliftPLF = Convert.ToDouble(netUpliftPLF);
+                                    try
+                                    {
+                                        dblNetUpliftPLF = Convert.ToDouble(netUpliftPLF);
+                                    }
+                                    catch
+                                    {
+                                        MessageBox.Show("Net Uplift is not in the correct form on mark " + (mark?.ToString()) + ". The converter will continue without net uplift on this mark but the user must fix the net uplift on this mark once it is complete");
+                                    }
                                 }
 
                                 string hyphenJoistSpace = null;
@@ -335,8 +356,12 @@ namespace DESign_BOT
                                     if (dblUpliftInKip != 0 | dblUpliftInKip != 0.0)
                                     {
                                         stringUpliftInKip = Convert.ToString(dblUpliftInKip);
-                                    }
+                                    } 
+                                }
 
+                                if (hyphenJoistSpace == null && dblNetUpliftPLF != null && dblNetUpliftPLF != 0.0)
+                                {
+                                    MessageBox.Show("Mark " + mark?.ToString() + " has a net uplift but does not include a panel 'Space'. The converter will continue without net uplift on this mark but the user must fix the net uplift on this mark once it is complete.");
                                 }
 
                                 string stringDesignation = (girderSheetMultiArray[j, 15] ?? String.Empty).ToString()

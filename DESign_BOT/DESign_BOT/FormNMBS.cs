@@ -56,12 +56,12 @@ namespace DESign_BOT
         public void btnCreateNewBOM_Click(object sender, EventArgs e)
         {
             labelProgramState.Text = "Select file & hold; this could take several minutes";
-            try { 
+           // try { 
                   classInsertBOMData.createNMBSBOM3();
                   labelProgramState.Text = "Process complete";
                  
-                }
-            catch { labelProgramState.Text = "Sorry, there was an issue"; }
+           //     }
+           // catch { labelProgramState.Text = "Sorry, there was an issue"; }
             
 
         }
