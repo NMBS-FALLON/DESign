@@ -154,7 +154,7 @@ namespace DESign_WordAddIn
                 tboxB[i] = tboxBs;
             }
 
-            tboxTolerance.Text = "1/2";
+            tboxTolerance.Text = "";
 
             comboBoxNailPlacement.DrawMode = System.Windows.Forms.DrawMode.Normal;
 
@@ -980,6 +980,11 @@ namespace DESign_WordAddIn
             selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
             selection.HomeKey(Word.WdUnits.wdStory);
             selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+        }
+
+        private void tboxTolerance_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

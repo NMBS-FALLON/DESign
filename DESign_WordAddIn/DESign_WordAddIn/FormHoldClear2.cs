@@ -347,6 +347,8 @@ namespace DESign_WordAddIn
                     currentJoistSeatInfo = new JoistSeatInfo();
                     currentJoistSeatInfo.tcxL = StringManipulation.hyphenLengthToDecimal(tcxLineArray[1]);
                     currentJoistSeatInfo.tcxR = StringManipulation.hyphenLengthToDecimal(tcxLineArray[3]);
+                    currentJoistSeatInfo.ota = StringManipulation.hyphenLengthToDecimal(tcxLineArray[2]);
+                    currentJoistSeatInfo.oal = StringManipulation.hyphenLengthToDecimal(tcxLineArray[0]);
                     currentJoistSeatInfo.clearLeft = StringManipulation.hyphenLengthToDecimal(clearLineArray[0]);
                     currentJoistSeatInfo.clearRight = StringManipulation.hyphenLengthToDecimal(clearLineArray[1]);
                     selection.Find.Execute("BPL-L");
@@ -426,6 +428,8 @@ namespace DESign_WordAddIn
                     currentJoistSeatInfo = new JoistSeatInfo();
                     currentJoistSeatInfo.tcxL = StringManipulation.hyphenLengthToDecimal(tcxLineArray[1]);
                     currentJoistSeatInfo.tcxR = StringManipulation.hyphenLengthToDecimal(tcxLineArray[3]);
+                    currentJoistSeatInfo.ota = StringManipulation.hyphenLengthToDecimal(tcxLineArray[2]);
+                    currentJoistSeatInfo.oal = StringManipulation.hyphenLengthToDecimal(tcxLineArray[0]);
                     currentJoistSeatInfo.clearLeft = StringManipulation.hyphenLengthToDecimal(clearLineArray[0]);
                     currentJoistSeatInfo.clearRight = StringManipulation.hyphenLengthToDecimal(clearLineArray[1]);
                     selection.Find.Execute("BPL-L");
@@ -508,6 +512,8 @@ namespace DESign_WordAddIn
                     currentJoistSeatInfo = new JoistSeatInfo();
                     currentJoistSeatInfo.tcxL = StringManipulation.hyphenLengthToDecimal(tcxLineArray[1]);
                     currentJoistSeatInfo.tcxR = StringManipulation.hyphenLengthToDecimal(tcxLineArray[3]);
+                    currentJoistSeatInfo.ota = StringManipulation.hyphenLengthToDecimal(tcxLineArray[2]);
+                    currentJoistSeatInfo.oal = StringManipulation.hyphenLengthToDecimal(tcxLineArray[0]);
                     currentJoistSeatInfo.clearLeft = StringManipulation.hyphenLengthToDecimal(clearLineArray[0]);
                     currentJoistSeatInfo.clearRight = StringManipulation.hyphenLengthToDecimal(clearLineArray[1]);
                     selection.Find.Execute("BPL-R");
@@ -591,6 +597,8 @@ namespace DESign_WordAddIn
                     currentJoistSeatInfo = new JoistSeatInfo();
                     currentJoistSeatInfo.tcxL = StringManipulation.hyphenLengthToDecimal(tcxLineArray[1]);
                     currentJoistSeatInfo.tcxR = StringManipulation.hyphenLengthToDecimal(tcxLineArray[3]);
+                    currentJoistSeatInfo.ota = StringManipulation.hyphenLengthToDecimal(tcxLineArray[2]);
+                    currentJoistSeatInfo.oal = StringManipulation.hyphenLengthToDecimal(tcxLineArray[0]);
                     currentJoistSeatInfo.clearLeft = StringManipulation.hyphenLengthToDecimal(clearLineArray[0]);
                     currentJoistSeatInfo.clearRight = StringManipulation.hyphenLengthToDecimal(clearLineArray[1]);
                     selection.Find.Execute("BPL-R");
@@ -673,6 +681,25 @@ namespace DESign_WordAddIn
             allSeatInfo.BCG = bcg;
             allSeatInfo.Tplate = tPlate;
             allSeatInfo.Standard = standard;
+
+            var allSeatInfoForKCheck = holdClear.Concat(bcg).Concat(tPlate).Concat(standard).ToList();
+
+            foreach (var hcSeat in holdClear)
+            {
+                var oppositeSeat = allSeatInfoForKCheck.Where(s => s.mark == hcSeat.mark && s.bplSide != hcSeat.bplSide).First();
+                if (hcSeat.seatType == "S")
+                {
+                    if (hcSeat.bplInsideDepth == oppositeSeat.bplInsideDepth)
+                    {
+
+                        if (Math.Abs(hcSeat.oal - hcSeat.tcxL - hcSeat.tcxR - hcSeat.ota) > 0.001)
+                        {
+                            MessageBox.Show("Mark " + hcSeat.mark + " may have a 'K' value at " + hcSeat.bplSide + "; please confirm seat configuration.");
+                        }
+                    }
+                }
+            }
+            
 
             return allSeatInfo;
 
@@ -2064,6 +2091,8 @@ namespace DESign_WordAddIn
         public string seatType;
         public double tcxL;
         public double tcxR;
+        public double ota;
+        public double oal;
     }
     public class HCSeatInfo
     {

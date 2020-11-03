@@ -72,7 +72,7 @@ namespace DESign_WordAddIn
             return destImage;
         }
 
-        public void createPDF(Bitmap bmp, string saveAsPath)
+       /* public void createPDF(Bitmap bmp, string saveAsPath)
         {
             
             PdfDocument doc = new PdfDocument();
@@ -89,8 +89,8 @@ namespace DESign_WordAddIn
             doc.Save(saveAsPath);
             doc.Close();
             
-        }
-
+        } */
+        /*
         public void scalePDF(Bitmap bmp, string saveAsPath)
         {
 
@@ -108,7 +108,7 @@ namespace DESign_WordAddIn
             doc.Save(saveAsPath);
             doc.Close();
 
-        }
+        } */
     }
 
 }

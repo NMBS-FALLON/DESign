@@ -72,7 +72,7 @@ namespace DESign_WordAddIn
                         gr.DrawImage(src, new Rectangle(0, 0, bmp.Width, bmp.Height));
                         bmp.RotateFlip(RotateFlipType.Rotate90FlipNone);
                         imageOperations.ConvertToBlackAndWhite(bmp);
-                        imageOperations.createPDF(bmp, @"C:\Users\darien.shannon\Documents\_MANUALSHOPORDERS\newPDF_" + jobNumber + ".pdf");
+                       // imageOperations.createPDF(bmp, @"C:\Users\darien.shannon\Documents\_MANUALSHOPORDERS\newPDF_" + jobNumber + ".pdf");
                         bmp.Save(@"C:\Users\darien.shannon\Documents\_MANUALSHOPORDERS\" + jobNumber + "\\" + Convert.ToString(row.Cells[1].Value).Split('.')[0] + ".tif", ImageFormat.Bmp);
                         msWordOperations.addSection(Word.WdOrientation.wdOrientLandscape);
                         selection.InlineShapes.AddOLEObject("Paint.Picture", @"C:\Users\darien.shannon\Documents\_MANUALSHOPORDERS\" + jobNumber + "\\" + Convert.ToString(row.Cells[1].Value).Split('.')[0] + ".tif", true);

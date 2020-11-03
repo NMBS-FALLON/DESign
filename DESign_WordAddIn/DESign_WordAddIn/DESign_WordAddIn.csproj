@@ -32,10 +32,10 @@
     <TargetFrameworkProfile />
     <IsWebBootstrapper>True</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\darien.shannon\code\DESign\Deploy\design-word-add-in\</PublishUrl>
+    <PublishUrl>C:\Users\Darien\Code\DESign\Deploy\design-word-add-in\</PublishUrl>
     <InstallUrl>https://nmbsdesign.blob.core.windows.net/design-word-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.9</ApplicationVersion>
+    <ApplicationVersion>2.0.0.11</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>4</UpdateInterval>
@@ -139,8 +139,11 @@
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PdfSharp">
-      <HintPath>..\..\..\..\PDFsharp-MigraDocFoundation-Assemblies-1_32\GDI+\PdfSharp.dll</HintPath>
+    <Reference Include="PdfSharp, Version=1.50.5147.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.1.50.5147\lib\net20\PdfSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Charting, Version=1.50.5147.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.1.50.5147\lib\net20\PdfSharp.Charting.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -261,6 +264,7 @@
       <DependentUpon>Ribbon1.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="DESign_WordAddIn_1_TemporaryKey.pfx" />
+    <None Include="DESign_WordAddIn_2_TemporaryKey.pfx" />
     <None Include="DESign_WordAddIn_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -333,10 +337,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>DESign_WordAddIn_1_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>DESign_WordAddIn_2_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>331BBCDC2DC16332FFA764DB187DA8DFEAF6EE0C</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>39BFDE169F84AF1E51F766EE7BFD681110572931</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="..\..\DESign_BASE\DESign_BASE\DESign_BASE.projitems" Label="Shared" />
