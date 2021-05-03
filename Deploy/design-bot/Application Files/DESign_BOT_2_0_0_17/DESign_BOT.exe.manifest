@@ -43,26 +43,26 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="bom-tools.dll" size="358400">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="bom-tools.dll" size="365056">
       <assemblyIdentity name="bom-tools" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>8WQyuIr568zlVrnO4diKV4Hvc/RbBbVeI0AeCxRnR1Y=</dsig:DigestValue>
+        <dsig:DigestValue>MmGra/hRWm4rYic6VvyjwkvbystBzOqHWGoRU9KmycA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="DESign_BOT.exe" size="2878464">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="DESign_BOT.exe" size="2878976">
       <assemblyIdentity name="DESign_BOT" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>YIuwujYDrhu6OTaJUm1t9WJcyk+dO3UFKzQT0/FUauA=</dsig:DigestValue>
+        <dsig:DigestValue>cvmZ2abLinoXu0H/WBRv27UhGD6L/hbDS6xdfz2yjrI=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

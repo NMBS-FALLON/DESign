@@ -363,14 +363,14 @@ namespace DESign_BOT
                 {
                     var bomFilePath = openBom.FileName;
 
-                   // try
-                   // {
+                   try
+                   {
                         SeismicSeperator.seperateSeismic(bomFilePath, seperatorInfo);
-                   // }
-                   // catch (Exception exception)
-                   // {
-                   //     MessageBox.Show(exception.Message);
-                   // }
+                   }
+                   catch (Exception exception)
+                   {
+                        MessageBox.Show(exception.Message + "\r\n" + exception.StackTrace);
+                   }
 
                 }
             }

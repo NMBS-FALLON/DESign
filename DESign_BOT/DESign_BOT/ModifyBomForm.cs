@@ -24,7 +24,7 @@ namespace DESign_BOT
         private void ModifyBomForm_Load(object sender, EventArgs e)
         {
             clbBomModifications.SetItemChecked(0, true);
-            clbBomModifications.SetItemChecked(1, true);
+            clbBomModifications.SetItemChecked(1, false);
         }
 
         private void BtnModifyBom_Click(object sender, EventArgs e)
@@ -35,6 +35,11 @@ namespace DESign_BOT
             this.SeperatorInfo = new DESign.BomTools.SeismicSeperator.SeperatorInfo(seperateSeismic, checkGirderIp);
             this.DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        private void clbBomModifications_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
