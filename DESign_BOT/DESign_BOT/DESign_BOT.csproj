@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <TargetFrameworkProfile />
-    <PublishUrl>C:\Users\Darien\code\DESign\Deploy\design-bot\</PublishUrl>
+    <PublishUrl>C:\Users\Darien.shannon\Documents\Code\DESign\Deploy\design-bot\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -27,7 +27,7 @@
     <UpdateUrl>https://nmbsdesign.blob.core.windows.net/design-bot/</UpdateUrl>
     <ProductName>DESign BOT</ProductName>
     <PublisherName>DESign</PublisherName>
-    <ApplicationRevision>18</ApplicationRevision>
+    <ApplicationRevision>19</ApplicationRevision>
     <ApplicationVersion>2.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
