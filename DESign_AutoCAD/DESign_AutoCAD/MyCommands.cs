@@ -15,6 +15,9 @@ namespace DESign_AutoCAD
     public class MyCommands
     {
 
+        DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
+        List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql();
+
 
         [CommandMethod("MyCommandGroup", "DESIGN", CommandFlags.Modal)]
         public void Design()
@@ -70,9 +73,9 @@ namespace DESign_AutoCAD
             foreach (var joist in job.Joists)
             {
                 var mark = joist.Mark;
-                var tcWidth = joist.TCWidth;
+                var tcWidth = QueryAngleData.WNtcWidth(anglesFromSql, joist.TC);
                 var bcSize = joist.BC;
-                var bcVleg = QueryAngleData.DblVleg(bcSize);
+                var bcVleg = QueryAngleData.DblVleg(anglesFromSql, bcSize);
                 var isMerchantBc = !bcSize.Contains("A");
                 var boltSize = isMerchantBc ?
                                  System.Math.Max((short)4, (short)System.Math.Ceiling(bcVleg + 1)) :
@@ -114,7 +117,7 @@ namespace DESign_AutoCAD
             foreach (var girder in job.Girders)
             {
                 var messages = new List<string>();
-                if (addGirderTcw) { messages.Add("TCW=" + girder.TCWidth); }
+                if (addGirderTcw) { messages.Add("TCW=" + girder.TCWidth(anglesFromSql)); }
                 if (addWeights) { messages.Add("WT=" + ((int)(System.Math.Ceiling(girder.WeightInLBS * (1 + weightFactor) / 10.0) * 10.0)).ToString()); }
                 if (messages.Count != 0)
                 {

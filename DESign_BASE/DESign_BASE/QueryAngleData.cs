@@ -1,12 +1,81 @@
 ﻿using System.Linq;
 using System.Xml.Linq;
 using System.Reflection;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+using System.Collections.Generic;
+using System;
 
 namespace DESign_BASE
 {
+    public class Angle
+    {
+        public string SectionName { get; }
+        public double LegHorizontal { get; }
+        public double LegVertical { get; }
+        public double Thickness { get; }
+
+        public Angle(string sectionName, double legHorizontal, double legVertical, double thickness)
+        {
+            SectionName = sectionName;
+            LegHorizontal = legHorizontal;
+            LegVertical = legVertical;
+            Thickness = thickness;
+        }
+
+    }
+
+
+
     public class QueryAngleData
     {
+        static public List<Angle> AnglesFromSql()
+        {
+            var angles = new List<Angle>();
+            var connectionString = "Server=NMBSFALN-SQL; Initial Catalog=NMBS_Fallon; Integrated Security = true";
+            string queryString = "SELECT SectionName, LegHorizontal, LegVertical, Thickness FROM dbo.vwMaterials;";
 
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                var command = new SqlCommand(queryString, connection);
+                connection.Open();
+                var reader = command.ExecuteReader();
+
+
+                try
+                {
+                    while (reader.Read())
+                    {
+                        angles.Add(
+                            new Angle(
+                                Convert.ToString(reader["SectionName"]),
+                                Convert.ToDouble(reader["LegHorizontal"]),
+                                Convert.ToDouble(reader["LegVertical"]),
+                                Convert.ToDouble(reader["Thickness"])
+                                )
+                            );
+                    }
+                }
+                finally
+                {
+                    reader.Close();
+                }
+            }
+            return angles;
+        }
+
+        static public double DblThickness(List<Angle> angles, string tc)
+        {
+            var thickness =
+                angles
+                .Where(a => a.SectionName == tc)
+                .Select(a => a.Thickness)
+                .First();
+            return thickness;
+
+        }
+
+        /*
         static public double DblThickness(string tc)
         {
             var asm = Assembly.GetExecutingAssembly();
@@ -24,6 +93,19 @@ namespace DESign_BASE
 
             return thickness;
         }
+        */
+
+        static public double DblVleg(List<Angle> angles, string tc)
+        {
+            var legVertical =
+                angles
+                .Where(a => a.SectionName == tc)
+                .Select(a => a.LegVertical)
+                .First();
+            return legVertical;
+
+        }
+        /*
         static public double DblVleg(string tc)
         {
             var asm = Assembly.GetExecutingAssembly();
@@ -41,6 +123,25 @@ namespace DESign_BASE
 
             return vLeg;
         }
+        */
+
+        static public string WNtcWidth(List<Angle> angles, string tc)
+        {
+            var legHorizontal =
+                angles
+                .Where(a => a.SectionName == tc)
+                .Select(a => a.LegHorizontal)
+                .First();
+
+            var wnWidth = legHorizontal * 2.0 + 1;
+            if(legHorizontal == 1.875) { wnWidth = 5.0; }
+            if(legHorizontal == 2.875) { wnWidth = 7.0; }
+
+            return Convert.ToString(wnWidth);
+
+        }
+
+        /*
         static public string WNtcWidth(string tc)
         {
             var asm = Assembly.GetExecutingAssembly();
@@ -58,7 +159,8 @@ namespace DESign_BASE
 
             return sTCWidth;
         }
-
+        */
+        /*
         static public string TypTCWidth(string tc)
         {
             var asm = Assembly.GetExecutingAssembly();
@@ -76,8 +178,34 @@ namespace DESign_BASE
 
             return sTCWidth;
         }
+        */
+        static public string TypTCWidth(List<Angle> angles, string tc)
+        {
+            var legHorizontal =
+                angles
+                .Where(a => a.SectionName == tc)
+                .Select(a => a.LegHorizontal)
+                .First();
 
-        static public object QuerryObject (string inputAttribute, string inputAttributeValue, string returnAttribute)
+            var typTcWidth = legHorizontal * 2.0;
+            return Convert.ToString(typTcWidth);
+        }
+
+        static public bool Requres1InchGap(List<Angle> angles, string tc)
+        {
+            var legHorizontal =
+                angles
+                .Where(a => a.SectionName == tc)
+                .Select(a => a.LegHorizontal)
+                .First();
+
+            var requres1InchGap = true;
+            if (legHorizontal == 1.875 || legHorizontal == 2.875) { requres1InchGap = false; }
+
+            return requres1InchGap;
+        }
+
+        static public object QuerryObject(string inputAttribute, string inputAttributeValue, string returnAttribute)
         {
             var asm = Assembly.GetExecutingAssembly();
             var stream = asm.GetManifestResourceStream(AngleData());
@@ -94,7 +222,7 @@ namespace DESign_BASE
 
         static private string AngleData()
         {
-            
+
             string[] stringArray = Assembly.GetExecutingAssembly().GetManifestResourceNames();
             string angleData = stringArray.FirstOrDefault(s => s.Contains("AngleData.xml"));
             return angleData;

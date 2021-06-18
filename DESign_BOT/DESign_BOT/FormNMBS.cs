@@ -32,6 +32,9 @@ namespace DESign_BOT
         StringManipulation stringManipulation = new StringManipulation();
         ClassInsertBOMData classInsertBOMData = new ClassInsertBOMData();
         FolderOperations folderOperations = new FolderOperations();
+
+        DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
+        List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql();
         //JoistDetails joistDetails = new JoistDetails();
         public FormNMBSHelper()
         {
@@ -149,7 +152,7 @@ namespace DESign_BOT
                 oSheet.get_Range("B" + excelRow, Missing.Value).Value = joist.Quantity;
                 oSheet.get_Range("C" + excelRow, Missing.Value).Value = joist.Description;
                 oSheet.get_Range("D" + excelRow, Missing.Value).Value = stringManipulation.DecimilLengthToHyphen(joist.BaseLength);
-                oSheet.get_Range("E" + excelRow, Missing.Value).Value = joist.TCWidth;
+                oSheet.get_Range("E" + excelRow, Missing.Value).Value = joist.TCWidth(anglesFromSql);
             }
 
         }
@@ -169,12 +172,12 @@ namespace DESign_BOT
             foreach(Joist joist in job.Joists)
             {
                 double qty = Convert.ToDouble(joist.Quantity);
-                if (joist.TCWidth == "5") { dblFiveInch = dblFiveInch + qty*(joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth == "7") { dblSevenInch = dblSevenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth == "8") { dblEightInch = dblEightInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth == "9") { dblNineInch = dblNineInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth == "11") { dblElevenInch = dblElevenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth == "13") { dblThirteenInch = dblThirteenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                if (joist.TCWidth(anglesFromSql) == "5") { dblFiveInch = dblFiveInch + qty*(joist.BaseLength + joist.TCXL + joist.TCXR); }
+                if (joist.TCWidth(anglesFromSql) == "7") { dblSevenInch = dblSevenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                if (joist.TCWidth(anglesFromSql) == "8") { dblEightInch = dblEightInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                if (joist.TCWidth(anglesFromSql) == "9") { dblNineInch = dblNineInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                if (joist.TCWidth(anglesFromSql) == "11") { dblElevenInch = dblElevenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                if (joist.TCWidth(anglesFromSql) == "13") { dblThirteenInch = dblThirteenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
 
             }
 

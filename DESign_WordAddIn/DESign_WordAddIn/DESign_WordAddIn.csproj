@@ -32,10 +32,10 @@
     <TargetFrameworkProfile />
     <IsWebBootstrapper>True</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\Darien\Code\DESign\Deploy\design-word-add-in\</PublishUrl>
+    <PublishUrl>C:\Users\Darien.Shannon\Documents\Code\DESign\Deploy\design-word-add-in\</PublishUrl>
     <InstallUrl>https://nmbsdesign.blob.core.windows.net/design-word-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.11</ApplicationVersion>
+    <ApplicationVersion>2.0.0.12</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>4</UpdateInterval>
@@ -148,6 +148,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -265,6 +266,7 @@
     </EmbeddedResource>
     <None Include="DESign_WordAddIn_1_TemporaryKey.pfx" />
     <None Include="DESign_WordAddIn_2_TemporaryKey.pfx" />
+    <None Include="DESign_WordAddIn_3_TemporaryKey.pfx" />
     <None Include="DESign_WordAddIn_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -337,10 +339,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>DESign_WordAddIn_2_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>DESign_WordAddIn_3_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>39BFDE169F84AF1E51F766EE7BFD681110572931</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>CEFF7D34011D3FE364D43800426EC2E7DEF8D874</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="..\..\DESign_BASE\DESign_BASE\DESign_BASE.projitems" Label="Shared" />

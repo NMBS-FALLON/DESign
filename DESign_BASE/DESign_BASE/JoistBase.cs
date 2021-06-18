@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using DESign_BASE;
+using System.Collections.Generic;
 
 
 namespace DESign_BASE
@@ -43,13 +44,11 @@ namespace DESign_BASE
     {
        
         private string tcWidth;
-        public string TCWidth
+        public string TCWidth(List<DESign_BASE.Angle> angles)
         {
-            get
-            {
-                tcWidth = QueryAngleData.WNtcWidth(TC);
-                return tcWidth;
-            }
+
+            tcWidth = QueryAngleData.WNtcWidth(angles, TC);
+            return tcWidth;
            
         }
 
@@ -58,13 +57,10 @@ namespace DESign_BASE
     public class Girder : JoistBase
     {
         private string tcWidth;
-        public string TCWidth
+        public string TCWidth(List<DESign_BASE.Angle> angles)
         {
-            get
-            {
-                tcWidth = QueryAngleData.TypTCWidth(TC);
-                return tcWidth;
-            }
+            tcWidth = QueryAngleData.TypTCWidth(angles, TC);
+            return tcWidth;
         }
 
     }

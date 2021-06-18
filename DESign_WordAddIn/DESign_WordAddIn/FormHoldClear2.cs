@@ -19,6 +19,7 @@ using System.Xml.Linq;
 using System.Reflection;
 using System.Threading;
 using DESign_BASE;
+using System.Collections.Generic;
 
 
 namespace DESign_WordAddIn
@@ -30,6 +31,8 @@ namespace DESign_WordAddIn
         StringManipulation StringManipulation = new StringManipulation();
 
         DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
+        List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql();
+
         
 
         public FormHoldClear2()
@@ -716,8 +719,8 @@ namespace DESign_WordAddIn
             foreach (JoistSeatInfo thisJoistSeatInfo in listJoistSeatInfo)
             {
 
-                double tcVLeg = QueryAngleData.DblVleg(thisJoistSeatInfo.TC);
-                double tcThickness = QueryAngleData.DblThickness(thisJoistSeatInfo.TC);
+                double tcVLeg = QueryAngleData.DblVleg(anglesFromSql, thisJoistSeatInfo.TC);
+                double tcThickness = QueryAngleData.DblThickness(anglesFromSql, thisJoistSeatInfo.TC);
 
                 HCSeatInfo thisHCSeatInfo = new HCSeatInfo();
                 thisHCSeatInfo.mark = thisJoistSeatInfo.mark;
@@ -785,7 +788,7 @@ namespace DESign_WordAddIn
                     else if (tcThickness < 0.20) { thisHCSeatInfo.HCMaterial = "2018"; }
                     else { thisHCSeatInfo.HCMaterial = "2024"; }
 
-                    double seatVLeg = QueryAngleData.DblVleg(thisHCSeatInfo.HCMaterial);
+                    double seatVLeg = QueryAngleData.DblVleg(anglesFromSql, thisHCSeatInfo.HCMaterial);
                     if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * tcVLeg)+ seatVLeg && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * tcVLeg) + seatVLeg)
                     {
                         thisHCSeatInfo.buttedSeat = true;
@@ -811,7 +814,7 @@ namespace DESign_WordAddIn
                     else if (tcThickness < 0.21875) { diffInHCandTC = 1; }
                     else { diffInHCandTC = 0; }
 
-                    double seatVLeg = QueryAngleData.DblVleg(thisHCSeatInfo.HCMaterial);
+                    double seatVLeg = QueryAngleData.DblVleg(anglesFromSql, thisHCSeatInfo.HCMaterial);
                     if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor*tcVLeg) + seatVLeg && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor*tcVLeg) + seatVLeg)
                     {
                         thisHCSeatInfo.buttedSeat = true;

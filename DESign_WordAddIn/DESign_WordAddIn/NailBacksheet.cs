@@ -33,6 +33,9 @@ namespace DESign_WordAddIn
 
         ExcelDataExtraction excelDataExtraction = new ExcelDataExtraction();
 
+        DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
+        List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql();
+
 
         public FormNailBacksheet()
         {
@@ -441,7 +444,7 @@ namespace DESign_WordAddIn
 
             for (int i = 0; i <= TCs.Count - 1; i++)
             {
-                woodWidths.Add(QueryAngleData.WNtcWidth(TCs[i]) + "\"");
+                woodWidths.Add(QueryAngleData.WNtcWidth(anglesFromSql, TCs[i]) + "\"");
             }
 
             if ((TCs.Contains("A50A28") || TCs.Contains("A48A28") || TCs.Contains("A48A29")) &&
@@ -453,7 +456,7 @@ namespace DESign_WordAddIn
 
             if (
                 TCs
-                .Select (tc => QueryAngleData.WNtcWidth(tc))
+                .Select (tc => QueryAngleData.WNtcWidth(anglesFromSql, tc))
                 .Distinct()
                 .Count() > 1)
             {
@@ -467,8 +470,12 @@ namespace DESign_WordAddIn
 
             selection.HomeKey(Word.WdUnits.wdStory);
 
-            if ((woodWidths.Contains("5\"") == false) &&
-                (TCs.Contains("A42A28") == false && TCs.Contains("A44A") == false && TCs.Contains("A46A28") == false))
+            var requres1InchGap =
+                TCs
+                .Select (tc => QueryAngleData.Requres1InchGap(anglesFromSql, tc))
+                .First();
+
+            if (requres1InchGap)
             {
 
                 var docWords = Globals.ThisAddIn.Application.ActiveDocument.Words;
