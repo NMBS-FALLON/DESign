@@ -105,6 +105,18 @@ namespace DESign_BASE
             return legVertical;
 
         }
+
+        static public double DblHleg(List<Angle> angles, string tc)
+        {
+            var legHorizontal =
+                angles
+                .Where(a => a.SectionName == tc)
+                .Select(a => a.LegHorizontal)
+                .First();
+            return legHorizontal;
+
+        }
+
         /*
         static public double DblVleg(string tc)
         {

@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project ToolsVersion="16.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!--
     This section defines project-level properties.
@@ -22,35 +21,34 @@
     <ProjectTypeGuids>{BAA0C2D2-18E2-41B9-852F-F413020CAA33};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{767701B9-8AE2-4D98-971A-9C032CED81F7}</ProjectGuid>
+    <ProjectGuid>{A6098497-F3E8-41CD-931D-7F9CEBF2469F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
-    <RootNamespace>DESign_WordAddIn</RootNamespace>
-    <AssemblyName>DESign_Word-Add-In</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>DESign_Excel_Add_In</RootNamespace>
+    <AssemblyName>DESign_Excel_Add-In</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <DefineConstants>VSTO40</DefineConstants>
-    <TargetFrameworkProfile />
-    <IsWebBootstrapper>True</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\Darien.Shannon\Documents\Code\DESign\Deploy\design-word-add-in\</PublishUrl>
-    <InstallUrl>https://nmbsdesign.blob.core.windows.net/design-word-add-in/</InstallUrl>
+    <PublishUrl>publish\</PublishUrl>
+    <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.13</ApplicationVersion>
+    <ApplicationVersion>1.0.0.0</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateInterval>4</UpdateInterval>
-    <UpdateIntervalUnits>hours</UpdateIntervalUnits>
-    <ProductName>DESign_WordAddIn</ProductName>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>days</UpdateIntervalUnits>
+    <IsWebBootstrapper>False</IsWebBootstrapper>
+    <ProductName>DESign_Excel_Add-In</ProductName>
     <PublisherName />
     <SupportUrl />
-    <FriendlyName>DESign_WordAddIn</FriendlyName>
+    <FriendlyName>DESign_Excel_Add-In</FriendlyName>
     <OfficeApplicationDescription />
     <LoadBehavior>3</LoadBehavior>
   </PropertyGroup>
   <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -63,18 +61,13 @@
       <ProductName>Microsoft Visual Studio 2010 Tools for Office Runtime %28x86 and x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 4.5</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
   </ItemGroup>
   <PropertyGroup>
     <!--
       OfficeApplication
         Add-in host application
     -->
-    <OfficeApplication>Word</OfficeApplication>
+    <OfficeApplication>Excel</OfficeApplication>
   </PropertyGroup>
   <!--
     This section defines properties that are set when the "Debug" configuration is selected.
@@ -130,26 +123,8 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>U:\CODE\F#\VSTO_FSharp\VSTO_FSharp\bin\Debug\Microsoft.Office.Interop.Excel.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="PdfSharp, Version=1.50.5147.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\PDFsharp.1.50.5147\lib\net20\PdfSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="PdfSharp.Charting, Version=1.50.5147.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\PDFsharp.1.50.5147\lib\net20\PdfSharp.Charting.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.Linq" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -157,14 +132,23 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Office.Tools.v4.0.Framework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.VisualStudio.Tools.Applications.Runtime, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.Office.Tools, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.Office.Tools.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.Office.Tools.Word, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Office.Tools.v4.0.Framework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Tools.Applications.Runtime, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools.Excel, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Office.Tools.Common.v4.0.Utilities, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -176,7 +160,7 @@
       <Private>False</Private>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </Reference>
-    <Reference Include="Microsoft.Office.Interop.Word, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
       <Private>False</Private>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </Reference>
@@ -195,62 +179,11 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="ClassMaterials.cs" />
-    <Compile Include="ExcelDataExtraction.cs" />
-    <Compile Include="FormHoldClear2.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormHoldClear2.designer.cs">
-      <DependentUpon>FormHoldClear2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FormInsertJEDIImages.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormInsertJEDIImages.designer.cs">
-      <DependentUpon>FormInsertJEDIImages.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FormSOtoRISA.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormSOtoRISA.designer.cs">
-      <DependentUpon>FormSOtoRISA.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ImageOperations.cs" />
-    <Compile Include="Insert Blank Sheets\FormInsertBlankSheets.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Insert Blank Sheets\FormInsertBlankSheets.designer.cs">
-      <DependentUpon>FormInsertBlankSheets.cs</DependentUpon>
-    </Compile>
-    <Compile Include="JoistCoverSheet.cs" />
-    <Compile Include="msWordOperations.cs" />
-    <Compile Include="NailBacksheet.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="NailBacksheet.designer.cs">
-      <DependentUpon>NailBacksheet.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Print.cs" />
+    <Compile Include="ExtractFromSql.cs" />
+    <Compile Include="Kicker_Bar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <EmbeddedResource Include="FormHoldClear2.resx">
-      <DependentUpon>FormHoldClear2.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormInsertJEDIImages.resx">
-      <DependentUpon>FormInsertJEDIImages.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormSOtoRISA.resx">
-      <DependentUpon>FormSOtoRISA.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Insert Blank Sheets\FormInsertBlankSheets.resx">
-      <DependentUpon>FormInsertBlankSheets.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="NailBacksheet.resx">
-      <DependentUpon>NailBacksheet.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -259,16 +192,11 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="Ribbon1.resx">
       <DependentUpon>Ribbon1.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="DESign_WordAddIn_1_TemporaryKey.pfx" />
-    <None Include="DESign_WordAddIn_2_TemporaryKey.pfx" />
-    <None Include="DESign_WordAddIn_3_TemporaryKey.pfx" />
-    <None Include="DESign_WordAddIn_TemporaryKey.pfx" />
-    <None Include="packages.config" />
+    <None Include="DESign_Excel_Add-In_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -276,17 +204,13 @@
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="queryAngleDataXML.cs" />
     <Compile Include="Ribbon1.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Ribbon1.designer.cs">
+    <Compile Include="Ribbon1.Designer.cs">
       <DependentUpon>Ribbon1.cs</DependentUpon>
     </Compile>
-    <Compile Include="SOtoRISA.cs" />
-    <Compile Include="StringManipulation.cs" />
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -298,39 +222,6 @@
     </Compile>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\buttedHC.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\gappedHC.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\NonStaggered.tif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\plateHC.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\plateHCP04.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\plateHCP08.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Staggered.tif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\blankShimPlate.tif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\blank.tif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\blankBirdCage.tif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\blankTPlate.tif" />
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -339,13 +230,12 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>DESign_WordAddIn_3_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>DESign_Excel_Add-In_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>CEFF7D34011D3FE364D43800426EC2E7DEF8D874</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>F53A4FEE4C0808D39DE5580189163AC68DFC8B0D</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
-  <Import Project="..\..\DESign_BASE\DESign_BASE\DESign_BASE.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- Include additional build rules for an Office application add-in. -->
   <Import Project="$(VSToolsPath)\OfficeTools\Microsoft.VisualStudio.Tools.Office.targets" Condition="'$(VSToolsPath)' != ''" />
@@ -353,9 +243,9 @@
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{BAA0C2D2-18E2-41B9-852F-F413020CAA33}">
-        <ProjectProperties HostName="Word" HostPackage="{29A7B9D7-A7F1-4328-8EF0-6B2D1A56B2C1}" OfficeVersion="15.0" VstxVersion="4.0" ApplicationType="Word" Language="cs" TemplatesPath="" DebugInfoExeName="#Software\Microsoft\Office\16.0\Word\InstallRoot\Path#WINWORD.EXE" DebugInfoCommandLine="/x" AddItemTemplatesGuid="{51063C3A-E220-4D12-8922-BDA915ACD783}" />
-        <Host Name="Word" GeneratedCodeNamespace="DESign_WordAddIn" PublishedHash="69C324AB27932AA2FBF2B7EA72250886FF164DE6" IconIndex="0">
-          <HostItem Name="ThisAddIn" Code="ThisAddIn.cs" CanonicalName="AddIn" PublishedHash="B7BBB3ED3C138D872FED78E3335A9C3FA9E8EF11" CanActivate="false" IconIndex="1" Blueprint="ThisAddIn.Designer.xml" GeneratedCode="ThisAddIn.Designer.cs" />
+        <ProjectProperties HostName="Excel" HostPackage="{29A7B9D7-A7F1-4328-8EF0-6B2D1A56B2C1}" OfficeVersion="15.0" VstxVersion="4.0" ApplicationType="Excel" Language="cs" TemplatesPath="" DebugInfoExeName="#Software\Microsoft\Office\16.0\Excel\InstallRoot\Path#excel.exe" DebugInfoCommandLine="/x" AddItemTemplatesGuid="{51063C3A-E220-4D12-8922-BDA915ACD783}" />
+        <Host Name="Excel" GeneratedCodeNamespace="DESign_Excel_Add_In" IconIndex="0">
+          <HostItem Name="ThisAddIn" Code="ThisAddIn.cs" CanonicalName="AddIn" CanActivate="false" IconIndex="1" Blueprint="ThisAddIn.Designer.xml" GeneratedCode="ThisAddIn.Designer.cs" />
         </Host>
       </FlavorProperties>
     </VisualStudio>

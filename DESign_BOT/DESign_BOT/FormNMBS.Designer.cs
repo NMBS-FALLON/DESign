@@ -48,6 +48,7 @@
             this.btnModifyBom = new System.Windows.Forms.Button();
             this.btnGetBomNotes = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.btnGetLoadNotes = new System.Windows.Forms.Button();
             this.tabControlConvertBOM.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -61,7 +62,7 @@
             this.tabControlConvertBOM.Controls.Add(this.tabPage2);
             this.tabControlConvertBOM.Controls.Add(this.tabPage3);
             this.tabControlConvertBOM.Location = new System.Drawing.Point(0, 0);
-            this.tabControlConvertBOM.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabControlConvertBOM.Margin = new System.Windows.Forms.Padding(2);
             this.tabControlConvertBOM.Name = "tabControlConvertBOM";
             this.tabControlConvertBOM.SelectedIndex = 0;
             this.tabControlConvertBOM.Size = new System.Drawing.Size(331, 337);
@@ -72,9 +73,9 @@
             this.tabPage1.Controls.Add(this.labelProgramState);
             this.tabPage1.Controls.Add(this.btnCreateNewBOM);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage1.Size = new System.Drawing.Size(323, 311);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Convert BOM\'s";
@@ -99,7 +100,7 @@
             // 
             this.btnCreateNewBOM.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCreateNewBOM.Location = new System.Drawing.Point(50, 31);
-            this.btnCreateNewBOM.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnCreateNewBOM.Margin = new System.Windows.Forms.Padding(2);
             this.btnCreateNewBOM.Name = "btnCreateNewBOM";
             this.btnCreateNewBOM.Size = new System.Drawing.Size(142, 38);
             this.btnCreateNewBOM.TabIndex = 0;
@@ -117,7 +118,7 @@
             this.tabPage2.Controls.Add(this.btnWoodReqFromSOs);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Size = new System.Drawing.Size(323, 311);
             this.tabPage2.TabIndex = 1;
@@ -197,7 +198,7 @@
             // button5
             // 
             this.button5.Location = new System.Drawing.Point(19, 80);
-            this.button5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button5.Margin = new System.Windows.Forms.Padding(2);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(172, 19);
             this.button5.TabIndex = 1;
@@ -208,7 +209,7 @@
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(19, 51);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(172, 19);
             this.button2.TabIndex = 1;
@@ -219,7 +220,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(19, 19);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(172, 19);
             this.button1.TabIndex = 0;
@@ -229,6 +230,7 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.btnGetLoadNotes);
             this.tabPage3.Controls.Add(this.btnModifyBom);
             this.tabPage3.Controls.Add(this.btnGetBomNotes);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
@@ -241,7 +243,7 @@
             // btnModifyBom
             // 
             this.btnModifyBom.Location = new System.Drawing.Point(20, 25);
-            this.btnModifyBom.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnModifyBom.Margin = new System.Windows.Forms.Padding(2);
             this.btnModifyBom.Name = "btnModifyBom";
             this.btnModifyBom.Size = new System.Drawing.Size(116, 30);
             this.btnModifyBom.TabIndex = 1;
@@ -259,6 +261,16 @@
             this.btnGetBomNotes.UseVisualStyleBackColor = true;
             this.btnGetBomNotes.Click += new System.EventHandler(this.BtnGetBomNotes_Click);
             // 
+            // btnGetLoadNotes
+            // 
+            this.btnGetLoadNotes.Location = new System.Drawing.Point(20, 131);
+            this.btnGetLoadNotes.Name = "btnGetLoadNotes";
+            this.btnGetLoadNotes.Size = new System.Drawing.Size(116, 26);
+            this.btnGetLoadNotes.TabIndex = 2;
+            this.btnGetLoadNotes.Text = "GET LOAD NOTES";
+            this.btnGetLoadNotes.UseVisualStyleBackColor = true;
+            this.btnGetLoadNotes.Click += new System.EventHandler(this.btnGetLoadNotes_Click);
+            // 
             // FormNMBSHelper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -268,7 +280,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.HelpButton = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "FormNMBSHelper";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -305,6 +317,7 @@
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.Button btnGetBomNotes;
         private System.Windows.Forms.Button btnModifyBom;
+        private System.Windows.Forms.Button btnGetLoadNotes;
     }
 }
 

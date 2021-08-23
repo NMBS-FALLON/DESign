@@ -154,6 +154,16 @@ namespace DESign_BOT
                 oSheet.get_Range("D" + excelRow, Missing.Value).Value = stringManipulation.DecimilLengthToHyphen(joist.BaseLength);
                 oSheet.get_Range("E" + excelRow, Missing.Value).Value = joist.TCWidth(anglesFromSql);
             }
+            foreach (Girder joist in job.Girders)
+            {
+                joistcount++;
+                string excelRow = Convert.ToString(joistcount + 6);
+                oSheet.get_Range("A" + excelRow, Missing.Value).Value = joist.Mark;
+                oSheet.get_Range("B" + excelRow, Missing.Value).Value = joist.Quantity;
+                oSheet.get_Range("C" + excelRow, Missing.Value).Value = joist.Description;
+                oSheet.get_Range("D" + excelRow, Missing.Value).Value = stringManipulation.DecimilLengthToHyphen(joist.BaseLength);
+                oSheet.get_Range("E" + excelRow, Missing.Value).Value = joist.TCWidth(anglesFromSql);
+            }
 
         }
 
@@ -379,6 +389,38 @@ namespace DESign_BOT
             }
 
             
+        }
+
+        private void btnGetLoadNotes_Click(object sender, EventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog openBom = new System.Windows.Forms.OpenFileDialog();
+            openBom.Filter = "Excel files|*.xlsm";
+            openBom.Title = "Select BOM";
+            if (openBom.ShowDialog() == (System.Windows.Forms.DialogResult.OK))
+            {
+                var bomFilePath = openBom.FileName;
+                using (var bom = Import.GetBom(bomFilePath))
+                {
+                    var job = Import.GetJob(bom);
+                    using (var package = LoadNotesToExcel.CreateBomInfoSheetFromJob(job))
+                    {
+                        var bomNotesSave = new VistaSaveFileDialog();
+                        bomNotesSave.Title = "Save BOM Load Notes";
+                        bomNotesSave.AddExtension = true;
+                        bomNotesSave.DefaultExt = "xlsx";
+                        bomNotesSave.FileName = openBom.FileName.Replace(".xlsx", "") + "_BOM Load Notes";
+                        if (bomNotesSave.ShowDialog() == DialogResult.OK)
+                        {
+                            using (var fs = new FileStream(bomNotesSave.FileName, FileMode.Create))
+                            {
+                                package.SaveAs(fs);
+                            }
+                        }
+
+
+                    }
+                }
+            }
         }
     }
 }

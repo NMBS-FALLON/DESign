@@ -128,7 +128,7 @@ namespace DESign_AutoCAD
 
             foreach (var (Mark, Messages) in marksWithMessages)
             {
-                var markWithMessage = string.Format("{0} [{1}]", Mark, string.Join(",", Messages));
+                var markWithMessage = string.Format("{0} {{{1}}}", Mark, string.Join(",", Messages));
 
                 Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
 
@@ -177,9 +177,11 @@ namespace DESign_AutoCAD
                                     dimText.Contains(string.Format("-{0} ", Mark)))
                                 {
                                     string replace = string.Format("-{0}", Mark);
-                                    string replacement = string.Format("-{0}", markWithMessage);
+                                    string adjustedMarkWithMessage = markWithMessage.Replace("{", "\\{").Replace("}", "\\}");
+                                    string replacement = string.Format("-{0}", adjustedMarkWithMessage);
                                     string newrdText = Regex.Replace(dimText, replace, replacement);
                                     ((RotatedDimension)currentEntity).DimensionText = newrdText;
+                                    
                                 }
 
                                 string[] dimTextArray = Regex.Split(dimText, "-");
@@ -844,13 +846,9 @@ namespace DESign_AutoCAD
 
         private string removeTCWidths(string text)
         {
-            if (text.Contains("["))
+            if (text.Contains("{"))
             {
-                text = text.Substring(0, text.IndexOf('['));
-            }
-            if (text.Contains("("))
-            {
-                text = text.Substring(0, text.IndexOf('('));
+                text = text.Substring(0, text.IndexOf('{'));
             }
 
             return text;

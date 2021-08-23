@@ -1395,6 +1395,220 @@ namespace DESign_WordAddIn
             return listHCSeatInfo;
         }
 
+        public List<List<HCSeatInfo>> listHCSeatInfo2(List<JoistSeatInfo> listJoistSeatInfo)
+        {
+            List<HCSeatInfo> buttedHC = new List<HCSeatInfo>();
+            List<HCSeatInfo> gappedHC = new List<HCSeatInfo>();
+            List<HCSeatInfo> plattedHCP04 = new List<HCSeatInfo>();
+            List<HCSeatInfo> plattedHCP08 = new List<HCSeatInfo>();
+
+            int i = 0;
+            foreach (JoistSeatInfo thisJoistSeatInfo in listJoistSeatInfo)
+            {
+
+                double tcVLeg = QueryAngleData.DblVleg(anglesFromSql, thisJoistSeatInfo.TC);
+                double tcThickness = QueryAngleData.DblThickness(anglesFromSql, thisJoistSeatInfo.TC);
+                double tcHLeg = QueryAngleData.DblHleg(anglesFromSql, thisJoistSeatInfo.TC);
+
+                HCSeatInfo thisHCSeatInfo = new HCSeatInfo();
+                thisHCSeatInfo.mark = thisJoistSeatInfo.mark;
+                thisHCSeatInfo.qty = thisJoistSeatInfo.qty * 2;
+                thisHCSeatInfo.TC = thisJoistSeatInfo.TC;
+                thisHCSeatInfo.seatType = thisJoistSeatInfo.seatType;
+                thisHCSeatInfo.bplSide = thisJoistSeatInfo.bplSide;
+                thisHCSeatInfo.bplLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.ConvertLengthtoDecimal(thisJoistSeatInfo.bplLength));
+                thisHCSeatInfo.bplOutsideDepth = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth);
+                thisHCSeatInfo.bplInsideDepth = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth);
+
+                if (tcVLeg <= 3.25)
+                {
+                    thisHCSeatInfo.stiffPlateLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.NearestQuarterInch(thisJoistSeatInfo.bplOutsideDepth - 1.0 / 12.0));
+                }
+                else
+                {
+                    thisHCSeatInfo.stiffPlateLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.NearestHalfInch(thisJoistSeatInfo.bplOutsideDepth - 2.0 / 12.0));
+                }
+                thisHCSeatInfo.paMat = "P0604";
+
+
+                double slopeFactor = Math.Sin((Math.PI * 90.0 / 180.0) - Math.Atan((Math.Abs((thisJoistSeatInfo.bplInsideDepth - thisJoistSeatInfo.bplOutsideDepth) / StringManipulation.ConvertLengthtoDecimal(thisJoistSeatInfo.bplLength)))));
+                slopeFactor = slopeFactor + (Math.Sqrt(1.0 - Math.Pow(slopeFactor, 2.0)) * (Math.Abs((thisJoistSeatInfo.bplInsideDepth - thisJoistSeatInfo.bplOutsideDepth) / StringManipulation.ConvertLengthtoDecimal(thisJoistSeatInfo.bplLength))));
+
+
+                if (thisJoistSeatInfo.slotGauge >= 4.0 / 12.0)
+                {
+                    thisHCSeatInfo.paWidth = "3";
+                }
+                else { thisHCSeatInfo.paWidth = "2 1/2"; }
+
+                if (thisJoistSeatInfo.slotSetback != null)
+                {
+                    thisHCSeatInfo.slotSetback = StringManipulation.cleanDecimalToHyphen(StringManipulation.ConvertLengthtoDecimal(thisJoistSeatInfo.slotSetback));
+                    thisHCSeatInfo.slotSize = thisJoistSeatInfo.slotSize;
+                }
+
+                int diffInHCandTC = 0;
+
+
+
+                bool gaIsGreater3pt5 = false;
+                if (thisJoistSeatInfo.slotSetback != null)
+                {
+                    if (thisJoistSeatInfo.slotGauge * 12.0 > 3.50)
+                    {
+                        gaIsGreater3pt5 = true;
+                    }
+                }
+
+                bool plateDoesntWork = false;
+                string secondButtedOption = "";
+                string plateSeat = "";
+                bool throwOverlapMessage = false;
+
+                if (tcThickness < 0.1495 && !gaIsGreater3pt5) { thisHCSeatInfo.HCMaterial = "1714"; }
+                if (tcThickness < 0.1495 && gaIsGreater3pt5) { thisHCSeatInfo.HCMaterial = "2521"; }
+                if (tcThickness < 0.172 && !gaIsGreater3pt5) { thisHCSeatInfo.HCMaterial = "2015"; }
+                if (tcThickness < 0.172 && gaIsGreater3pt5) { thisHCSeatInfo.HCMaterial = "2521"; }
+                if (tcThickness < 0.20 && !gaIsGreater3pt5) { thisHCSeatInfo.HCMaterial = "2018"; plateSeat = "P0604"; }
+                if (tcThickness < 0.20 && gaIsGreater3pt5) { thisHCSeatInfo.HCMaterial = "3025"; plateSeat = "P0604"; }
+                if (tcThickness >= 0.20 && tcThickness < 0.25 && !gaIsGreater3pt5) { thisHCSeatInfo.HCMaterial = "2024"; plateSeat = "P0604"; }
+                if (tcThickness >= 0.20 && tcThickness < 0.25 && gaIsGreater3pt5) { thisHCSeatInfo.HCMaterial = "3025"; plateSeat = "P0604"; }
+                if (tcThickness >= 0.25 && tcThickness < 0.25 + 1.0/64.0) { thisHCSeatInfo.HCMaterial = "3025"; secondButtedOption = "3528"; plateSeat = "P0604"; }
+                if (tcThickness >= 9.0 / 32.0 - 1.0 / 64.0 && tcThickness < 9.0 / 32.0 + 1.0 / 64.0) { thisHCSeatInfo.HCMaterial = "3028"; secondButtedOption = "3528"; plateSeat = "P0604"; }
+                if (tcThickness >= 5.0 / 16.0 - 1.0 / 64.0 && tcThickness < 11.0 / 32.0 + 1.0 / 64.0) { thisHCSeatInfo.HCMaterial = "3031"; secondButtedOption = "3528"; plateSeat = "P0604"; }
+                if (tcThickness >= 3.0 / 8.0 - 1.0 / 64.0 && tcThickness < 3.0 / 8.0 + 1.0 / 64.0 && tcHLeg < 3.0) { thisHCSeatInfo.HCMaterial = "3031"; plateSeat = "P0604"; }
+                if (tcThickness >= 3.0 / 8.0 - 1.0 / 64.0 && tcThickness < 3.0 / 8.0 + 1.0 / 64.0 && tcHLeg >= 3.0) { thisHCSeatInfo.HCMaterial = "3534"; plateSeat = "P0604"; throwOverlapMessage = true; }
+                if (tcThickness >= 7.0 / 16.0 - 1.0 / 64.0 && tcThickness < 7.0 / 16.0 + 1.0 / 64.0 && tcHLeg < 5.0) { thisHCSeatInfo.HCMaterial = "3534"; secondButtedOption = "4043"; plateSeat = "P0608"; throwOverlapMessage = true; }
+                if (tcThickness >= 7.0 / 16.0 - 1.0 / 64.0 && tcThickness < 7.0 / 16.0 + 1.0 / 64.0 && tcHLeg >= 5.0) { thisHCSeatInfo.HCMaterial = "4043"; plateSeat = "P0608"; throwOverlapMessage = true; }
+                if (tcThickness >= 0.50 - 1.0 / 64.0) { thisHCSeatInfo.HCMaterial = "4050"; }
+
+                double seatVLeg = QueryAngleData.DblVleg(anglesFromSql, thisHCSeatInfo.HCMaterial);
+                double seatThickness = QueryAngleData.DblThickness(anglesFromSql, thisHCSeatInfo.HCMaterial);
+
+                bool option1Works = false;
+
+                if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * tcVLeg) + seatVLeg && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * tcVLeg) + seatVLeg)
+                {
+                    option1Works = true;
+                    thisHCSeatInfo.buttedSeat = true;
+
+                    thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) / 12.0);
+                    thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * tcVLeg) / 12.0);
+                    diffInHCandTC = Convert.ToInt32(Math.Round((seatThickness - tcThickness) * 16.0));
+                }
+
+                bool secondButtedOptionWorks = false;
+
+                if (option1Works == false && secondButtedOption != "")
+                {
+                    thisHCSeatInfo.HCMaterial = secondButtedOption;
+                    seatVLeg = QueryAngleData.DblVleg(anglesFromSql, thisHCSeatInfo.HCMaterial);
+                    seatThickness = QueryAngleData.DblThickness(anglesFromSql, thisHCSeatInfo.HCMaterial);
+
+                    if (12.0 * thisJoistSeatInfo.bplOutsideDepth <= (slopeFactor * tcVLeg) + seatVLeg && 12.0 * thisJoistSeatInfo.bplInsideDepth <= (slopeFactor * tcVLeg) + seatVLeg)
+                    {
+                        secondButtedOptionWorks = true;
+                        thisHCSeatInfo.buttedSeat = true;
+
+                        thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) / 12.0);
+                        thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * tcVLeg) / 12.0);
+                        diffInHCandTC = Convert.ToInt32(Math.Round((seatThickness - tcThickness) * 16.0));
+                    }
+
+                }
+
+                if (option1Works == false && secondButtedOptionWorks == false)
+                {
+                    if (plateDoesntWork)
+                    {
+                        MessageBox.Show(thisHCSeatInfo.mark + " " + thisHCSeatInfo.bplSide + " :\r\n\r\n" + "TC MATERIAL IS TOO THIN TO ACCEPT THE NECESSARY SEAT.\r\nPLEASE INCREASE THE TC TO A SIZE THAT IS AT LEAST 0.20\" THICK");
+                    }
+                    else
+                    {
+                        if (plateSeat == "P0604")
+                        {
+                            thisHCSeatInfo.plateSeatP04 = true;
+                            seatThickness = 0.25;
+                        }
+
+                        if (plateSeat == "P0608")
+                        {
+                            thisHCSeatInfo.plateSeatP08 = true;
+                            seatThickness = 0.50;
+                        }
+                        thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) / 12.0 - 0.25 / 12.0);
+                        thisHCSeatInfo.HCInsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplInsideDepth - (slopeFactor * tcVLeg) / 12.0 - 0.25 / 12.0);
+                        diffInHCandTC = Convert.ToInt32(Math.Round((0.25 - tcThickness) * 16.0));
+                            
+                    }
+                }
+
+                if (throwOverlapMessage == true)
+                {
+                    MessageBox.Show(thisHCSeatInfo.mark + " " + thisHCSeatInfo.bplSide + " :\r\n\r\n" + "CONFIRM THAT W2 OVERLAPS BASEPLATE BY A MINIMUM OF 2\".\r\nIF NOT, INCREASE THE LENGTH OF THE PLATE AND ADJUST ALL DEPTHS ACCORDINGLY.");
+                }
+
+
+                if (thisJoistSeatInfo.slotGauge != 0)
+                {
+                    int intGOL = Convert.ToInt16((thisJoistSeatInfo.slotGauge - (1.0 / 12.0)) / 2) * 12 * 16 + diffInHCandTC;
+                    double dblGOL = ((thisJoistSeatInfo.slotGauge - (1.0 / 12.0)) / 2.0) + Convert.ToDouble(diffInHCandTC) / (12 * 16.0);
+                    thisHCSeatInfo.GOL = StringManipulation.cleanDecimalToHyphen16ths(dblGOL);
+                }
+                //////////
+
+                string overiddenSeatType = Convert.ToString(overideDetails.Select(String.Format("Mark='{0}'", thisJoistSeatInfo.mark))[0][1]);
+
+                if (overiddenSeatType == "") { }
+                else if (overiddenSeatType == "Butted") { thisHCSeatInfo.buttedSeat = true; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = false; }
+                else if (overiddenSeatType == "Gapped") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = true; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = false; }
+                else if (overiddenSeatType == "1/4\" Plate") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = true; thisHCSeatInfo.plateSeatP08 = false; }
+                else if (overiddenSeatType == "1/2\" Plate") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = true; thisHCSeatInfo.paMat = "P0608"; }
+                else { }
+                /////////////
+                if (thisHCSeatInfo.gappedSeat == true)
+                {
+                    gappedHC.Add(thisHCSeatInfo);
+                    if (thisJoistSeatInfo.bplSide == "BPL-L")
+                    {
+                        thisHCSeatInfo.bplLength = StringManipulation.DecimilLengthToHyphen(Math.Max(thisJoistSeatInfo.clearLeft - (thisJoistSeatInfo.tcxL / slopeFactor) - 0.75 / 12, StringManipulation.hyphenLengthToDecimal(thisJoistSeatInfo.bplLength)));
+                    }
+                    if (thisJoistSeatInfo.bplSide == "BPL-R")
+                    {
+                        thisHCSeatInfo.bplLength = StringManipulation.DecimilLengthToHyphen(Math.Max(thisJoistSeatInfo.clearRight - (thisJoistSeatInfo.tcxR / slopeFactor) - 0.75 / 12, StringManipulation.hyphenLengthToDecimal(thisJoistSeatInfo.bplLength)));
+                    }
+                }
+
+                if (thisHCSeatInfo.gappedSeat == true)
+                {
+                    string newSlopeString = "";
+                    if (thisHCSeatInfo.bplOutsideDepth != thisHCSeatInfo.bplInsideDepth)
+                    {
+                        double seatLength = 12.0 * StringManipulation.hyphenLengthToDecimal(thisHCSeatInfo.bplLength);
+                        double insideDepth = 12.0 * StringManipulation.hyphenLengthToDecimal(thisHCSeatInfo.bplInsideDepth);
+                        double outsideDepth = 12.0 * StringManipulation.hyphenLengthToDecimal(thisHCSeatInfo.bplOutsideDepth);
+                        double addSlopeDepthInches = (seatLength * (insideDepth - outsideDepth)) / 6.0;
+                        double newInsideDepth = (outsideDepth + addSlopeDepthInches) / 12.0;
+                        thisHCSeatInfo.bplInsideDepth = StringManipulation.cleanDecimalToHyphen(newInsideDepth);
+
+                    }
+                }
+
+
+                if (thisHCSeatInfo.buttedSeat == true) { buttedHC.Add(thisHCSeatInfo); }
+                if (thisHCSeatInfo.plateSeatP04 == true) { plattedHCP04.Add(thisHCSeatInfo); }
+                if (thisHCSeatInfo.plateSeatP08 == true) { plattedHCP08.Add(thisHCSeatInfo); }
+
+                i++;
+            }
+            List<List<HCSeatInfo>> listHCSeatInfo = new List<List<HCSeatInfo>>();
+            listHCSeatInfo.Add(buttedHC);
+            listHCSeatInfo.Add(gappedHC);
+            listHCSeatInfo.Add(plattedHCP04);
+            listHCSeatInfo.Add(plattedHCP08);
+            return listHCSeatInfo;
+        }
+
         public List<List<HCSeatInfo>> organizedHCSeatInfoList(List<List<HCSeatInfo>> listHCSeatInfo)
         {
             List<List<HCSeatInfo>> allSeatLists = new List<List<HCSeatInfo>>();
@@ -2005,8 +2219,8 @@ namespace DESign_WordAddIn
             List<List<string>> joistDataByMarks = joistDataByMark();
             List<Tuple<string, bool, bool>> marksWithHoldClears = whichNeedHoldClears(joistDataByMarks);
             AllSeatInfo allseatInfo = getAllSeatInfo(joistDataByMarks, marksWithHoldClears);
-            List<List<HCSeatInfo>> HCSeatInfoList1 = listHCSeatInfo(allseatInfo.HoldClear);
-            List<List<HCSeatInfo>> HCSeatInfoList2 = listHCSeatInfo(allseatInfo.HoldClear);
+            List<List<HCSeatInfo>> HCSeatInfoList1 = listHCSeatInfo2(allseatInfo.HoldClear);
+            List<List<HCSeatInfo>> HCSeatInfoList2 = listHCSeatInfo2(allseatInfo.HoldClear);
             createHoldClearSKs(organizedHCSeatInfoList(HCSeatInfoList1));
             placeHCs(joistDataByMarks, HCSeatInfoList2);
             if (noOverides == false)
