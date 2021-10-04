@@ -49,7 +49,7 @@ namespace DESign_WordAddIn
 
         private void btnPrintShopCopies_Click(object sender, RibbonControlEventArgs e)
         {
-            print.PrintShopCopies(8, 6);
+            print.PrintShopCopies(8, 4);
         }
 
         private void btnSinglePrintShopCopy_Click(object sender, RibbonControlEventArgs e)
@@ -60,6 +60,12 @@ namespace DESign_WordAddIn
         private void btnBlankWorksheets_Click(object sender, RibbonControlEventArgs e)
         {
             new FormInsertBlankSheets().Show();
+        }
+
+
+        private void btnPrintJuarezShopCopies_Click(object sender, RibbonControlEventArgs e)
+        {
+            print.PrintShopCopiesJuarez();
         }
     }
 

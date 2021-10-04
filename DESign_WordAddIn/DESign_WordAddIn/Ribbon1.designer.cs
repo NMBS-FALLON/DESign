@@ -51,9 +51,12 @@ namespace DESign_WordAddIn
             this.groupPrint = this.Factory.CreateRibbonGroup();
             this.btnPrintShopCopies = this.Factory.CreateRibbonButton();
             this.btnSinglePrintShopCopy = this.Factory.CreateRibbonButton();
+            this.groupJuarezPrint = this.Factory.CreateRibbonGroup();
+            this.btnPrintJuarez = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.groupManualOperations.SuspendLayout();
             this.groupPrint.SuspendLayout();
+            this.groupJuarezPrint.SuspendLayout();
             this.SuspendLayout();
             // 
             // tab1
@@ -61,6 +64,7 @@ namespace DESign_WordAddIn
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
             this.tab1.Groups.Add(this.groupManualOperations);
             this.tab1.Groups.Add(this.groupPrint);
+            this.tab1.Groups.Add(this.groupJuarezPrint);
             this.tab1.Label = "NMBS";
             this.tab1.Name = "tab1";
             // 
@@ -94,7 +98,7 @@ namespace DESign_WordAddIn
             // 
             this.groupPrint.Items.Add(this.btnPrintShopCopies);
             this.groupPrint.Items.Add(this.btnSinglePrintShopCopy);
-            this.groupPrint.Label = "PRINTING";
+            this.groupPrint.Label = "FALLON PRINTING";
             this.groupPrint.Name = "groupPrint";
             // 
             // btnPrintShopCopies
@@ -109,6 +113,18 @@ namespace DESign_WordAddIn
             this.btnSinglePrintShopCopy.Name = "btnSinglePrintShopCopy";
             this.btnSinglePrintShopCopy.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnSinglePrintShopCopy_Click);
             // 
+            // groupJuarezPrint
+            // 
+            this.groupJuarezPrint.Items.Add(this.btnPrintJuarez);
+            this.groupJuarezPrint.Label = "JUAREZ PRINTING";
+            this.groupJuarezPrint.Name = "groupJuarezPrint";
+            // 
+            // btnPrintJuarez
+            // 
+            this.btnPrintJuarez.Label = "Print Shop Copies";
+            this.btnPrintJuarez.Name = "btnPrintJuarez";
+            this.btnPrintJuarez.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnPrintJuarezShopCopies_Click);
+            // 
             // RibbonNMBS
             // 
             this.Name = "RibbonNMBS";
@@ -121,6 +137,8 @@ namespace DESign_WordAddIn
             this.groupManualOperations.PerformLayout();
             this.groupPrint.ResumeLayout(false);
             this.groupPrint.PerformLayout();
+            this.groupJuarezPrint.ResumeLayout(false);
+            this.groupJuarezPrint.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -135,6 +153,8 @@ namespace DESign_WordAddIn
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPrintShopCopies;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnSinglePrintShopCopy;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnBlankWorksheets;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup groupJuarezPrint;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPrintJuarez;
     }
 
     partial class ThisRibbonCollection
