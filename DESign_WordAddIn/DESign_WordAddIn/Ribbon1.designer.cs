@@ -49,8 +49,10 @@ namespace DESign_WordAddIn
             this.btnHoldClear = this.Factory.CreateRibbonButton();
             this.btnBlankWorksheets = this.Factory.CreateRibbonButton();
             this.groupPrint = this.Factory.CreateRibbonGroup();
-            this.btnPrintShopCopies = this.Factory.CreateRibbonButton();
-            this.btnSinglePrintShopCopy = this.Factory.CreateRibbonButton();
+            this.btnPrintJShopCopies = this.Factory.CreateRibbonButton();
+            this.btnPrintGShopCopies = this.Factory.CreateRibbonButton();
+            this.btnPrint1Master = this.Factory.CreateRibbonButton();
+            this.btnPrint1Cut = this.Factory.CreateRibbonButton();
             this.groupJuarezPrint = this.Factory.CreateRibbonGroup();
             this.btnPrintJuarez = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
@@ -96,22 +98,36 @@ namespace DESign_WordAddIn
             // 
             // groupPrint
             // 
-            this.groupPrint.Items.Add(this.btnPrintShopCopies);
-            this.groupPrint.Items.Add(this.btnSinglePrintShopCopy);
+            this.groupPrint.Items.Add(this.btnPrintJShopCopies);
+            this.groupPrint.Items.Add(this.btnPrintGShopCopies);
+            this.groupPrint.Items.Add(this.btnPrint1Master);
+            this.groupPrint.Items.Add(this.btnPrint1Cut);
             this.groupPrint.Label = "FALLON PRINTING";
             this.groupPrint.Name = "groupPrint";
             // 
-            // btnPrintShopCopies
+            // btnPrintJShopCopies
             // 
-            this.btnPrintShopCopies.Label = "Print Shop Copies";
-            this.btnPrintShopCopies.Name = "btnPrintShopCopies";
-            this.btnPrintShopCopies.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnPrintShopCopies_Click);
+            this.btnPrintJShopCopies.Label = "Print J Shop Copies";
+            this.btnPrintJShopCopies.Name = "btnPrintJShopCopies";
+            this.btnPrintJShopCopies.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnPrintJShopCopies_Click);
             // 
-            // btnSinglePrintShopCopy
+            // btnPrintGShopCopies
             // 
-            this.btnSinglePrintShopCopy.Label = "Single Shop Copy";
-            this.btnSinglePrintShopCopy.Name = "btnSinglePrintShopCopy";
-            this.btnSinglePrintShopCopy.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnSinglePrintShopCopy_Click);
+            this.btnPrintGShopCopies.Label = "Print G Shop Copies";
+            this.btnPrintGShopCopies.Name = "btnPrintGShopCopies";
+            this.btnPrintGShopCopies.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnPrintGShopCopies_Click);
+            // 
+            // btnPrint1Master
+            // 
+            this.btnPrint1Master.Label = "Print 1 Master";
+            this.btnPrint1Master.Name = "btnPrint1Master";
+            this.btnPrint1Master.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnPrint1Master_Click);
+            // 
+            // btnPrint1Cut
+            // 
+            this.btnPrint1Cut.Label = "Print 1 Cut";
+            this.btnPrint1Cut.Name = "btnPrint1Cut";
+            this.btnPrint1Cut.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnPrint1Cut_Click);
             // 
             // groupJuarezPrint
             // 
@@ -150,11 +166,13 @@ namespace DESign_WordAddIn
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnNailBacksheet;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnHoldClear;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup groupPrint;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPrintShopCopies;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnSinglePrintShopCopy;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPrintJShopCopies;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnBlankWorksheets;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup groupJuarezPrint;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPrintJuarez;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPrintGShopCopies;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPrint1Master;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPrint1Cut;
     }
 
     partial class ThisRibbonCollection

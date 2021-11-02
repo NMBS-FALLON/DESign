@@ -96,11 +96,11 @@ namespace DESign_BOT
                         object mark, quantity, designation, overallLengthFeet, overallLengthInches, TCXLfeet, TCXLinches, TCXLtype, TCXRfeet, TCXRinches,
                                TCXRtype, BCXLfeet, BCXLinches, BCXLtype, BCXRfeet, BCXRinches, BCXRtype, bearingDepthL, bearingDepthR, baySlope, baySlopeHE, LEseatSlope, LEseatHL,
                                REseatSlope, REseatHL, holeLeftFeet, holeLeftInches, holeRightFeet, holeRightInches, holeSize, holeGage, NailerHoldBackLE, NailerHoldBackRE, NailerSpacing,
-                               KnifePlateLE, KnifePlateRE;
+                               KnifePlateLE, KnifePlateRE, Adload, NetUplift, LeAxialW, LeAxialE, LeAxialEm, ReAxialW, ReAxialE, ReAxialEm;
                         mark = quantity = designation = overallLengthFeet = overallLengthInches = TCXLfeet = TCXLinches = TCXLtype = TCXRfeet = TCXRinches =
                                TCXRtype = BCXLfeet = BCXLinches = BCXLtype = BCXRfeet = BCXRinches = BCXRtype = bearingDepthL = bearingDepthR = baySlope = baySlopeHE = LEseatSlope = LEseatHL =
                                REseatSlope = REseatHL = holeLeftFeet = holeLeftInches = holeRightFeet = holeRightInches = holeSize = holeGage = NailerHoldBackLE = NailerHoldBackRE = NailerSpacing =
-                               KnifePlateLE = KnifePlateRE = null;
+                               KnifePlateLE = KnifePlateRE = Adload = NetUplift = LeAxialW = LeAxialE =LeAxialEm = ReAxialW = ReAxialE = ReAxialEm =null;
 
                         oSheet = (Excel._Worksheet)sheet.get_Item(joistWorksheetIndices[i]);
 
@@ -157,6 +157,18 @@ namespace DESign_BOT
                                 NailerHoldBackLE = joistSheetMultiArray[j + 102, 169];
                                 NailerHoldBackRE = joistSheetMultiArray[j + 102, 174];
                                 NailerSpacing = joistSheetMultiArray[j + 102, 179];
+
+                                NetUplift = joistSheetMultiArray[j + 26, 9];
+
+                                Adload = joistSheetMultiArray[j + 26, 66];
+
+                                LeAxialW = joistSheetMultiArray[j + 102, 59];
+                                LeAxialE = joistSheetMultiArray[j + 102, 67];
+                                LeAxialEm = joistSheetMultiArray[j + 102, 75];
+
+                                ReAxialW = joistSheetMultiArray[j + 102, 88];
+                                ReAxialE = joistSheetMultiArray[j + 102, 96];
+                                ReAxialEm = joistSheetMultiArray[j + 102, 104];
 
 
                                 // hole size is actually L= [i+13,57] +"X" + [i+13,64] w/ gage = [i+13,70]
@@ -243,13 +255,13 @@ namespace DESign_BOT
                         object mark, quantity, designation, overallLengthFeet, overallLengthInches, TCwidth, TCXLfeet, TCXLinches, TCXLtype, TCXRfeet, TCXRinches,
                                TCXRtype, BCXLfeet, BCXLinches, BCXLtype, BCXRfeet, BCXRinches, BCXRtype, bearingDepthL, bearingDepthR, baySlope, baySlopeHE, LEseatSlope, LEseatHL,
                                REseatSlope, REseatHL, holeLeftFeet, holeLeftInches, holeRightFeet, holeRightInches, holeSize, holeGage, notes, unbrLen, NFB,
-                               Aft, Ain, numbPanels, Panelft, Panelin, Bft, Bin, netUpliftKip, KnifePlateLE, KnifePlateRE;
+                               Aft, Ain, numbPanels, Panelft, Panelin, Bft, Bin, netUpliftKip, KnifePlateLE, KnifePlateRE, Adload, NetUplift, LeAxialW, LeAxialE, LeAxialEm, ReAxialW, ReAxialE, ReAxialEm;
 
 
                         mark = quantity = designation = overallLengthFeet = overallLengthInches = TCwidth = TCXLfeet = TCXLinches = TCXLtype = TCXRfeet = TCXRinches =
                                TCXRtype = BCXLfeet = BCXLinches = BCXLtype = BCXRfeet = BCXRinches = BCXRtype = bearingDepthL = bearingDepthR = baySlope = baySlopeHE = LEseatSlope = LEseatHL =
                                REseatSlope = REseatHL = holeLeftFeet = holeLeftInches = holeRightFeet = holeRightInches = holeSize = holeGage = notes = unbrLen = netUpliftKip = NFB =
-                        Aft = Ain = numbPanels = Panelft = Panelin = Bft = Bin = KnifePlateLE = KnifePlateRE = null;
+                        Aft = Ain = numbPanels = Panelft = Panelin = Bft = Bin = KnifePlateLE = KnifePlateRE = Adload = NetUplift = LeAxialW = LeAxialE = LeAxialEm = ReAxialW = ReAxialE = ReAxialEm = null;
 
                         oSheet = (Excel._Worksheet)sheet.get_Item(girderWorksheetIndices[i]);
 
@@ -307,17 +319,27 @@ namespace DESign_BOT
                                 KnifePlateLE = girderSheetMultiArray[j + 100, 159];
                                 KnifePlateRE = girderSheetMultiArray[j + 100, 164];
 
-                                object netUpliftPLF = girderSheetMultiArray[j + 26, 9];
+                                NetUplift = joistSheetMultiArray[j + 26, 9];
 
-                                
+                                Adload = joistSheetMultiArray[j + 26, 66];
+
+                                LeAxialW = joistSheetMultiArray[j + 102, 59];
+                                LeAxialE = joistSheetMultiArray[j + 102, 67];
+                                LeAxialEm = joistSheetMultiArray[j + 102, 75];
+
+                                ReAxialW = joistSheetMultiArray[j + 102, 88];
+                                ReAxialE = joistSheetMultiArray[j + 102, 96];
+                                ReAxialEm = joistSheetMultiArray[j + 102, 104];
+
+
 
 
                                 double dblNetUpliftPLF = 0;
-                                if (netUpliftPLF != null | (netUpliftPLF ?? String.Empty).ToString() != "")
+                                if (NetUplift != null | (NetUplift?? String.Empty).ToString() != "")
                                 {
                                     try
                                     {
-                                        dblNetUpliftPLF = Convert.ToDouble(netUpliftPLF);
+                                        dblNetUpliftPLF = Convert.ToDouble(NetUplift);
                                     }
                                     catch
                                     {

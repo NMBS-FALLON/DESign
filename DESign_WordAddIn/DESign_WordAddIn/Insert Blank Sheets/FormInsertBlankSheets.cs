@@ -20,17 +20,6 @@ namespace DESign_WordAddIn.Insert_Blank_Sheets
             InitializeComponent();
         }
 
-        private void btnInsertBirdcage_Click(object sender, EventArgs e)
-        {
-            addDetail(Properties.Resources.blankBirdCage, "Bird Cage Detail");
-
-        }
-
-        private void btnInsertBlankTPlate_Click(object sender, EventArgs e)
-        {
-            addDetail(Properties.Resources.blankTPlate, "T-Plate Detail");
-        }
-
         private void btnInsertBlankShimPlate_Click(object sender, EventArgs e)
         {
             addShim(Properties.Resources.blankShimPlate);
@@ -449,6 +438,25 @@ namespace DESign_WordAddIn.Insert_Blank_Sheets
             return (byte[])converter.ConvertTo(img, typeof(byte[]));
         }
 
+        private void btnInsertBirdcageQuarterInch_Click(object sender, EventArgs e)
+        {
+            addDetail(Properties.Resources.blankBirdCage_QuarterInch, "1/4\" Bird Cage Detail");
+        }
+
+        private void btnInsertBirdcageHalfInch_Click(object sender, EventArgs e)
+        {
+            addDetail(Properties.Resources.blankBirdCage_HalfInch, "1/2\" Bird Cage Detail");
+        }
+
+        private void btnInsertBlankTPlateHalfInch_Click(object sender, EventArgs e)
+        {
+            addDetail(Properties.Resources.blankTPlate_HalfInch, "1/2\" T-Plate Detail");
+        }
+
+        private void btnInsertBlankTPlateOneInch_Click(object sender, EventArgs e)
+        {
+            addDetail(Properties.Resources.blankTPlate_OneInch, "1\" T-Plate Detail");
+        }
     }
 
 }

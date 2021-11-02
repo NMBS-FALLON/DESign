@@ -199,6 +199,7 @@ namespace DESign_WordAddIn
             string excelPattern = null;
             string excelWoodThickness = null;
             bool isPanelized = cbIsPanelized.Checked;
+            bool crimpedWebs = cbCrimpedWebs.Checked;
 
             if (checkBoxExcelData.Checked)
             {
@@ -217,6 +218,7 @@ namespace DESign_WordAddIn
                     excelPattern = excelJoistData.Pattern;
                     excelWoodThickness = excelJoistData.WoodThickness;
                     isPanelized = excelJoistData.IsPanelized;
+                    crimpedWebs = excelJoistData.CrimpedWebs;
                 }
                 catch
                 {
@@ -421,6 +423,7 @@ namespace DESign_WordAddIn
             nailerInformation.Initials = initials;
             nailerInformation.WoodThickness = woodThickness;
             nailerInformation.IsPanelized = isPanelized;
+            nailerInformation.CrimpedWebs = crimpedWebs;
 
             return nailerInformation;
 
@@ -441,10 +444,18 @@ namespace DESign_WordAddIn
             List<string> woodWidths = new List<string>(TCs.Count);
             List<double> horizontalLegs = new List<double>();
 
-
+            
             for (int i = 0; i <= TCs.Count - 1; i++)
             {
-                woodWidths.Add(QueryAngleData.WNtcWidth(anglesFromSql, TCs[i]) + "\"");
+             
+                if (nailerInfo.CrimpedWebs)
+                {
+                    woodWidths.Add(QueryAngleData.WNtcWidth(anglesFromSql, TCs[i]) + " 1/8" );
+                }
+                else
+                {
+                    woodWidths.Add(QueryAngleData.WNtcWidth(anglesFromSql, TCs[i]) + " 1/4" );
+                }
             }
 
             if ((TCs.Contains("A50A28") || TCs.Contains("A48A28") || TCs.Contains("A48A29")) &&
@@ -475,6 +486,51 @@ namespace DESign_WordAddIn
                 .Select (tc => QueryAngleData.Requres1InchGap(anglesFromSql, tc))
                 .First();
 
+
+
+
+            var coverSheetNotes = new List<string>();
+
+            if (nailerInfo.CrimpedWebs == false)
+            {
+                requres1InchGap = false;
+                var tcWidth = woodWidths[0].Replace(" 1/4", "");
+                coverSheetNotes.Add("SPECIAL WOOD NAILER; " + tcWidth + " 1/8\"" + " STEEL O-T-O, " + tcWidth + " 1/4\" WOOD WIDTH – SEE N1");
+            }
+            else
+            {
+                var tcWidth = woodWidths[0].Replace(" 1/8", "");
+                coverSheetNotes.Add("WOOD NAILER; " + tcWidth + "\"" + " STEEL WIDTH, " + tcWidth + " 1/8\" WOOD WIDTH – SEE N1");
+            }
+
+            if (requres1InchGap)
+            {
+                coverSheetNotes.Add("PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
+            }
+
+
+            if (nailerInfo.WoodThickness == "2\"")
+            {
+                coverSheetNotes.Add("SPECIAL WOODNAILER: USE 2\" WOOD - SEE N1");
+            }
+
+            Predicate<string> isComposite = delegate (string tc) { return tc.Contains("W"); };
+            if (TCs.Find(isComposite) != null)
+            {
+                coverSheetNotes.Add("COMPOSITE WOODNAILER; THIS JOIST MUST BE BUILT IN BLDG 2");
+                coverSheetNotes.Add("WOOD MUST BE CONTINUOUS, FINGER JOINTS ONLY, NO BUTTED JOINTS");
+            }
+
+            if (nailerInfo.IsPanelized)
+            {
+                coverSheetNotes.Add("PANELIZED INC.; NO MID-SPAN JOINTS");
+            }
+
+            var coverSheetNote = String.Join("\r\n", coverSheetNotes);
+
+            addTextBox(selection, 130, 700, 350, 20, coverSheetNote);
+
+
             if (requres1InchGap)
             {
 
@@ -490,8 +546,6 @@ namespace DESign_WordAddIn
 
                
                 
-
-                addTextBox(selection, 60, 40, 350, 20, "PROVIDE 1\" GAP BETWEEN TOP CHORD ANGLES, END CRIMP WEBS");
 
                 selection.Find.Execute("WEB CUT SHEET");
                 selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
@@ -510,6 +564,7 @@ namespace DESign_WordAddIn
                 }
                 
             }
+
 
             foreach (string mark in Marks)
             {
@@ -573,6 +628,7 @@ namespace DESign_WordAddIn
 
             selection.EndKey(Word.WdUnits.wdStory, 1);
 
+            selection.EndKey(Word.WdUnits.wdStory, 1);
 
 
             //ADDING JOBINFORMATION & LIST NUMBER
@@ -773,7 +829,7 @@ namespace DESign_WordAddIn
                 tableNailBacksheetALL.Cell(1, 2).Range.Text = "QTY.";
                 tableNailBacksheetALL.Cell(1, 3).Range.Text = "A";
                 tableNailBacksheetALL.Cell(1, 4).Range.Text = "B";
-                tableNailBacksheetALL.Cell(1, 5).Range.Text = "WOOD WIDTH";
+                tableNailBacksheetALL.Cell(1, 5).Range.Text = "WOOD SIZE";
                 tableNailBacksheetALL.Cell(1, 6).Range.Text = "WOOD OAL";
                 tableNailBacksheetALL.Cell(1, 7).Range.Text = "REMARKS";
 
@@ -781,7 +837,8 @@ namespace DESign_WordAddIn
                 tableNailBacksheetALL.Cell(2, 2).Range.Text = joistData[6][0];
                 tableNailBacksheetALL.Cell(2, 3).Range.Text = stringListLengthA[0]; //tboxListA
                 tableNailBacksheetALL.Cell(2, 4).Range.Text = stringListLengthB[0]; //tboxListB
-                tableNailBacksheetALL.Cell(2, 5).Range.Text = woodWidths[0];
+                var thickness = (nailerInfo.WoodThickness == "3x") ? "2.5" : "2";
+                tableNailBacksheetALL.Cell(2, 5).Range.Text = woodWidths[0] + " x " + thickness;
                 tableNailBacksheetALL.Cell(2, 6).Range.Text = woodLengths1[0];
                 if (nailerInfo.WoodThickness == "2\"")
                 {
@@ -855,17 +912,35 @@ namespace DESign_WordAddIn
                 selection.HomeKey(Word.WdUnits.wdLine);
                 selection.MoveUp(Word.WdUnits.wdLine, 6);
 
+            }
 
+            var nailerSheetNotes = new List<string>();
 
+            if (nailerInfo.CrimpedWebs == false)
+            {
+                var tcWidth = woodWidths[0].Replace(" 1/4", "");
+                nailerSheetNotes.Add("SPECIAL WOOD NAILER; " + tcWidth + " 1/4\" WOOD WIDTH");
+            }
 
+            if (nailerInfo.WoodThickness == "2\"")
+            {
+                nailerSheetNotes.Add("SPECIAL WOODNAILER: USE 2\" WOOD");
+            }
+
+            if (TCs.Find(isComposite) != null)
+            {
+                nailerSheetNotes.Add("COMPOSITE WOODNAILER; THIS JOIST MUST BE BUILT IN BLDG 2");
+                nailerSheetNotes.Add("WOOD MUST BE CONTINUOUS, FINGER JOINTS ONLY, NO BUTTED JOINTS");
             }
 
             if (nailerInfo.IsPanelized)
             {
-                addTextBox(selection, 382, 415, 180, 20, "Panelized Inc. - No Mid-Span Joints");
+                nailerSheetNotes.Add("PANELIZED INC.; NO MID-SPAN JOINTS");
             }
 
+            var nailerSheetNote = String.Join("\r\n", nailerSheetNotes);
 
+            addTextBox(selection, 130, 700, 350, 20, nailerSheetNote);
 
 
             try { Clipboard.SetText(clipboard); }
@@ -975,13 +1050,17 @@ namespace DESign_WordAddIn
 
             Word.Shape wdNailerTextBox = Globals.ThisAddIn.Application.ActiveDocument.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, left, top, width, height);
             wdNailerTextBox.TextFrame.TextRange.Bold = 1;
+            wdNailerTextBox.TextFrame.TextRange.Font.Size = 8;
             wdNailerTextBox.TextFrame.TextRange.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+            wdNailerTextBox.TextFrame.MarginTop = 1;
+            wdNailerTextBox.TextFrame.MarginLeft = 1;
+            wdNailerTextBox.TextFrame.MarginBottom = 1;
+            wdNailerTextBox.TextFrame.MarginRight = 1;
+            wdNailerTextBox.TextFrame.TextRange.ParagraphFormat.SpaceBefore = 0;
+            wdNailerTextBox.TextFrame.TextRange.ParagraphFormat.SpaceAfter = 0;
+            wdNailerTextBox.TextFrame.TextRange.ParagraphFormat.LineSpacingRule = Word.WdLineSpacing.wdLineSpaceSingle;
             wdNailerTextBox.TextFrame.ContainingRange.Text = text;
-
-            wdNailerTextBox.TextFrame.MarginTop = 3;
-            wdNailerTextBox.TextFrame.MarginLeft = 3;
-            wdNailerTextBox.TextFrame.MarginBottom = 3;
-            wdNailerTextBox.TextFrame.MarginRight = 3;
+            wdNailerTextBox.TextFrame.AutoSize = -1;
 
 
             selection.Collapse(Word.WdCollapseDirection.wdCollapseEnd);

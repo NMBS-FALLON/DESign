@@ -173,6 +173,7 @@ namespace DESign_BOT
             job = ExtractJoistDetails.JobFromShoporderJoistDetails();
 
             double dblFiveInch = 0.0;
+            double dblSixInch = 0.0;
             double dblSevenInch = 0.0;
             double dblEightInch = 0.0;
             double dblNineInch = 0.0;
@@ -181,21 +182,29 @@ namespace DESign_BOT
             
             foreach(Joist joist in job.Joists)
             {
-                double qty = Convert.ToDouble(joist.Quantity);
-                if (joist.TCWidth(anglesFromSql) == "5") { dblFiveInch = dblFiveInch + qty*(joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth(anglesFromSql) == "7") { dblSevenInch = dblSevenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth(anglesFromSql) == "8") { dblEightInch = dblEightInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth(anglesFromSql) == "9") { dblNineInch = dblNineInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth(anglesFromSql) == "11") { dblElevenInch = dblElevenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
-                if (joist.TCWidth(anglesFromSql) == "13") { dblThirteenInch = dblThirteenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                if (joist.Description.Contains("G") == false)
+                    {
+                    double qty = Convert.ToDouble(joist.Quantity);
+                    if (joist.TCWidth(anglesFromSql) == "5") { dblFiveInch = dblFiveInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                    if (joist.TCWidth(anglesFromSql) == "6") { dblSixInch = dblSixInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                    if (joist.TCWidth(anglesFromSql) == "7") { dblSevenInch = dblSevenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                    if (joist.TCWidth(anglesFromSql) == "8") { dblEightInch = dblEightInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                    if (joist.TCWidth(anglesFromSql) == "9") { dblNineInch = dblNineInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                    if (joist.TCWidth(anglesFromSql) == "11") { dblElevenInch = dblElevenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                    if (joist.TCWidth(anglesFromSql) == "13") { dblThirteenInch = dblThirteenInch + qty * (joist.BaseLength + joist.TCXL + joist.TCXR); }
+                }
 
             }
 
-            string stringFiveInch, stringSevenInch, stringEightInch, stringNineInch, stringElevenInch, stringThirteenInch;
-            stringFiveInch = stringSevenInch = stringEightInch = stringNineInch = stringElevenInch = stringThirteenInch = String.Empty;
+            string stringFiveInch, stringSixInch, stringSevenInch, stringEightInch, stringNineInch, stringElevenInch, stringThirteenInch;
+            stringFiveInch = stringSixInch = stringSevenInch = stringEightInch = stringNineInch = stringElevenInch = stringThirteenInch = String.Empty;
             if (dblFiveInch != 0)
             {
                 stringFiveInch = "5\" = " + Convert.ToString(Convert.ToInt32(dblFiveInch)) + "  lf \r\n";
+            }
+            if (dblSixInch != 0)
+            {
+                stringSixInch = "6\" = " + Convert.ToString(Convert.ToInt32(dblSixInch)) + "  lf \r\n";
             }
             if (dblSevenInch != 0)
             {
@@ -229,7 +238,7 @@ namespace DESign_BOT
             */
             string woodRequirements =
 
-                stringFiveInch + stringSevenInch + stringEightInch + stringNineInch + stringElevenInch + stringThirteenInch;
+                stringFiveInch + stringSixInch + stringSevenInch + stringEightInch + stringNineInch + stringElevenInch + stringThirteenInch;
 
             tBoxWoodReq.Text = woodRequirements;
 

@@ -47,14 +47,21 @@ namespace DESign_WordAddIn
             new FormSOtoRISA().Show();
         }
 
-        private void btnPrintShopCopies_Click(object sender, RibbonControlEventArgs e)
+        private void btnPrintJShopCopies_Click(object sender, RibbonControlEventArgs e)
         {
+
+            print.PrintShopCopies(8, 6);
+        }
+
+        private void btnPrintGShopCopies_Click(object sender, RibbonControlEventArgs e)
+        {
+
             print.PrintShopCopies(8, 4);
         }
 
-        private void btnSinglePrintShopCopy_Click(object sender, RibbonControlEventArgs e)
+        private void btnPrint1Master_Click(object sender, RibbonControlEventArgs e)
         {
-            print.PrintShopCopies(1, 1);
+            print.PrintShopCopies(1, 0);
         }
 
         private void btnBlankWorksheets_Click(object sender, RibbonControlEventArgs e)
@@ -66,6 +73,11 @@ namespace DESign_WordAddIn
         private void btnPrintJuarezShopCopies_Click(object sender, RibbonControlEventArgs e)
         {
             print.PrintShopCopiesJuarez();
+        }
+
+        private void btnPrint1Cut_Click(object sender, RibbonControlEventArgs e)
+        {
+            print.PrintShopCopies(0, 1);
         }
     }
 

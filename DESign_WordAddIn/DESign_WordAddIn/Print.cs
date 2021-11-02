@@ -128,8 +128,14 @@ namespace DESign_WordAddIn
             Globals.ThisAddIn.Application.ActiveWindow.View.RevisionsMode = Word.WdRevisionsMode.wdInLineRevisions;
 
             //Globals.ThisAddIn.Application.ActivePrinter = "Xerox D110";
-            Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: shopCopies, Copies: numShopCopies);
-            Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: cutCopies, Copies: numCutCopies);
+            if (numShopCopies != 0)
+            {
+                Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: shopCopies, Copies: numShopCopies);
+            }
+            if (numCutCopies != 0)
+            {
+                Globals.ThisAddIn.Application.ActiveDocument.PrintOut(Range: Word.WdPrintOutRange.wdPrintRangeOfPages, Pages: cutCopies, Copies: numCutCopies);
+            }
 
         ExitSub:
             selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);

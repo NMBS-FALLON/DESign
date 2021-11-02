@@ -36,6 +36,8 @@ namespace DESign_WordAddIn
             internal string WoodThickness {  get { return woodThickness; } set { woodThickness = value;  } }
 
             internal bool IsPanelized { get; set; }
+
+            internal bool CrimpedWebs { get; set; }
             
         }
 
@@ -178,6 +180,10 @@ namespace DESign_WordAddIn
                     nailerInformation.IsPanelized =
                         (oSheet.Cells[5, 3].Value2 == null || oSheet.Cells[5, 3].Value2 == "") ? false :
                         (Convert.ToString(oSheet.Cells[5, 3].Value2) == "Yes" ? true : false);
+
+                    nailerInformation.CrimpedWebs =
+                        (oSheet.Cells[4, 5].Value2 == null || oSheet.Cells[4, 5].Value2 == "") ? true :
+                        (Convert.ToString(oSheet.Cells[4, 5].Value2) == "No" ? false : true);
 
 
                     oWB.Close(0);
