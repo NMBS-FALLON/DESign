@@ -26,17 +26,20 @@ namespace DESign_AutoCAD
             removeDesignInfo();
 
 
-            bool addJoistTcw = false;
+            bool addJoistTcwCrimped = false;
+            bool addJoistTcwNonCrimped = false;
             bool addBoltLength = false;
             bool addGirderTcw = false;
             bool addWeights = false;
+            bool addTcMaxBridging = false;
+            bool addBcMaxBridging = false;
 
             using (var dif = new DesignInfoForm())
             {
                 var result = dif.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK)
                 {
-                    (addJoistTcw, addBoltLength, addGirderTcw, addWeights) = dif.Return;
+                    (addJoistTcwCrimped, addJoistTcwNonCrimped, addBoltLength, addGirderTcw, addWeights, addTcMaxBridging, addBcMaxBridging) = dif.Return;
                 }
             }
 
@@ -58,7 +61,7 @@ namespace DESign_AutoCAD
 
             Job job = new Job();
 
-            if (addJoistTcw || addBoltLength || addGirderTcw || addWeights)
+            if (addJoistTcwCrimped || addJoistTcwNonCrimped || addBoltLength || addGirderTcw || addWeights || addTcMaxBridging || addBcMaxBridging)
             {
                 job = ExtractJoistDetails.JobFromShoporderJoistDetails();
             }
@@ -68,25 +71,28 @@ namespace DESign_AutoCAD
                 return;
             }
 
-            var joistInfoList = new List<(string Mark, int quantity, string TcWidth, int BoltSize, double Weight)>();
+            var joistInfoList = new List<(string Mark, int Quantity, string TcWidth, int BoltSize, double Weight, string TcMaxBridging, string BcMaxBridging)>();
 
             foreach (var joist in job.Joists)
             {
                 var mark = joist.Mark;
-                var tcWidth = QueryAngleData.WNtcWidth(anglesFromSql, joist.TC);
+                var tcWidth = "";
+                if (addJoistTcwCrimped) { tcWidth = QueryAngleData.WNtcWidth(anglesFromSql, joist.TC); }
+                if (addJoistTcwNonCrimped) { tcWidth = QueryAngleData.WNtcWidth(anglesFromSql, joist.TC) + " 1/8"; }
                 var bcSize = joist.BC;
                 var bcVleg = QueryAngleData.DblVleg(anglesFromSql, bcSize);
                 var isMerchantBc = !bcSize.Contains("A");
                 var boltSize = isMerchantBc ?
                                  System.Math.Max((short)4, (short)System.Math.Ceiling(bcVleg + 1)) :
                                  System.Math.Max((short)4, (short)System.Math.Ceiling(bcVleg + (1 - 0.078)));
-                joistInfoList.Add((mark, joist.Quantity, tcWidth, boltSize, joist.WeightInLBS));
+              
+                joistInfoList.Add((mark, joist.Quantity, tcWidth, boltSize, joist.WeightInLBS, joist.StringTcMaxBridgingSpacing, joist.StringBcMaxBridgingSpacing));
             }
 
             var joistTcWidthMajority =
                 joistInfoList
                 .GroupBy(info => info.TcWidth)
-                .Select(group => (TcWidth: group.Key, Sum: group.Sum(info => info.quantity)))
+                .Select(group => (TcWidth: group.Key, Sum: group.Sum(info => info.Quantity)))
                 .OrderByDescending(info => info.Sum)
                 .First()
                 .TcWidth;
@@ -94,7 +100,7 @@ namespace DESign_AutoCAD
             var boltLengthMajority =
                 joistInfoList
                 .GroupBy(info => info.BoltSize)
-                .Select(group => (BoltSize: group.Key, Sum: group.Sum(info => info.quantity)))
+                .Select(group => (BoltSize: group.Key, Sum: group.Sum(info => info.Quantity)))
                 .OrderByDescending(info => info.Sum)
                 .First()
                 .BoltSize;
@@ -102,12 +108,14 @@ namespace DESign_AutoCAD
             var marksWithMessages = new List<(string Mark, List<string> Messages)>();
 
 
-            foreach (var (Mark, Quantity, TcWidth, BoltLength, Weight) in joistInfoList)
+            foreach (var (Mark, Quantity, TcWidth, BoltLength, Weight, TcMaxBridging, BcMaxBridging) in joistInfoList)
                 {
                     var messages = new List<string>();
-                    if (addJoistTcw && TcWidth != joistTcWidthMajority) { messages.Add("TCW=" + TcWidth); }
+                    if ((addJoistTcwCrimped || addJoistTcwNonCrimped) && TcWidth != joistTcWidthMajority) { messages.Add("TCW=" + TcWidth); }
                     if (addBoltLength && BoltLength != boltLengthMajority) { messages.Add("BL=" + BoltLength); }
                     if (addWeights) { messages.Add("WT=" + ((int)(System.Math.Ceiling(Weight * (1 + weightFactor) / 10.0) * 10.0)).ToString()); }
+                    if (addTcMaxBridging) { messages.Add("TCB=" + TcMaxBridging); }
+                    if (addBcMaxBridging) { messages.Add("BCB=" + BcMaxBridging); }
                     if (messages.Count != 0)
                     {
                         marksWithMessages.Add((Mark, messages));
@@ -119,6 +127,7 @@ namespace DESign_AutoCAD
                 var messages = new List<string>();
                 if (addGirderTcw) { messages.Add("TCW=" + girder.TCWidth(anglesFromSql)); }
                 if (addWeights) { messages.Add("WT=" + ((int)(System.Math.Ceiling(girder.WeightInLBS * (1 + weightFactor) / 10.0) * 10.0)).ToString()); }
+                //if (addBcMaxBridging) { messages.Add("BCB=" + addBcMaxBridging); }
                 if (messages.Count != 0)
                 {
                     marksWithMessages.Add((girder.Mark, messages));
@@ -128,7 +137,7 @@ namespace DESign_AutoCAD
 
             foreach (var (Mark, Messages) in marksWithMessages)
             {
-                var markWithMessage = string.Format("{0} {{{1}}}", Mark, string.Join(",", Messages));
+                var markWithMessage = string.Format("{0} |{1}|", Mark, string.Join(",", Messages));
 
                 Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
 
@@ -177,7 +186,7 @@ namespace DESign_AutoCAD
                                     dimText.Contains(string.Format("-{0} ", Mark)))
                                 {
                                     string replace = string.Format("-{0}", Mark);
-                                    string adjustedMarkWithMessage = markWithMessage.Replace("{", "\\{").Replace("}", "\\}");
+                                    string adjustedMarkWithMessage = markWithMessage;
                                     string replacement = string.Format("-{0}", adjustedMarkWithMessage);
                                     string newrdText = Regex.Replace(dimText, replace, replacement);
                                     ((RotatedDimension)currentEntity).DimensionText = newrdText;
@@ -204,10 +213,10 @@ namespace DESign_AutoCAD
 
             }
 
-            if (addJoistTcw || addBoltLength)
+            if (addJoistTcwCrimped || addJoistTcwNonCrimped || addBoltLength)
             {
                 var majorityMessage = "";
-                if (addJoistTcw)
+                if (addJoistTcwCrimped || addJoistTcwNonCrimped)
                 {
                     majorityMessage += joistTcWidthMajority + "\" majority TC width.\n";
                 }
@@ -846,9 +855,9 @@ namespace DESign_AutoCAD
 
         private string removeTCWidths(string text)
         {
-            if (text.Contains("{"))
+            if (text.Contains("|"))
             {
-                text = text.Substring(0, text.IndexOf('{'));
+                text = text.Substring(0, text.IndexOf('|'));
             }
 
             return text;

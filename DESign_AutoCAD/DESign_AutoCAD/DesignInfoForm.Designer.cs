@@ -38,14 +38,19 @@
             this.clbInfoSelect.Font = new System.Drawing.Font("Corbel", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.clbInfoSelect.FormattingEnabled = true;
             this.clbInfoSelect.Items.AddRange(new object[] {
-            "JOIST TC WIDTH",
+            "JOIST TC WIDTH (STANDARD)",
+            "JOIST TC WIDTH (1 1/8\" GAP)",
+            "GIRDER TC WIDTH",
             "JOIST BOLT LENGTH",
-            "GIRDER TC WIDTH"});
+            "WEIGHT",
+            "TC MAX BRIDGING",
+            "BC MAX BRIDGING"});
             this.clbInfoSelect.Location = new System.Drawing.Point(18, 44);
-            this.clbInfoSelect.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.clbInfoSelect.Margin = new System.Windows.Forms.Padding(2);
             this.clbInfoSelect.Name = "clbInfoSelect";
-            this.clbInfoSelect.Size = new System.Drawing.Size(211, 114);
+            this.clbInfoSelect.Size = new System.Drawing.Size(348, 224);
             this.clbInfoSelect.TabIndex = 0;
+            this.clbInfoSelect.SelectedIndexChanged += new System.EventHandler(this.clbInfoSelect_SelectedIndexChanged);
             // 
             // label1
             // 
@@ -61,8 +66,8 @@
             // btnAddInfo
             // 
             this.btnAddInfo.Font = new System.Drawing.Font("Corbel", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnAddInfo.Location = new System.Drawing.Point(17, 178);
-            this.btnAddInfo.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnAddInfo.Location = new System.Drawing.Point(18, 300);
+            this.btnAddInfo.Margin = new System.Windows.Forms.Padding(2);
             this.btnAddInfo.Name = "btnAddInfo";
             this.btnAddInfo.Size = new System.Drawing.Size(210, 36);
             this.btnAddInfo.TabIndex = 2;
@@ -75,11 +80,11 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.ClientSize = new System.Drawing.Size(244, 225);
+            this.ClientSize = new System.Drawing.Size(389, 408);
             this.Controls.Add(this.btnAddInfo);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.clbInfoSelect);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DesignInfoForm";
             this.Text = "INFO SELECTION";
             this.Load += new System.EventHandler(this.DesignInfoForm_Load);

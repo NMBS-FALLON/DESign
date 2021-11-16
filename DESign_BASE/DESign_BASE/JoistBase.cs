@@ -29,6 +29,33 @@ namespace DESign_BASE
         public double BLDecimal { get; set; }
         public double Time { get; set; }
         public bool UseWood { get; set; }
+        public double DecimalTcMaxBridgingSpacing { get; set; }
+        public double DecimalBcMaxBridgingSpacing { get; set; }
+
+        public string StringTcMaxBridgingSpacing
+        {
+            get
+            {
+                return decimalLengthToHyphenLength(DecimalTcMaxBridgingSpacing);
+            }
+        }
+
+        public string StringBcMaxBridgingSpacing
+        {
+            get
+            {
+                return decimalLengthToHyphenLength(DecimalBcMaxBridgingSpacing);
+            }
+        }
+
+        private string decimalLengthToHyphenLength(double decimalLength)
+        {
+            var feet = Math.Truncate(decimalLength / 12);
+            var inches = Math.Floor(decimalLength - feet * 12.0);
+
+            return String.Format("{0}-{1}", feet, inches);
+        }
+
         private int strippedNumber;
         public int StrippedNumber
         {
