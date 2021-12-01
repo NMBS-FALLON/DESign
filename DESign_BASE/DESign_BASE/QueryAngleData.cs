@@ -199,7 +199,7 @@ namespace DESign_BASE
                 .Select(a => a.LegHorizontal)
                 .First();
 
-            var typTcWidth = legHorizontal * 2.0;
+            var typTcWidth = legHorizontal * 2.0 + 1.0;
             return Convert.ToString(typTcWidth);
         }
 

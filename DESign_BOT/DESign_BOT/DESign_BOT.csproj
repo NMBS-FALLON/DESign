@@ -211,6 +211,7 @@
     <None Include="Resources\Bolt Requirements.xlsx" />
     <None Include="Resources\DesignTCWidths.xlsx" />
     <None Include="Resources\NMBS BOM_EMPTY.xlsx" />
+    <None Include="Resources\NMBS BOM_EMPTY_WITH LOAD CASES.xlsm" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

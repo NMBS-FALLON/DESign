@@ -66,11 +66,11 @@ namespace DESign_AutoCAD
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 BlockTableRecord btr = (BlockTableRecord)tr.GetObject
-                    (SymbolUtilityServices.GetBlockModelSpaceId(db), OpenMode.ForRead);
+                    (SymbolUtilityServices.GetBlockModelSpaceId(db), OpenMode.ForRead, false, true);
 
                 foreach (ObjectId id in btr)
                 {
-                    Entity currentEntity = tr.GetObject(id, OpenMode.ForWrite, false) as Entity;
+                    Entity currentEntity = tr.GetObject(id, OpenMode.ForWrite, false, true) as Entity;
                     if (currentEntity == null)
                     {
                         continue;

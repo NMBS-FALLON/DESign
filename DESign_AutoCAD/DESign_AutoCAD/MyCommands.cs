@@ -89,21 +89,31 @@ namespace DESign_AutoCAD
                 joistInfoList.Add((mark, joist.Quantity, tcWidth, boltSize, joist.WeightInLBS, joist.StringTcMaxBridgingSpacing, joist.StringBcMaxBridgingSpacing));
             }
 
-            var joistTcWidthMajority =
-                joistInfoList
-                .GroupBy(info => info.TcWidth)
-                .Select(group => (TcWidth: group.Key, Sum: group.Sum(info => info.Quantity)))
-                .OrderByDescending(info => info.Sum)
-                .First()
-                .TcWidth;
+            string joistTcWidthMajority = "";
 
-            var boltLengthMajority =
-                joistInfoList
-                .GroupBy(info => info.BoltSize)
-                .Select(group => (BoltSize: group.Key, Sum: group.Sum(info => info.Quantity)))
-                .OrderByDescending(info => info.Sum)
-                .First()
-                .BoltSize;
+            if (addJoistTcwCrimped || addJoistTcwNonCrimped)
+            {
+                joistTcWidthMajority =
+                    joistInfoList
+                    .GroupBy(info => info.TcWidth)
+                    .Select(group => (TcWidth: group.Key, Sum: group.Sum(info => info.Quantity)))
+                    .OrderByDescending(info => info.Sum)
+                    .First()
+                    .TcWidth;
+            }
+
+            int boltLengthMajority = 0;
+
+            if (addBoltLength)
+            {
+                boltLengthMajority =
+                    joistInfoList
+                    .GroupBy(info => info.BoltSize)
+                    .Select(group => (BoltSize: group.Key, Sum: group.Sum(info => info.Quantity)))
+                    .OrderByDescending(info => info.Sum)
+                    .First()
+                    .BoltSize;
+            }
 
             var marksWithMessages = new List<(string Mark, List<string> Messages)>();
 
@@ -147,11 +157,11 @@ namespace DESign_AutoCAD
                     using (Transaction tr = db.TransactionManager.StartTransaction())
                     {
                         BlockTableRecord btr = (BlockTableRecord)tr.GetObject
-                            (SymbolUtilityServices.GetBlockModelSpaceId(db), OpenMode.ForRead);
+                            (SymbolUtilityServices.GetBlockModelSpaceId(db), OpenMode.ForRead, false, true);
 
                         foreach (ObjectId id in btr)
                         {
-                            Entity currentEntity = tr.GetObject(id, OpenMode.ForWrite, false) as Entity;
+                            Entity currentEntity = tr.GetObject(id, OpenMode.ForWrite, false, true) as Entity;
                             if (currentEntity == null)
                             {
                                 continue;
@@ -826,11 +836,11 @@ namespace DESign_AutoCAD
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 BlockTableRecord btr = (BlockTableRecord)tr.GetObject
-                    (SymbolUtilityServices.GetBlockModelSpaceId(db), OpenMode.ForRead);
+                    (SymbolUtilityServices.GetBlockModelSpaceId(db), OpenMode.ForRead, false, true);
 
                 foreach (ObjectId id in btr)
                 {
-                    Entity currentEntity = tr.GetObject(id, OpenMode.ForWrite, false) as Entity;
+                    Entity currentEntity = tr.GetObject(id, OpenMode.ForWrite, false, true) as Entity;
                     if (currentEntity == null)
                     {
                         continue;
