@@ -29,14 +29,14 @@ namespace DESign_BASE
         public double BLDecimal { get; set; }
         public double Time { get; set; }
         public bool UseWood { get; set; }
-        public double DecimalTcMaxBridgingSpacing { get; set; }
-        public double DecimalBcMaxBridgingSpacing { get; set; }
+        public string DecimalTcMaxBridgingSpacing { get; set; }
+        public string DecimalBcMaxBridgingSpacing { get; set; }
 
         public string StringTcMaxBridgingSpacing
         {
             get
             {
-                return decimalLengthToHyphenLength(DecimalTcMaxBridgingSpacing);
+                return DecimalTcMaxBridgingSpacing;
             }
         }
 
@@ -44,7 +44,7 @@ namespace DESign_BASE
         {
             get
             {
-                return decimalLengthToHyphenLength(DecimalBcMaxBridgingSpacing);
+                return DecimalBcMaxBridgingSpacing;
             }
         }
 

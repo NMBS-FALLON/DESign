@@ -76,8 +76,8 @@ namespace DESign_BASE
                 var TCLength_Index = Array.IndexOf(headerRow, "TCLength") + 1;
                 var BCLength_Index = Array.IndexOf(headerRow, "BCLength") + 1;
                 var LineName_Index = Array.IndexOf(headerRow, "LineName") + 1;
-                var TCMaxBridging_Index = Array.IndexOf(headerRow, "TCMaxBridging") + 1;
-                var BCMaxBridging_Index = Array.IndexOf(headerRow, "BCMaxBridging") + 1;
+                var TCMaxBridging_Index = Array.IndexOf(headerRow, "TCMaxBridging_ING") + 1;
+                var BCMaxBridging_Index = Array.IndexOf(headerRow, "BCMaxBridging_ING") + 1;
                 var ReactionLEmax_Index = Array.IndexOf(headerRow, "ReactionLEmax") + 1;
                 var ReactionLEmin_Index = Array.IndexOf(headerRow, "ReactionLEmin") + 1;
                 var ReactionREmax_Index = Array.IndexOf(headerRow, "ReactionREmax") + 1;
@@ -115,8 +115,8 @@ namespace DESign_BASE
                         girder.BLDecimal = Convert.ToDouble(joistDetailArray[row, BL_Decimal_Index]);
                         girder.Time = Convert.ToDouble(joistDetailArray[row, Time_Index]);
                         girder.UseWood = Convert.ToBoolean(joistDetailArray[row, UseWoodNailerTC_Index]);
-                        girder.DecimalTcMaxBridgingSpacing = Convert.ToDouble(joistDetailArray[row, TCMaxBridging_Index]);
-                        girder.DecimalBcMaxBridgingSpacing = Convert.ToDouble(joistDetailArray[row, BCMaxBridging_Index]);
+                        girder.DecimalTcMaxBridgingSpacing = ((string)joistDetailArray[row, TCMaxBridging_Index]).Split(' ')[0] ;
+                        girder.DecimalBcMaxBridgingSpacing = ((string)joistDetailArray[row, BCMaxBridging_Index]).Split(' ')[0];
                         allGirders.Add(girder);
 
                     }
@@ -143,8 +143,8 @@ namespace DESign_BASE
                         joist.BLDecimal = Convert.ToDouble(joistDetailArray[row, BL_Decimal_Index]);
                         joist.Time = Convert.ToDouble(joistDetailArray[row, Time_Index]);
                         joist.UseWood = Convert.ToBoolean(joistDetailArray[row, UseWoodNailerTC_Index]);
-                        joist.DecimalTcMaxBridgingSpacing = Convert.ToDouble(joistDetailArray[row, TCMaxBridging_Index]);
-                        joist.DecimalBcMaxBridgingSpacing = Convert.ToDouble(joistDetailArray[row, BCMaxBridging_Index]);
+                        joist.DecimalTcMaxBridgingSpacing = ((string)joistDetailArray[row, TCMaxBridging_Index]).Split(' ')[0];
+                        joist.DecimalBcMaxBridgingSpacing = ((string)joistDetailArray[row, BCMaxBridging_Index]).Split(' ')[0];
                         allJoists.Add(joist);
                     }
                     
