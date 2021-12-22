@@ -275,8 +275,8 @@ namespace DESign_BOT
                                 quantity = girderSheetMultiArray[j, 9];
 
                                 string girderLoad = (girderSheetMultiArray[j, 37] ?? String.Empty).ToString();
-                                string[] girderLoadArray = girderLoad.Split(new string[] { "/" }, StringSplitOptions.None);
-                                string girderTotalLoad = girderLoadArray[0];
+                               // string[] girderLoadArray = girderLoad.Split(new string[] { "/" }, StringSplitOptions.None);
+                               // string girderTotalLoad = girderLoadArray[0];
 
 
                                 overallLengthFeet = girderSheetMultiArray[j, 50];
@@ -390,7 +390,8 @@ namespace DESign_BOT
                                  + (girderSheetMultiArray[j, 24] ?? String.Empty).ToString()
                                  + (girderSheetMultiArray[j, 30] ?? String.Empty).ToString()
                                  + (girderSheetMultiArray[j, 34] ?? String.Empty).ToString()
-                                 + girderTotalLoad
+                                 //+ girderTotalLoad
+                                 + girderLoad
                                  + (girderSheetMultiArray[j, 48] ?? String.Empty).ToString()
                                 + stringUpliftInKip;
 
