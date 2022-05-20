@@ -15,13 +15,11 @@ namespace DESign_AutoCAD
     public class MyCommands
     {
 
-        DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
-        List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql();
-
-
         [CommandMethod("MyCommandGroup", "DESIGN", CommandFlags.Modal)]
         public void Design()
         {
+            DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
+            List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql("Fallon");
 
             removeDesignInfo();
 
@@ -33,13 +31,16 @@ namespace DESign_AutoCAD
             bool addWeights = false;
             bool addTcMaxBridging = false;
             bool addBcMaxBridging = false;
+            string plant = "";
+            string jobNumber = "";
+            bool useSql = true;
 
             using (var dif = new DesignInfoForm())
             {
                 var result = dif.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK)
                 {
-                    (addJoistTcwCrimped, addJoistTcwNonCrimped, addBoltLength, addGirderTcw, addWeights, addTcMaxBridging, addBcMaxBridging) = dif.Return;
+                    (addJoistTcwCrimped, addJoistTcwNonCrimped, addBoltLength, addGirderTcw, addWeights, addTcMaxBridging, addBcMaxBridging, useSql, plant, jobNumber) = dif.Return;
                 }
             }
 
@@ -63,8 +64,31 @@ namespace DESign_AutoCAD
 
             if (addJoistTcwCrimped || addJoistTcwNonCrimped || addBoltLength || addGirderTcw || addWeights || addTcMaxBridging || addBcMaxBridging)
             {
-                job = ExtractJoistDetails.JobFromShoporderJoistDetails();
+                job = useSql? ExtractJoistDetails.JobFromSql(plant, jobNumber) : ExtractJoistDetails.JobFromShoporderJoistDetails();
+
+                if (useSql)
+                {
+                    foreach (var joist in job.Joists)
+                    {
+                        var tcSectionName = QueryAngleData.SectionName(anglesFromSql, System.Convert.ToInt32(joist.TC));
+                        joist.TC = tcSectionName;
+
+                        var bcSectionName = QueryAngleData.SectionName(anglesFromSql, System.Convert.ToInt32(joist.BC));
+                        joist.BC = bcSectionName;
+
+                    }
+                    foreach (var girder in job.Girders)
+                    {
+                        var tcSectionName = QueryAngleData.SectionName(anglesFromSql, System.Convert.ToInt32(girder.TC));
+                        girder.TC = tcSectionName;
+
+                        var bcSectionName = QueryAngleData.SectionName(anglesFromSql, System.Convert.ToInt32(girder.BC));
+                        girder.BC = bcSectionName;
+                    }
+                }
             }
+
+
 
             if (job.Joists == null && job.Girders == null)
             {

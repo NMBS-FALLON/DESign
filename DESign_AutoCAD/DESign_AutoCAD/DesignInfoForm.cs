@@ -19,7 +19,7 @@ namespace DESign_AutoCAD
     public partial class DesignInfoForm : Form
     {
 
-        public (bool AddJoistTcwCrimped, bool AddJoistTcwNonCrimped, bool AddBoltLength, bool AddGirderTcw, bool AddWeights, bool AddTcMaxBridging, bool AddBcMaxBridging) Return { get; set; }
+        public (bool AddJoistTcwCrimped, bool AddJoistTcwNonCrimped, bool AddBoltLength, bool AddGirderTcw, bool AddWeights, bool AddTcMaxBridging, bool AddBcMaxBridging, bool useSql, string Plant, string JobNumber) Return { get; set; }
         public DesignInfoForm()
         {
             InitializeComponent();
@@ -27,7 +27,8 @@ namespace DESign_AutoCAD
 
         private void DesignInfoForm_Load(object sender, EventArgs e)
         {
-
+            cbDataSource.SelectedIndex = 0;
+            tbJobNumber.Text = GetJobNumber();
         }
         /*
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -41,9 +42,11 @@ namespace DESign_AutoCAD
           
         }
         */
-    
+ 
         private void btnAddInfo_Click(object sender, EventArgs e)
         {
+
+
 
             var addJoistTcwCrimped = clbInfoSelect.CheckedIndices.Contains(0);
             var addJoistTcwNonCrimped = clbInfoSelect.CheckedIndices.Contains(1);
@@ -52,10 +55,36 @@ namespace DESign_AutoCAD
             var addWeights = clbInfoSelect.CheckedIndices.Contains(4);
             var addTcMaxBridging = clbInfoSelect.CheckedIndices.Contains(5);
             var addBcMaxBridging = clbInfoSelect.CheckedIndices.Contains(6);
+            var useSql = cbDataSource.Text == "SQL" ? true : false;
+            var plant = cbPLant.Text;
+            var jobNumber = tbJobNumber.Text;
 
-            this.Return = (addJoistTcwCrimped, addJoistTcwNonCrimped, addJoistBoltLength, addGirderTcw, addWeights, addTcMaxBridging, addBcMaxBridging);
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            var allInputsReceived = true;
+
+            if (cbPLant.Text == "")
+            {
+                allInputsReceived = false;
+                MessageBox.Show("PLEASE SELECT A PLANT");
+            }
+            
+            if (useSql && tbJobNumber.Text == "")
+            {
+                allInputsReceived = false;
+                MessageBox.Show("PLEASE INPUT A JOB NUMBER");
+            }
+
+
+
+            this.Return = (addJoistTcwCrimped, addJoistTcwNonCrimped, addJoistBoltLength, addGirderTcw, addWeights, addTcMaxBridging, addBcMaxBridging, useSql, plant, jobNumber);
+            if (allInputsReceived)
+            {
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            else
+            {
+                this.DialogResult = DialogResult.None;
+            }
         }
 
         public void removeDesignInfo()
@@ -107,6 +136,54 @@ namespace DESign_AutoCAD
         private void clbInfoSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        public static string GetJobNumber()
+        {
+            var jobNum = "";
+            var doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                var bt = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
+
+                foreach (ObjectId id in bt)
+                {
+                    BlockTableRecord btr = (BlockTableRecord)tr.GetObject(id, OpenMode.ForRead);
+
+                    var brIds = btr.GetBlockReferenceIds(true, true);
+
+                    foreach (ObjectId brId in brIds)
+                    {
+                        var br = (BlockReference)tr.GetObject(brId, OpenMode.ForRead);
+
+                        foreach (ObjectId oId in br.AttributeCollection)
+                        {
+                            var attRef = (AttributeReference)tr.GetObject(oId, OpenMode.ForRead);
+
+                            if (attRef.Tag.Equals("FILENO", StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                jobNum = attRef.TextString;
+                                break;
+                            }
+                        }
+
+
+                    }
+
+                }
+
+
+
+
+            }
+
+            return jobNum;
         }
     }
 

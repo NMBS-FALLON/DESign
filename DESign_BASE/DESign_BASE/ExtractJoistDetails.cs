@@ -5,6 +5,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace DESign_BASE
 {
@@ -159,6 +160,96 @@ namespace DESign_BASE
                 oXL.Quit();
             }
             return job;
+        }
+
+        static public Job JobFromSql(string plant, string jobNumber)
+        {
+            var server = "";
+            var catalog = "";
+            switch(plant)
+            {
+                case "Fallon":
+                    server = "NMBSFALN-SQL";
+                    catalog = "NMBS_Fallon";
+                    break;
+                case "Juarez":
+                    server = "NMBSJARZ-SQL";
+                    catalog = "NMBS_Juarez";
+                    break;
+                default:
+                    break;
+            }
+            var connectionString =
+                String.Format("Server={0}; Initial Catalog={1}; Integrated Security = true", server, catalog);
+            string queryString = "SELECT Mark, Quantity, Description, Weight, TopChord_IDX, BottomChord_IDX, TCMaxBridging, BCMaxBridging FROM dbo.Joists2 WHERE [JOB NUMBER] = @jobNumber ;";
+
+            var joists = new List<Joist>();
+            var girders = new List<Girder>();
+
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                var command = new SqlCommand(queryString, connection);
+                command.Parameters.AddWithValue("@jobNumber", jobNumber);
+                connection.Open();
+                var reader = command.ExecuteReader();
+
+
+                try
+                {
+                    while (reader.Read())
+                    {
+                        var mark = Convert.ToString(reader["Mark"]);
+                        var quantity = Convert.ToInt32(reader["Quantity"]);
+                        var description = Convert.ToString(reader["Description"]);
+                        var weight = Convert.ToDouble(reader["Weight"]);
+                        var tcIdx = Convert.ToInt32(reader["TopChord_IDX"]);
+                        var bcIdx = Convert.ToInt32(reader["BottomChord_IDX"]);
+                        var readTcMaxBridging = reader["TCMaxBridging"];
+                        var tcMaxBridging = readTcMaxBridging == DBNull.Value ? "" : StringManipulation.DecimilLengthToHyphen(Convert.ToDouble(readTcMaxBridging)/12.0).Split(' ')[0];
+                        var readBcMaxBridging = reader["BCMaxBridging"];
+                        var bcMaxBridging = readBcMaxBridging == DBNull.Value ? "" : StringManipulation.DecimilLengthToHyphen(Convert.ToDouble(readBcMaxBridging)/12.0).Split(' ')[0];
+
+                        if (description.Contains("G"))
+                        {
+                            var g = new Girder();
+                            g.Mark = mark;
+                            g.Quantity = quantity;
+                            g.Description = description;
+                            g.WeightInLBS = weight;
+                            g.TC = tcIdx.ToString();
+                            g.BC = bcIdx.ToString();
+                            g.DecimalTcMaxBridgingSpacing = tcMaxBridging;
+                            g.DecimalBcMaxBridgingSpacing = bcMaxBridging;
+                            girders.Add(g);
+
+                        }
+                        else
+                        {
+                            var j = new Joist();
+                            j.Mark = mark;
+                            j.Quantity = quantity;
+                            j.Description = description;
+                            j.WeightInLBS = weight;
+                            j.TC = tcIdx.ToString();
+                            j.BC = bcIdx.ToString();
+                            j.DecimalTcMaxBridgingSpacing = tcMaxBridging;
+                            j.DecimalBcMaxBridgingSpacing = bcMaxBridging;
+                            joists.Add(j);
+                        }
+                    }
+                }
+                finally
+                {
+                    reader.Close();
+                }
+
+                var job = new Job();
+                job.Joists = joists;
+                job.Girders = girders;
+
+                return job;
+            }
         }
     }
 }

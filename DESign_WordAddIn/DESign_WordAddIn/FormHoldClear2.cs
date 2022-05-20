@@ -1395,12 +1395,14 @@ namespace DESign_WordAddIn
             return listHCSeatInfo;
         }
 
-        public List<List<HCSeatInfo>> listHCSeatInfo2(List<JoistSeatInfo> listJoistSeatInfo)
+        public List<List<HCSeatInfo>> listHCSeatInfo2(List<JoistSeatInfo> listJoistSeatInfo, bool showMessages)
         {
             List<HCSeatInfo> buttedHC = new List<HCSeatInfo>();
             List<HCSeatInfo> gappedHC = new List<HCSeatInfo>();
             List<HCSeatInfo> plattedHCP04 = new List<HCSeatInfo>();
             List<HCSeatInfo> plattedHCP08 = new List<HCSeatInfo>();
+
+            var messages = new List<string>();
 
             int i = 0;
             foreach (JoistSeatInfo thisJoistSeatInfo in listJoistSeatInfo)
@@ -1434,12 +1436,6 @@ namespace DESign_WordAddIn
                 double slopeFactor = Math.Sin((Math.PI * 90.0 / 180.0) - Math.Atan((Math.Abs((thisJoistSeatInfo.bplInsideDepth - thisJoistSeatInfo.bplOutsideDepth) / StringManipulation.ConvertLengthtoDecimal(thisJoistSeatInfo.bplLength)))));
                 slopeFactor = slopeFactor + (Math.Sqrt(1.0 - Math.Pow(slopeFactor, 2.0)) * (Math.Abs((thisJoistSeatInfo.bplInsideDepth - thisJoistSeatInfo.bplOutsideDepth) / StringManipulation.ConvertLengthtoDecimal(thisJoistSeatInfo.bplLength))));
 
-
-                if (thisJoistSeatInfo.slotGauge >= 4.0 / 12.0)
-                {
-                    thisHCSeatInfo.paWidth = "3";
-                }
-                else { thisHCSeatInfo.paWidth = "2 1/2"; }
 
                 if (thisJoistSeatInfo.slotSetback != null)
                 {
@@ -1521,7 +1517,8 @@ namespace DESign_WordAddIn
                 {
                     if (plateDoesntWork)
                     {
-                        MessageBox.Show(thisHCSeatInfo.mark + " " + thisHCSeatInfo.bplSide + " :\r\n\r\n" + "TC MATERIAL IS TOO THIN TO ACCEPT THE NECESSARY SEAT.\r\nPLEASE INCREASE THE TC TO A SIZE THAT IS AT LEAST 0.20\" THICK");
+
+                        messages.Add(thisHCSeatInfo.mark + " " + thisHCSeatInfo.bplSide + " :\r\n" + "TC MATERIAL IS TOO THIN TO ACCEPT THE NECESSARY SEAT.\r\nPLEASE INCREASE THE TC TO A SIZE THAT IS AT LEAST 0.20\" THICK");
                     }
                     else
                     {
@@ -1545,7 +1542,7 @@ namespace DESign_WordAddIn
 
                 if (throwOverlapMessage == true)
                 {
-                    MessageBox.Show(thisHCSeatInfo.mark + " " + thisHCSeatInfo.bplSide + " :\r\n\r\n" + "CONFIRM THAT W2 OVERLAPS BASEPLATE BY A MINIMUM OF 2\".\r\nIF NOT, INCREASE THE LENGTH OF THE PLATE AND ADJUST ALL DEPTHS ACCORDINGLY.");
+                    messages.Add(thisHCSeatInfo.mark + " " + thisHCSeatInfo.bplSide + " :\r\n" + "CONFIRM THAT W2 OVERLAPS BASEPLATE BY A MINIMUM OF 2\".\r\nIF NOT, INCREASE THE LENGTH OF THE PLATE AND ADJUST ALL DEPTHS ACCORDINGLY.");
                 }
 
 
@@ -1594,6 +1591,26 @@ namespace DESign_WordAddIn
                     }
                 }
 
+                var minSeatHorizontalLeg =
+                    thisJoistSeatInfo.slotGauge * 12.0 * 0.5 + thisJoistSeatInfo.slotDiameter * 0.5 + 0.25 - 0.5 - tcThickness + seatThickness;
+
+                var paWidth = Math.Max(tcHLeg > 3 ? 3 : 2.5, Math.Ceiling(minSeatHorizontalLeg * 2.0) / 2.0);
+
+                var paWidthString = StringManipulation.decimalInchestoFraction(paWidth/12.0);
+
+                thisHCSeatInfo.paWidth = paWidthString;
+
+
+                if (thisHCSeatInfo.buttedSeat == true)
+                {
+                    double seatHLeg = QueryAngleData.DblHleg(anglesFromSql, thisHCSeatInfo.HCMaterial);
+
+                    if (seatHLeg < minSeatHorizontalLeg - 0.00000001)
+                    {
+                        messages.Add(thisHCSeatInfo.mark + " " + thisHCSeatInfo.bplSide + " :\r\n" + "SELECTED SEAT DOES NOT MAINTAIN 1/4\" OFFSET FROM SLOT; PLEASE ADJUST HC SEAT DESIGN ACCORDINGLY.");
+                    }
+
+                }
 
                 if (thisHCSeatInfo.buttedSeat == true) { buttedHC.Add(thisHCSeatInfo); }
                 if (thisHCSeatInfo.plateSeatP04 == true) { plattedHCP04.Add(thisHCSeatInfo); }
@@ -1601,11 +1618,18 @@ namespace DESign_WordAddIn
 
                 i++;
             }
+
+            if(showMessages && messages.Any())
+            {
+                var message = String.Join("\r\n\r\n", messages);
+                MessageBox.Show(message);
+            }
             List<List<HCSeatInfo>> listHCSeatInfo = new List<List<HCSeatInfo>>();
             listHCSeatInfo.Add(buttedHC);
             listHCSeatInfo.Add(gappedHC);
             listHCSeatInfo.Add(plattedHCP04);
             listHCSeatInfo.Add(plattedHCP08);
+
             return listHCSeatInfo;
         }
 
@@ -2219,8 +2243,8 @@ namespace DESign_WordAddIn
             List<List<string>> joistDataByMarks = joistDataByMark();
             List<Tuple<string, bool, bool>> marksWithHoldClears = whichNeedHoldClears(joistDataByMarks);
             AllSeatInfo allseatInfo = getAllSeatInfo(joistDataByMarks, marksWithHoldClears);
-            List<List<HCSeatInfo>> HCSeatInfoList1 = listHCSeatInfo2(allseatInfo.HoldClear);
-            List<List<HCSeatInfo>> HCSeatInfoList2 = listHCSeatInfo2(allseatInfo.HoldClear);
+            List<List<HCSeatInfo>> HCSeatInfoList1 = listHCSeatInfo2(allseatInfo.HoldClear, true);
+            List<List<HCSeatInfo>> HCSeatInfoList2 = listHCSeatInfo2(allseatInfo.HoldClear, false);
             createHoldClearSKs(organizedHCSeatInfoList(HCSeatInfoList1));
             placeHCs(joistDataByMarks, HCSeatInfoList2);
             if (noOverides == false)
@@ -2293,6 +2317,7 @@ namespace DESign_WordAddIn
 
     public class JoistSeatInfo
     {
+        private StringManipulation stringManipulation = new StringManipulation();
         public string mark;
         public int qty;
         public string TC;
@@ -2302,6 +2327,43 @@ namespace DESign_WordAddIn
         public double bplInsideDepth;
         public string slotSetback;
         public string slotSize;
+        public double slotDiameter
+        {
+            get
+            {
+                if (slotSize != null || slotSize.Trim() != "")
+                {
+                    var slotSizeArray = slotSize.Split(new char[] { 'x' });
+                    var slotDiameterString = slotSizeArray[0];
+                    var slotDiameter = stringManipulation.hyphenLengthToDecimal("0-0 " + slotDiameterString) * 12.0;
+                    return slotDiameter;
+
+                }
+                else
+                {
+                    return 0.0;
+                }
+            }
+        }
+
+        public double slotLength
+        {
+            get
+            {
+                if (slotSize != null || slotSize.Trim() != "")
+                {
+                    var slotSizeArray = slotSize.Split(new char[] { 'x' });
+                    var slotLengthString = slotSizeArray[1];
+                    var slotLength = stringManipulation.hyphenLengthToDecimal("0-" + slotLengthString) * 12.0;
+                    return slotLength;
+
+                }
+                else
+                {
+                    return 0.0;
+                }
+            }
+        }
         public double slotGauge;
         public double clearLeft;
         public double clearRight;
@@ -2313,6 +2375,7 @@ namespace DESign_WordAddIn
     }
     public class HCSeatInfo
     {
+        private StringManipulation stringManipulation = new StringManipulation();
         public string mark;
         public int qty;
         public string TC;
@@ -2326,6 +2389,43 @@ namespace DESign_WordAddIn
         public string HCInsideHeight;
         public string slotSetback;
         public string slotSize;
+        public double slotDiameter
+        {
+            get
+            {
+                if (slotSize != null || slotSize.Trim() != "")
+                {
+                    var slotSizeArray = slotSize.Split(new char[] { 'x' });
+                    var slotDiameterString = slotSizeArray[0];
+                    var slotDiameter = stringManipulation.hyphenLengthToDecimal("0-0 " + slotDiameterString) * 12.0;
+                    return slotDiameter;
+
+                }
+                else
+                {
+                    return 0.0;
+                }
+            } 
+        }
+
+        public double slotLength
+        {
+            get
+            {
+                if (slotSize != null || slotSize.Trim() != "")
+                {
+                    var slotSizeArray = slotSize.Split(new char[] { 'x' });
+                    var slotLengthString = slotSizeArray[1];
+                    var slotLength = stringManipulation.hyphenLengthToDecimal("0-" + slotLengthString) * 12.0;
+                    return slotLength;
+
+                }
+                else
+                {
+                    return 0.0;
+                }
+            }
+        }
         public string GOL;
         public bool gappedSeat = false;
         public bool plateSeatP04 = false;

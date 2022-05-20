@@ -10,13 +10,15 @@ namespace DESign_BASE
 {
     public class Angle
     {
+        public Int32 Idx { get; }
         public string SectionName { get; }
         public double LegHorizontal { get; }
         public double LegVertical { get; }
         public double Thickness { get; }
 
-        public Angle(string sectionName, double legHorizontal, double legVertical, double thickness)
+        public Angle(Int32 idx, string sectionName, double legHorizontal, double legVertical, double thickness)
         {
+            Idx = idx;
             SectionName = sectionName;
             LegHorizontal = legHorizontal;
             LegVertical = legVertical;
@@ -29,11 +31,26 @@ namespace DESign_BASE
 
     public class QueryAngleData
     {
-        static public List<Angle> AnglesFromSql()
+        static public List<Angle> AnglesFromSql(string plant)
         {
+            var server = "";
+            var catalog = "";
+            switch (plant)
+            {
+                case "Fallon":
+                    server = "NMBSFALN-SQL";
+                    catalog = "NMBS_Fallon";
+                    break;
+                case "Juarez":
+                    server = "NMBSJARZ-SQL";
+                    catalog = "NMBS_Juarez";
+                    break;
+                default:
+                    break;
+            }
             var angles = new List<Angle>();
-            var connectionString = "Server=NMBSFALN-SQL; Initial Catalog=NMBS_Fallon; Integrated Security = true";
-            string queryString = "SELECT SectionName, LegHorizontal, LegVertical, Thickness FROM dbo.vwMaterials;";
+            var connectionString = String.Format("Server={0}; Initial Catalog={1}; Integrated Security = true", server, catalog);
+            string queryString = "SELECT SectionIDX, SectionName, LegHorizontal, LegVertical, Thickness FROM dbo.vwMaterials;";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -48,12 +65,13 @@ namespace DESign_BASE
                     {
                         angles.Add(
                             new Angle(
+                                Convert.ToInt32(reader["SectionIdx"]),
                                 Convert.ToString(reader["SectionName"]),
                                 Convert.ToDouble(reader["LegHorizontal"]),
                                 Convert.ToDouble(reader["LegVertical"]),
                                 Convert.ToDouble(reader["Thickness"])
                                 )
-                            );
+                            ); ;
                     }
                 }
                 finally
@@ -62,6 +80,16 @@ namespace DESign_BASE
                 }
             }
             return angles;
+        }
+
+        static public string SectionName(List<Angle> angles, Int32 sectionIdx)
+        {
+            var sectionName =
+                angles
+                .Where(a => a.Idx == sectionIdx)
+                .Select(a => a.SectionName)
+                .First();
+            return sectionName;
         }
 
         static public double DblThickness(List<Angle> angles, string tc)
