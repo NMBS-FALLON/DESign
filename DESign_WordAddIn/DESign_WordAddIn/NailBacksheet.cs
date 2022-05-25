@@ -34,7 +34,7 @@ namespace DESign_WordAddIn
         ExcelDataExtraction excelDataExtraction = new ExcelDataExtraction();
 
         DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
-        List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql();
+        List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql("Fallon");
 
 
         public FormNailBacksheet()

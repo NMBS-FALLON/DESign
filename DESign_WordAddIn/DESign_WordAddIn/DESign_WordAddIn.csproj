@@ -35,7 +35,7 @@
     <PublishUrl>C:\Users\Darien.Shannon\Documents\Code\DESign\Deploy\design-word-add-in\</PublishUrl>
     <InstallUrl>https://nmbsdesign.blob.core.windows.net/design-word-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.17</ApplicationVersion>
+    <ApplicationVersion>2.0.0.18</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>4</UpdateInterval>

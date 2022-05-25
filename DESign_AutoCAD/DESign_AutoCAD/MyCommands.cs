@@ -891,7 +891,8 @@ namespace DESign_AutoCAD
         {
             if (text.Contains("|"))
             {
-                text = text.Substring(0, text.IndexOf('|'));
+                Regex r = new Regex("[|].*[|]");
+                text = r.Replace(text, "");
             }
 
             return text;
