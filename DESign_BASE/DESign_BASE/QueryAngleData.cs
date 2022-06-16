@@ -176,6 +176,7 @@ namespace DESign_BASE
             var wnWidth = legHorizontal * 2.0 + 1;
             if(legHorizontal == 1.875) { wnWidth = 5.0; }
             if(legHorizontal == 2.875) { wnWidth = 7.0; }
+            if (tc == "A32B") { wnWidth = 5.0; }
 
             return Convert.ToString(wnWidth);
 

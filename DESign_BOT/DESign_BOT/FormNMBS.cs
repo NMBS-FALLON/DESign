@@ -34,7 +34,7 @@ namespace DESign_BOT
         FolderOperations folderOperations = new FolderOperations();
 
         DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
-        List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql();
+        List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql("Fallon");
         //JoistDetails joistDetails = new JoistDetails();
         public FormNMBSHelper()
         {
