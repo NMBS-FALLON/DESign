@@ -2331,7 +2331,7 @@ namespace DESign_WordAddIn
         {
             get
             {
-                if (slotSize != null || slotSize.Trim() != "")
+                if (slotSize != null && slotSize.Trim() != "")
                 {
                     var slotSizeArray = slotSize.Split(new char[] { 'x' });
                     var slotDiameterString = slotSizeArray[0];
@@ -2350,7 +2350,7 @@ namespace DESign_WordAddIn
         {
             get
             {
-                if (slotSize != null || slotSize.Trim() != "")
+                if (slotSize != null && slotSize.Trim() != "")
                 {
                     var slotSizeArray = slotSize.Split(new char[] { 'x' });
                     var slotLengthString = slotSizeArray[1];
@@ -2393,7 +2393,7 @@ namespace DESign_WordAddIn
         {
             get
             {
-                if (slotSize != null || slotSize.Trim() != "")
+                if (slotSize != null && slotSize.Trim() != "")
                 {
                     var slotSizeArray = slotSize.Split(new char[] { 'x' });
                     var slotDiameterString = slotSizeArray[0];
@@ -2412,7 +2412,7 @@ namespace DESign_WordAddIn
         {
             get
             {
-                if (slotSize != null || slotSize.Trim() != "")
+                if (slotSize != null && slotSize.Trim() != "")
                 {
                     var slotSizeArray = slotSize.Split(new char[] { 'x' });
                     var slotLengthString = slotSizeArray[1];

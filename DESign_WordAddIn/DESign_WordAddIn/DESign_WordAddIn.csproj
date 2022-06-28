@@ -35,7 +35,7 @@
     <PublishUrl>C:\Users\Darien.Shannon\Documents\Code\DESign\Deploy\design-word-add-in\</PublishUrl>
     <InstallUrl>https://nmbsdesign.blob.core.windows.net/design-word-add-in/</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.19</ApplicationVersion>
+    <ApplicationVersion>2.0.0.20</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>4</UpdateInterval>
@@ -354,7 +354,7 @@
     <ManifestKeyFile>DESign_WordAddIn_3_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>CEFF7D34011D3FE364D43800426EC2E7DEF8D874</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>BFF8139313CF71A3E3B19B8C2276C4DCF3107D50</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="..\..\DESign_BASE\DESign_BASE\DESign_BASE.projitems" Label="Shared" />
