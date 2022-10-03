@@ -45,10 +45,10 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.btnRemoveProtection = new System.Windows.Forms.Button();
             this.btnModifyBom = new System.Windows.Forms.Button();
             this.btnGetBomNotes = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.btnGetLoadNotes = new System.Windows.Forms.Button();
             this.tabControlConvertBOM.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -230,7 +230,7 @@
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.btnGetLoadNotes);
+            this.tabPage3.Controls.Add(this.btnRemoveProtection);
             this.tabPage3.Controls.Add(this.btnModifyBom);
             this.tabPage3.Controls.Add(this.btnGetBomNotes);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
@@ -240,12 +240,22 @@
             this.tabPage3.Text = "BOM Tools";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // btnRemoveProtection
+            // 
+            this.btnRemoveProtection.Location = new System.Drawing.Point(20, 136);
+            this.btnRemoveProtection.Name = "btnRemoveProtection";
+            this.btnRemoveProtection.Size = new System.Drawing.Size(137, 26);
+            this.btnRemoveProtection.TabIndex = 2;
+            this.btnRemoveProtection.Text = "REMOVE PROTECTION";
+            this.btnRemoveProtection.UseVisualStyleBackColor = true;
+            this.btnRemoveProtection.Click += new System.EventHandler(this.btnRemoveProtection_Click);
+            // 
             // btnModifyBom
             // 
             this.btnModifyBom.Location = new System.Drawing.Point(20, 25);
             this.btnModifyBom.Margin = new System.Windows.Forms.Padding(2);
             this.btnModifyBom.Name = "btnModifyBom";
-            this.btnModifyBom.Size = new System.Drawing.Size(116, 30);
+            this.btnModifyBom.Size = new System.Drawing.Size(137, 30);
             this.btnModifyBom.TabIndex = 1;
             this.btnModifyBom.Text = "MODIFY BOM";
             this.btnModifyBom.UseVisualStyleBackColor = true;
@@ -255,21 +265,11 @@
             // 
             this.btnGetBomNotes.Location = new System.Drawing.Point(20, 80);
             this.btnGetBomNotes.Name = "btnGetBomNotes";
-            this.btnGetBomNotes.Size = new System.Drawing.Size(116, 31);
+            this.btnGetBomNotes.Size = new System.Drawing.Size(137, 31);
             this.btnGetBomNotes.TabIndex = 0;
             this.btnGetBomNotes.Text = "GET BOM NOTES";
             this.btnGetBomNotes.UseVisualStyleBackColor = true;
             this.btnGetBomNotes.Click += new System.EventHandler(this.BtnGetBomNotes_Click);
-            // 
-            // btnGetLoadNotes
-            // 
-            this.btnGetLoadNotes.Location = new System.Drawing.Point(20, 131);
-            this.btnGetLoadNotes.Name = "btnGetLoadNotes";
-            this.btnGetLoadNotes.Size = new System.Drawing.Size(116, 26);
-            this.btnGetLoadNotes.TabIndex = 2;
-            this.btnGetLoadNotes.Text = "GET LOAD NOTES";
-            this.btnGetLoadNotes.UseVisualStyleBackColor = true;
-            this.btnGetLoadNotes.Click += new System.EventHandler(this.btnGetLoadNotes_Click);
             // 
             // FormNMBSHelper
             // 
@@ -317,7 +317,7 @@
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.Button btnGetBomNotes;
         private System.Windows.Forms.Button btnModifyBom;
-        private System.Windows.Forms.Button btnGetLoadNotes;
+        private System.Windows.Forms.Button btnRemoveProtection;
     }
 }
 

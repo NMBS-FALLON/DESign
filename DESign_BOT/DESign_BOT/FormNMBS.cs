@@ -342,7 +342,7 @@ namespace DESign_BOT
                   using (var bom =  DESign.BomTools.Import.GetBom(bomFilePath))
                   {
                       var job = DESign.BomTools.Import.GetJob(bom);
-                      using (var package = NotesToExcel.CreateBomInfoSheetFromJob(job))
+                      using (var package = DESign.BomTools.CreateInfoWorkbook.CreateInfoWorkbook(job))
                       {
                           var bomNotesSave = new VistaSaveFileDialog();
                           bomNotesSave.Title = "Save BOM Notes";
@@ -361,6 +361,7 @@ namespace DESign_BOT
 
               }
         }
+
         private void BtnSeperateSeismic_Click(object sender, EventArgs e)
         {
 
@@ -399,34 +400,26 @@ namespace DESign_BOT
             
         }
 
-        private void btnGetLoadNotes_Click(object sender, EventArgs e)
+        private void btnRemoveProtection_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog openBom = new System.Windows.Forms.OpenFileDialog();
-            openBom.Filter = "Excel files|*.xlsm";
-            openBom.Title = "Select BOM";
-            if (openBom.ShowDialog() == (System.Windows.Forms.DialogResult.OK))
-            {
-                var bomFilePath = openBom.FileName;
-                using (var bom = DESign.BomTools.Import.GetBom(bomFilePath))
+                System.Windows.Forms.OpenFileDialog openBom = new System.Windows.Forms.OpenFileDialog();
+                openBom.Filter = "Excel files|*.xlsm";
+                openBom.Title = "Select BOM";
+                if (openBom.ShowDialog() == (System.Windows.Forms.DialogResult.OK))
                 {
-                    var job = DESign.BomTools.Import.GetJob(bom);
-                    using (var package = LoadNotesToExcel.CreateBomInfoSheetFromJob(job))
+                    var bomFilePath = openBom.FileName;
+
+                    try
                     {
-                        var bomNotesSave = new VistaSaveFileDialog();
-                        bomNotesSave.Title = "Save BOM Load Notes";
-                        bomNotesSave.AddExtension = true;
-                        bomNotesSave.DefaultExt = "xlsx";
-                        bomNotesSave.FileName = openBom.FileName.Replace(".xlsx", "") + "_BOM Load Notes";
-                        if (bomNotesSave.ShowDialog() == DialogResult.OK)
-                        {
-                            using (var fs = new FileStream(bomNotesSave.FileName, FileMode.Create))
-                            {
-                                package.SaveAs(fs);
-                            }
-                        }
+                        SeismicSeperator.removeProtection(bomFilePath);
                     }
+                    catch (Exception exception)
+                    {
+                        MessageBox.Show(exception.Message + "\r\n" + exception.StackTrace);
+                    }
+
                 }
-            }
+          
         }
     }
 }
