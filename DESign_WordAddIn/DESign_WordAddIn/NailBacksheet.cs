@@ -27,7 +27,7 @@ namespace DESign_WordAddIn
 {
     public partial class FormNailBacksheet : Form
     {
-        JoistCoverSheet JoistCoverSheet = new JoistCoverSheet();
+        
 
         StringManipulation StringManipulation = new StringManipulation();
 
@@ -53,8 +53,7 @@ namespace DESign_WordAddIn
 
         ComboBox comboBoxNailPlacement = new ComboBox();
 
-        List<List<string>> joistData;
-
+        CoverSheetInfo joistCoverSheetInfo = CoverSheetInfo.FromV1So();
 
 
         private void FormNailBacksheet_Load(object sender, EventArgs e)
@@ -62,7 +61,7 @@ namespace DESign_WordAddIn
 
             string clipboard = Clipboard.GetText();
 
-            joistData = JoistCoverSheet.JoistData();
+            
 
             var labelMarkTitle = new Label();
             var labelATitle = new Label();
@@ -114,7 +113,7 @@ namespace DESign_WordAddIn
             this.Controls.Add(tboxAllBs);
 
 
-            List<string> joistMarks = joistData[0];
+            List<string> joistMarks = joistCoverSheetInfo.SoSummary.Select(s => s.Mark).ToList();
 
             int joistDataLength = joistMarks.Count();
 
@@ -188,8 +187,8 @@ namespace DESign_WordAddIn
             ExcelDataExtraction.NailerInformation nailerInformation = new ExcelDataExtraction.NailerInformation();
             string clipboard = Clipboard.GetText();
 
-            List<string> shopOrderjoistMarks = joistData[0];
-            int shopOrdernumberOfMarks = joistData[0].Count;
+            List<string> shopOrderjoistMarks = joistCoverSheetInfo.SoSummary.Select(s => s.Mark).ToList();
+            int shopOrdernumberOfMarks = joistCoverSheetInfo.SoSummary.Count();
 
             List<string> excelJoistMarks = null;
             List<string> excelAs = null;
@@ -347,16 +346,7 @@ namespace DESign_WordAddIn
             }
 
             //END NEW METHOD FOR LIST LENGTHS
-            List<double> listLengthJoist = new List<double>();
-            for (int i = 0; i < shopOrdernumberOfMarks; i++)
-            {
-
-                List<string> joistLengths = joistData[2];
-                double doubleLengthJoist = StringManipulation.hyphenLengthToDecimal(joistLengths[i]);
-
-                listLengthJoist.Add(doubleLengthJoist);
-
-            }
+            List<double> listLengthJoist = joistCoverSheetInfo.SoSummary.Select(s => s.Length).ToList();
 
             List<double> woodLength = new List<double>();
             double woodLengthi = 0;
@@ -433,30 +423,29 @@ namespace DESign_WordAddIn
         {
             string clipboard = Clipboard.GetText();
 
-            int numberOfMarks = joistData[0].Count;
+            int numberOfMarks = joistCoverSheetInfo.SoSummary.Count();
 
-            List<string> Marks = joistData[0];
-            List<string> Qtys = joistData[1];
-            List<string> TCs = joistData[4];
-            List<string> BCs = joistData[5];
             ExcelDataExtraction.NailerInformation nailerInfo = GetNailerInformation();
             List<string> woodLengths1 = nailerInfo.WoodLengths;
-            List<string> woodWidths = new List<string>(TCs.Count);
+            List<string> woodWidths = new List<string>(numberOfMarks);
             List<double> horizontalLegs = new List<double>();
 
             
-            for (int i = 0; i <= TCs.Count - 1; i++)
+            for (int i = 0; i < numberOfMarks; i++)
             {
+                var soSummaryLine = joistCoverSheetInfo.SoSummary[i];
              
                 if (nailerInfo.CrimpedWebs)
                 {
-                    woodWidths.Add(QueryAngleData.WNtcWidth(anglesFromSql, TCs[i]) + " 1/8" );
+                    woodWidths.Add(QueryAngleData.WNtcWidth(anglesFromSql, soSummaryLine.Tc) + " 1/8" );
                 }
                 else
                 {
-                    woodWidths.Add(QueryAngleData.WNtcWidth(anglesFromSql, TCs[i]) + " 1/4" );
+                    woodWidths.Add(QueryAngleData.WNtcWidth(anglesFromSql, soSummaryLine.Tc) + " 1/4" );
                 }
             }
+
+            var TCs = joistCoverSheetInfo.SoSummary.Select(s => s.Tc).ToList();
 
             if ((TCs.Contains("A50A28") || TCs.Contains("A48A28") || TCs.Contains("A48A29")) &&
                 (TCs.Contains("A42A28") || TCs.Contains("A44A") || TCs.Contains("A46A28")))
@@ -565,8 +554,9 @@ namespace DESign_WordAddIn
                 
             }
 
+            
 
-            foreach (string mark in Marks)
+            foreach (string mark in joistCoverSheetInfo.SoSummary.Select(s => s.Mark))
             {
                 Word.Range range = Globals.ThisAddIn.Application.ActiveDocument.Range(0, 0);
 
@@ -649,10 +639,10 @@ namespace DESign_WordAddIn
 
             }
 
-            tableNailBackSheetTitle.Cell(1, 2).Range.Text = joistData[8][0];
-            tableNailBackSheetTitle.Cell(2, 2).Range.Text = joistData[9][0];
-            tableNailBackSheetTitle.Cell(3, 2).Range.Text = joistData[7][0];
-            tableNailBackSheetTitle.Cell(4, 2).Range.Text = joistData[10][0];
+            tableNailBackSheetTitle.Cell(1, 2).Range.Text = joistCoverSheetInfo.JobLocation;
+            tableNailBackSheetTitle.Cell(2, 2).Range.Text = joistCoverSheetInfo.JobName;
+            tableNailBackSheetTitle.Cell(3, 2).Range.Text = joistCoverSheetInfo.JobNumber;
+            tableNailBackSheetTitle.Cell(4, 2).Range.Text = joistCoverSheetInfo.ListNumber;
 
             for (int i = 1; i <= 4; i++)
             {
@@ -834,7 +824,7 @@ namespace DESign_WordAddIn
                 tableNailBacksheetALL.Cell(1, 7).Range.Text = "REMARKS";
 
                 tableNailBacksheetALL.Cell(2, 1).Range.Text = "ALL";
-                tableNailBacksheetALL.Cell(2, 2).Range.Text = joistData[6][0];
+                tableNailBacksheetALL.Cell(2, 2).Range.Text = joistCoverSheetInfo.TotalQuantity.ToString();
                 tableNailBacksheetALL.Cell(2, 3).Range.Text = stringListLengthA[0]; //tboxListA
                 tableNailBacksheetALL.Cell(2, 4).Range.Text = stringListLengthB[0]; //tboxListB
                 var thickness = (nailerInfo.WoodThickness == "3x") ? "2.5" : "2";
@@ -880,10 +870,11 @@ namespace DESign_WordAddIn
                 }
 
 
-                for (int i = 0; i <= numberOfMarks - 1; i++)
+                for (int i = 0; i < numberOfMarks ; i++)
                 {
-                    tableNailBacksheet.Cell(i + 2, 1).Range.Text = Marks[i];
-                    tableNailBacksheet.Cell(i + 2, 2).Range.Text = Qtys[i];
+                    var soSummaryLine = joistCoverSheetInfo.SoSummary[i];
+                    tableNailBacksheet.Cell(i + 2, 1).Range.Text = soSummaryLine.Mark;
+                    tableNailBacksheet.Cell(i + 2, 2).Range.Text = soSummaryLine.Quantity.ToString();
                     tableNailBacksheet.Cell(i + 2, 6).Range.Text = woodLengths1[i];
                     tableNailBacksheet.Cell(i + 2, 5).Range.Text = woodWidths[i];
                     tableNailBacksheet.Cell(i + 2, 3).Range.Text = stringListLengthA[i]; //tboxlistA

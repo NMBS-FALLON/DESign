@@ -11,7 +11,7 @@ namespace DESign_WordAddIn
 {
     class StringManipulation
     {
-        public double hyphenLengthToDecimal (string hyphenLength)
+        public static double hyphenLengthToDecimal (string hyphenLength)
         {
            
             bool containsHyphen = hyphenLength.Contains("-");
@@ -72,7 +72,7 @@ namespace DESign_WordAddIn
 
 
         }
-        public string DecimilLengthToHyphen (double decimilLength)
+        public static string DecimilLengthToHyphen (double decimilLength)
             //9.84375 = 9-10 1/8
         {
             double feetDouble = Math.Floor(decimilLength);
@@ -134,7 +134,7 @@ namespace DESign_WordAddIn
             return HyphenLength;
         }
 
-        public string DecimilLengthToHyphen16ths(double decimilLength)
+        public static string DecimilLengthToHyphen16ths(double decimilLength)
         //9.84375 = 9-10 1/8
         {
             double feetDouble = Math.Floor(decimilLength);
@@ -200,7 +200,7 @@ namespace DESign_WordAddIn
             return HyphenLength;
         }
 
-        public string convertLengthStringtoHyphenLength (string lengthString)
+        public static string convertLengthStringtoHyphenLength (string lengthString)
         {
             bool containsHyphen = lengthString.Contains("-");
             bool containsBackSlash = lengthString.Contains("/");
@@ -219,7 +219,7 @@ namespace DESign_WordAddIn
 
         }
 
-        public List<double> doubleListwithTolerance (List<double> doubleList, double tolerance)
+        public static List<double> doubleListwithTolerance (List<double> doubleList, double tolerance)
         {
 
             int maxIndex=doubleList.Count-1;
@@ -277,7 +277,7 @@ namespace DESign_WordAddIn
             return doubleListwithTolerance;
         }
 
-        public bool areStringElementsEqual (List<string> List)
+        public static bool areStringElementsEqual (List<string> List)
         {
             bool has1Element = false;
 
@@ -304,7 +304,7 @@ namespace DESign_WordAddIn
             return has1Element;
         }
 
-        public double ConvertLengthtoDecimal (string length)
+        public static double ConvertLengthtoDecimal (string length)
         {
             string lengthString = convertLengthStringtoHyphenLength(length);
             double dblLength = hyphenLengthToDecimal(lengthString);
@@ -312,7 +312,7 @@ namespace DESign_WordAddIn
             return dblLength;
         }
 
-        public string decimalInchestoFraction (double dblInches)
+        public static string decimalInchestoFraction (double dblInches)
         {
          //   double feetDouble = Math.Floor(dblInches);
          //   int feetInt = Convert.ToInt32(feetDouble);
@@ -374,7 +374,7 @@ namespace DESign_WordAddIn
             return HyphenLength;
         }
 
-        public string decimalInchestoFraction16ths(double dblInches)
+        public static string decimalInchestoFraction16ths(double dblInches)
         {
             //   double feetDouble = Math.Floor(dblInches);
             //   int feetInt = Convert.ToInt32(feetDouble);
@@ -440,7 +440,7 @@ namespace DESign_WordAddIn
             return HyphenLength;
         }
 
-        public string noZeroFootHyphen (string hyphenLength)
+        public static string noZeroFootHyphen (string hyphenLength)
         {
             string noZeroFootHyphen = hyphenLength;
             string[] hyphenLengthArray = hyphenLength.Split(new string[] { "-"}, StringSplitOptions.RemoveEmptyEntries);
@@ -452,26 +452,26 @@ namespace DESign_WordAddIn
             return noZeroFootHyphen;
 
         }
-        public string cleanDecimalToHyphen (double dblLength)
+        public static string cleanDecimalToHyphen (double dblLength)
         {
             string cleanHyphen = noZeroFootHyphen(decimalInchestoFraction(dblLength));
             return cleanHyphen;
         }
 
-        public string cleanDecimalToHyphen16ths(double dblLength)
+        public static string cleanDecimalToHyphen16ths(double dblLength)
         {
             string cleanHyphen = noZeroFootHyphen(decimalInchestoFraction16ths(dblLength));
             return cleanHyphen;
         }
 
-        public double NearestHalfInch (double dblValue)
+        public static double NearestHalfInch (double dblValue)
         {
             double dblValueInInches = dblValue * 12.0;
             return Math.Round(dblValueInInches / 0.5) * 0.5 / 12.0;
             
         }
 
-        public double NearestQuarterInch(double dblValue)
+        public static double NearestQuarterInch(double dblValue)
         {
             double dblValueInInches = dblValue * 12.0;
             return Math.Round(dblValueInInches / 0.25) * 0.25 / 12.0;

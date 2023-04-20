@@ -26,9 +26,7 @@ namespace DESign_WordAddIn
 {
     public partial class FormHoldClear2 : Form
     {
-        JoistCoverSheet JoistCoverSheet = new JoistCoverSheet();
-
-        StringManipulation StringManipulation = new StringManipulation();
+        CoverSheetInfo joistCoverSheetInfo = CoverSheetInfo.FromV1So();
 
         DESign_BASE.QueryAngleData QueryAngleData = new DESign_BASE.QueryAngleData();
         List<DESign_BASE.Angle> anglesFromSql = QueryAngleData.AnglesFromSql("Fallon");
@@ -47,7 +45,6 @@ namespace DESign_WordAddIn
         CheckBox cbAllRE = new CheckBox();
         ComboBox allDetailOveride = new ComboBox();
 
-        List<List<string>> joistData;
         List<ComboBox> detailComboBoxs = new List<ComboBox>();
         DataTable overideDetails = new DataTable();
         bool noOverides;
@@ -58,8 +55,6 @@ namespace DESign_WordAddIn
             overideDetails.Columns.Add("Hold Clear Type", typeof(string));
 
             string clipboard = Clipboard.GetText();
-
-            joistData = JoistCoverSheet.JoistData();
 
             var labelMarkTitle = new Label();
             var labelAutoFilledTitle = new Label();
@@ -143,7 +138,7 @@ namespace DESign_WordAddIn
             this.Controls.Add(labelOveride);
 
 
-            List<string> joistMarks = joistData[0];
+            List<string> joistMarks = joistCoverSheetInfo.Marks;
 
             int joistDataLength = joistMarks.Count();
             Dictionary<string, ExcelDataExtraction.HoldClearInformation> allHoldClearInformation = new Dictionary<string, ExcelDataExtraction.HoldClearInformation>();
@@ -231,20 +226,8 @@ namespace DESign_WordAddIn
 
         }
 
-        public List<List<string>> joistDataByMark()
-        {
-            List<List<string>> joistDataByMark = new List<List<string>>();
-            for (int i = 0; i < joistData[0].Count(); i++)
-            {
-                List<string> markData = new List<string>();
-                markData.Add(joistData[0][i]); //mark
-                markData.Add(joistData[1][i]); //quantity
-                markData.Add(joistData[4][i]); //TC size
-                joistDataByMark.Add(markData);
-            }
-            return joistDataByMark;
-        }
-        public List<Tuple<string, bool, bool>> whichNeedHoldClears(List<List<string>> dataByMark)
+
+        public List<Tuple<string, bool, bool>> whichNeedHoldClears()
         {
             List<Tuple<string, bool, bool>> whichNeedHoldClears = new List<Tuple<string, bool, bool>>();
 
@@ -264,23 +247,25 @@ namespace DESign_WordAddIn
                 }
             }
 
-            for (int i = 0; i < dataByMark.Count(); i++)
+            for (int i = 0; i < joistCoverSheetInfo.SoSummary.Count(); i++)
             {
-                var markHoldClears = new Tuple<string, bool, bool>(dataByMark[i][0], cbLEList[i].Checked, cbREList[i].Checked);
+                var soSummaryLine = joistCoverSheetInfo.SoSummary[i];
+                var markHoldClears = new Tuple<string, bool, bool>(soSummaryLine.Mark, cbLEList[i].Checked, cbREList[i].Checked);
                 whichNeedHoldClears.Add(markHoldClears);
             }
             
             noOverides = true;
 
-            for(int i=0; i<dataByMark.Count(); i++)
+            for(int i=0; i< joistCoverSheetInfo.SoSummary.Count(); i++)
             {
+                var soSummaryLine = joistCoverSheetInfo.SoSummary[i];
                 if (allDetailOveride.Text == "")
                 {
-                    overideDetails.Rows.Add(dataByMark[i][0], detailComboBoxs[i].Text);
+                    overideDetails.Rows.Add(soSummaryLine.Mark, detailComboBoxs[i].Text);
                 }
                 else
                 {
-                    overideDetails.Rows.Add(dataByMark[i][0], allDetailOveride.Text);
+                    overideDetails.Rows.Add(soSummaryLine.Mark, allDetailOveride.Text);
                     noOverides = false;
                 }
                 if (detailComboBoxs[i].Text !="")
@@ -293,7 +278,7 @@ namespace DESign_WordAddIn
 
         }
 
-        private AllSeatInfo getAllSeatInfo(List<List<string>> joistDataByMarks, List<Tuple<string, bool, bool>> marksWithHoldClears)
+        private AllSeatInfo getAllSeatInfo(List<Tuple<string, bool, bool>> marksWithHoldClears)
         {
 
 
@@ -310,12 +295,13 @@ namespace DESign_WordAddIn
             List<JoistSeatInfo> standard = new List<JoistSeatInfo>();
 
 
-            for (int i = 0; i < joistDataByMarks.Count(); i++)
+            for (int i = 0; i < joistCoverSheetInfo.SoSummary.Count(); i++)
             {
+                var soSummaryLine = joistCoverSheetInfo.SoSummary[i];
 
                 JoistSeatInfo currentJoistSeatInfo;
 
-                string mark = joistDataByMarks[i][0];
+                string mark = soSummaryLine.Mark;
                 //                string markWithHC = marksWithHoldClears[i].Item1;
                 selection.HomeKey(Word.WdUnits.wdStory, 0);
                 selection.Find.Execute("COLOR CODE");
@@ -369,8 +355,8 @@ namespace DESign_WordAddIn
                     BPLlineArray = BPLline.Split(new string[] { "              ", "             ", "            ", "           ", "          ", "         ", "        ", "       ", "      ", "     ", "    ", "   ", "  ", "\u00A0", "\u000B" }, StringSplitOptions.RemoveEmptyEntries);
 
                     currentJoistSeatInfo.mark = mark;
-                    currentJoistSeatInfo.qty = Convert.ToInt16(joistDataByMarks[i][1]);
-                    currentJoistSeatInfo.TC = joistDataByMarks[i][2];
+                    currentJoistSeatInfo.qty = soSummaryLine.Quantity;
+                    currentJoistSeatInfo.TC = soSummaryLine.Tc;
                     currentJoistSeatInfo.bplSide = BPLlineArray[1];
                     currentJoistSeatInfo.bplLength = BPLlineArray[3];
                     if (BPLlineArray[5].Contains("|") == false)
@@ -450,8 +436,8 @@ namespace DESign_WordAddIn
                     BPLlineArray = BPLline.Split(new string[] { "              ", "             ", "            ", "           ", "          ", "         ", "        ", "       ", "      ", "     ", "    ", "   ", "  ", "\u00A0", "\u000B" }, StringSplitOptions.RemoveEmptyEntries);
 
                     currentJoistSeatInfo.mark = mark;
-                    currentJoistSeatInfo.qty = Convert.ToInt16(joistDataByMarks[i][1]);
-                    currentJoistSeatInfo.TC = joistDataByMarks[i][2];
+                    currentJoistSeatInfo.qty = soSummaryLine.Quantity;
+                    currentJoistSeatInfo.TC = soSummaryLine.Tc;
                     currentJoistSeatInfo.bplSide = BPLlineArray[1];
                     currentJoistSeatInfo.bplLength = BPLlineArray[3];
                     if (BPLlineArray[5].Contains("|") == false)
@@ -534,8 +520,8 @@ namespace DESign_WordAddIn
                     BPLlineArray = BPLline.Split(new string[] { "              ", "             ", "            ", "           ", "          ", "         ", "        ", "       ", "      ", "     ", "    ", "   ", "  ", "\u00A0", "\u000B" }, StringSplitOptions.RemoveEmptyEntries);
 
                     currentJoistSeatInfo.mark = mark;
-                    currentJoistSeatInfo.qty = Convert.ToInt16(joistDataByMarks[i][1]);
-                    currentJoistSeatInfo.TC = joistDataByMarks[i][2];
+                    currentJoistSeatInfo.qty = soSummaryLine.Quantity;
+                    currentJoistSeatInfo.TC = soSummaryLine.Tc;
                     currentJoistSeatInfo.bplSide = BPLlineArray[1];
                     currentJoistSeatInfo.bplLength = BPLlineArray[3];
                     if (BPLlineArray[5].Contains("|") == false)
@@ -619,8 +605,8 @@ namespace DESign_WordAddIn
                     BPLlineArray = BPLline.Split(new string[] { "              ", "             ", "            ", "           ", "          ", "         ", "        ", "       ", "      ", "     ", "    ", "   ", "  ", "\u00A0", "\u000B" }, StringSplitOptions.RemoveEmptyEntries);
 
                     currentJoistSeatInfo.mark = mark;
-                    currentJoistSeatInfo.qty = Convert.ToInt16(joistDataByMarks[i][1]);
-                    currentJoistSeatInfo.TC = joistDataByMarks[i][2];
+                    currentJoistSeatInfo.qty = soSummaryLine.Quantity;
+                    currentJoistSeatInfo.TC = soSummaryLine.Tc;
                     currentJoistSeatInfo.bplSide = BPLlineArray[1];
                     currentJoistSeatInfo.bplLength = BPLlineArray[3];
                     if (BPLlineArray[5].Contains("|") == false)
@@ -1430,7 +1416,7 @@ namespace DESign_WordAddIn
                 {
                     thisHCSeatInfo.stiffPlateLength = StringManipulation.cleanDecimalToHyphen(StringManipulation.NearestHalfInch(thisJoistSeatInfo.bplOutsideDepth - 2.0 / 12.0));
                 }
-                thisHCSeatInfo.paMat = "P0604";
+               thisHCSeatInfo.paMat = "P0604";
 
 
                 double slopeFactor = Math.Sin((Math.PI * 90.0 / 180.0) - Math.Atan((Math.Abs((thisJoistSeatInfo.bplInsideDepth - thisJoistSeatInfo.bplOutsideDepth) / StringManipulation.ConvertLengthtoDecimal(thisJoistSeatInfo.bplLength)))));
@@ -1525,12 +1511,14 @@ namespace DESign_WordAddIn
                         if (plateSeat == "P0604")
                         {
                             thisHCSeatInfo.plateSeatP04 = true;
+                            thisHCSeatInfo.paMat = "P0604";
                             seatThickness = 0.25;
                         }
 
                         if (plateSeat == "P0608")
                         {
                             thisHCSeatInfo.plateSeatP08 = true;
+                            thisHCSeatInfo.paMat = "P0608";
                             seatThickness = 0.50;
                         }
                         thisHCSeatInfo.HCOutsideHeight = StringManipulation.cleanDecimalToHyphen(thisJoistSeatInfo.bplOutsideDepth - (slopeFactor * tcVLeg) / 12.0 - 0.25 / 12.0);
@@ -1559,7 +1547,7 @@ namespace DESign_WordAddIn
                 if (overiddenSeatType == "") { }
                 else if (overiddenSeatType == "Butted") { thisHCSeatInfo.buttedSeat = true; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = false; }
                 else if (overiddenSeatType == "Gapped") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = true; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = false; }
-                else if (overiddenSeatType == "1/4\" Plate") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = true; thisHCSeatInfo.plateSeatP08 = false; }
+                else if (overiddenSeatType == "1/4\" Plate") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = true; thisHCSeatInfo.plateSeatP08 = false; thisHCSeatInfo.paMat = "P0604"; }
                 else if (overiddenSeatType == "1/2\" Plate") { thisHCSeatInfo.buttedSeat = false; thisHCSeatInfo.gappedSeat = false; thisHCSeatInfo.plateSeatP04 = false; thisHCSeatInfo.plateSeatP08 = true; thisHCSeatInfo.paMat = "P0608"; }
                 else { }
                 /////////////
@@ -1720,7 +1708,7 @@ namespace DESign_WordAddIn
             return allSeatLists;
         }
 
-        public void placeHCs(List<List<string>> joistDataByMarks, List<List<HCSeatInfo>> HCSeatInfoList)
+        public void placeHCs(List<List<HCSeatInfo>> HCSeatInfoList)
         {
             for (int k = 0; k <= 3; k++)
             {
@@ -1973,10 +1961,10 @@ namespace DESign_WordAddIn
                     }
 
 
-                    tableHoldClearCover.Cell(1, 2).Range.Text = joistData[8][0];
-                    tableHoldClearCover.Cell(2, 2).Range.Text = joistData[9][0];
-                    tableHoldClearCover.Cell(1, 4).Range.Text = joistData[7][0];
-                    tableHoldClearCover.Cell(2, 4).Range.Text = joistData[10][0];
+                    tableHoldClearCover.Cell(1, 2).Range.Text = joistCoverSheetInfo.JobNumber;
+                    tableHoldClearCover.Cell(2, 2).Range.Text = joistCoverSheetInfo.JobName;
+                    tableHoldClearCover.Cell(1, 4).Range.Text = joistCoverSheetInfo.JobNumber;
+                    tableHoldClearCover.Cell(2, 4).Range.Text = joistCoverSheetInfo.ListNumber;
 
                     for (int i = 1; i <= 2; i++)
                     {
@@ -2239,14 +2227,13 @@ namespace DESign_WordAddIn
         {
             string clipboard = Clipboard.GetText();
 
-            List<List<string>> joistData = JoistCoverSheet.JoistData();
-            List<List<string>> joistDataByMarks = joistDataByMark();
-            List<Tuple<string, bool, bool>> marksWithHoldClears = whichNeedHoldClears(joistDataByMarks);
-            AllSeatInfo allseatInfo = getAllSeatInfo(joistDataByMarks, marksWithHoldClears);
+            var joistCoverSheetInfo = CoverSheetInfo.FromV1So();
+            List<Tuple<string, bool, bool>> marksWithHoldClears = whichNeedHoldClears();
+            AllSeatInfo allseatInfo = getAllSeatInfo(marksWithHoldClears);
             List<List<HCSeatInfo>> HCSeatInfoList1 = listHCSeatInfo2(allseatInfo.HoldClear, true);
             List<List<HCSeatInfo>> HCSeatInfoList2 = listHCSeatInfo2(allseatInfo.HoldClear, false);
             createHoldClearSKs(organizedHCSeatInfoList(HCSeatInfoList1));
-            placeHCs(joistDataByMarks, HCSeatInfoList2);
+            placeHCs(HCSeatInfoList2);
             if (noOverides == false)
             {
                 MessageBox.Show("PLEASE CONFIRM THAT ALL OVERRIDDEN DETAILS ARE ACCURATE");
@@ -2335,7 +2322,7 @@ namespace DESign_WordAddIn
                 {
                     var slotSizeArray = slotSize.Split(new char[] { 'x' });
                     var slotDiameterString = slotSizeArray[0];
-                    var slotDiameter = stringManipulation.hyphenLengthToDecimal("0-0 " + slotDiameterString) * 12.0;
+                    var slotDiameter = StringManipulation.hyphenLengthToDecimal("0-0 " + slotDiameterString) * 12.0;
                     return slotDiameter;
 
                 }
@@ -2354,7 +2341,7 @@ namespace DESign_WordAddIn
                 {
                     var slotSizeArray = slotSize.Split(new char[] { 'x' });
                     var slotLengthString = slotSizeArray[1];
-                    var slotLength = stringManipulation.hyphenLengthToDecimal("0-" + slotLengthString) * 12.0;
+                    var slotLength = StringManipulation.hyphenLengthToDecimal("0-" + slotLengthString) * 12.0;
                     return slotLength;
 
                 }
@@ -2397,7 +2384,7 @@ namespace DESign_WordAddIn
                 {
                     var slotSizeArray = slotSize.Split(new char[] { 'x' });
                     var slotDiameterString = slotSizeArray[0];
-                    var slotDiameter = stringManipulation.hyphenLengthToDecimal("0-0 " + slotDiameterString) * 12.0;
+                    var slotDiameter = StringManipulation.hyphenLengthToDecimal("0-0 " + slotDiameterString) * 12.0;
                     return slotDiameter;
 
                 }
@@ -2416,7 +2403,7 @@ namespace DESign_WordAddIn
                 {
                     var slotSizeArray = slotSize.Split(new char[] { 'x' });
                     var slotLengthString = slotSizeArray[1];
-                    var slotLength = stringManipulation.hyphenLengthToDecimal("0-" + slotLengthString) * 12.0;
+                    var slotLength = StringManipulation.hyphenLengthToDecimal("0-" + slotLengthString) * 12.0;
                     return slotLength;
 
                 }

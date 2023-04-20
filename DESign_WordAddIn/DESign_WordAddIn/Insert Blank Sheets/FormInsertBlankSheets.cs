@@ -98,13 +98,12 @@ namespace DESign_WordAddIn.Insert_Blank_Sheets
             }
             try
             {
-                JoistCoverSheet joistCoverSheet = new JoistCoverSheet();
-                List<List<string>> joistData = joistCoverSheet.JoistData();
+                var joistCoverSheetInfo = CoverSheetInfo.FromV1So();
 
-                tblDetailHeader.Cell(1, 2).Range.Text = joistData[8][0];
-                tblDetailHeader.Cell(2, 2).Range.Text = joistData[9][0];
-                tblDetailHeader.Cell(1, 4).Range.Text = joistData[7][0];
-                tblDetailHeader.Cell(2, 4).Range.Text = joistData[10][0];
+                tblDetailHeader.Cell(1, 2).Range.Text = joistCoverSheetInfo.JobName;
+                tblDetailHeader.Cell(2, 2).Range.Text = joistCoverSheetInfo.JobLocation;
+                tblDetailHeader.Cell(1, 4).Range.Text = joistCoverSheetInfo.JobNumber;
+                tblDetailHeader.Cell(2, 4).Range.Text = joistCoverSheetInfo.ListNumber;
             }
             catch { }
 
@@ -297,13 +296,12 @@ namespace DESign_WordAddIn.Insert_Blank_Sheets
             }
             try
             {
-                JoistCoverSheet joistCoverSheet = new JoistCoverSheet();
-                List<List<string>> joistData = joistCoverSheet.JoistData();
+                var joistCoverSheetInfo = CoverSheetInfo.FromV1So();
 
-                tblDetailHeader.Cell(1, 2).Range.Text = joistData[8][0];
-                tblDetailHeader.Cell(2, 2).Range.Text = joistData[9][0];
-                tblDetailHeader.Cell(1, 4).Range.Text = joistData[7][0];
-                tblDetailHeader.Cell(2, 4).Range.Text = joistData[10][0];
+                tblDetailHeader.Cell(1, 2).Range.Text = joistCoverSheetInfo.JobName;
+                tblDetailHeader.Cell(2, 2).Range.Text = joistCoverSheetInfo.JobLocation;
+                tblDetailHeader.Cell(1, 4).Range.Text = joistCoverSheetInfo.JobNumber;
+                tblDetailHeader.Cell(2, 4).Range.Text = joistCoverSheetInfo.ListNumber;
             }
             catch { }
 

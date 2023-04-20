@@ -27,11 +27,9 @@ namespace DESign_BASE
 
     }
 
-
-
-    public class QueryAngleData
+    public class GetConnectionString
     {
-        static public List<Angle> AnglesFromSql(string plant)
+        public static string FromPlant(string plant)
         {
             var server = "";
             var catalog = "";
@@ -48,8 +46,20 @@ namespace DESign_BASE
                 default:
                     break;
             }
-            var angles = new List<Angle>();
+
             var connectionString = String.Format("Server={0}; Initial Catalog={1}; Integrated Security = true", server, catalog);
+
+            return connectionString;
+        }
+    }
+
+    public class QueryAngleData
+    {
+        static public List<Angle> AnglesFromSql(string plant)
+        {
+
+            var angles = new List<Angle>();
+            var connectionString = GetConnectionString.FromPlant(plant);
             string queryString = "SELECT SectionIDX, SectionName, LegHorizontal, LegVertical, Thickness FROM dbo.vwMaterials;";
 
             using (SqlConnection connection = new SqlConnection(connectionString))

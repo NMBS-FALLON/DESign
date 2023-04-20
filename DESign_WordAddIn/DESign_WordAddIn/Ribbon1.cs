@@ -7,12 +7,15 @@ using Word = Microsoft.Office.Interop.Word;
 using System.IO;
 using DESign_WordAddIn.Insert_Blank_Sheets;
 using System.Windows;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Packaging;
+using Design.Docx_tools;
+
 
 namespace DESign_WordAddIn
 {
     public partial class RibbonNMBS
     {
-        SOtoRISA soToRISA = new SOtoRISA();
         Print print = new Print();
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
@@ -44,7 +47,7 @@ namespace DESign_WordAddIn
 
         private void btnExportToRisa_Click(object sender, RibbonControlEventArgs e)
         {
-            new FormSOtoRISA().Show();
+            
         }
 
         private void btnPrintJShopCopies_Click(object sender, RibbonControlEventArgs e)
@@ -78,6 +81,24 @@ namespace DESign_WordAddIn
         private void btnPrint1Cut_Click(object sender, RibbonControlEventArgs e)
         {
             print.PrintShopCopies(0, 1);
+        }
+
+        private void btnV2HoldClear_Click(object sender, RibbonControlEventArgs e)
+        {
+            var document = Globals.ThisAddIn.Application.ActiveDocument;
+            var range = document.Range();
+            var docxDoc = WordprocessingDocument.FromFlatOpcString(range.WordOpenXML);
+
+            var summary = GetV2SoInfo.GetSoSummary(docxDoc);
+
+            var summaryString = "";
+            foreach (var item in summary)
+            {
+                summaryString += String.Format($"Mark: {item.Mark}, Qty: {item.Quantity}\r\n");
+            }
+
+            MessageBox.Show(summaryString);
+
         }
     }
 
