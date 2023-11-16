@@ -181,7 +181,8 @@ namespace DESign_BASE
             }
             var connectionString =
                 String.Format("Server={0}; Initial Catalog={1}; Integrated Security = true", server, catalog);
-            string queryString = "SELECT Mark, Quantity, Description, Weight, TopChord_IDX, BottomChord_IDX, TCMaxBridging, BCMaxBridging FROM dbo.Joists2 WHERE [JOB NUMBER] = @jobNumber ;";
+            string queryStringJoists2 = "SELECT Mark, Quantity, Description, Weight, TopChord_IDX, BottomChord_IDX, TCMaxBridging, BCMaxBridging FROM dbo.Joists2 WHERE [JOB NUMBER] = @jobNumber ;";
+            string queryStringCutList = "SELECT Mark, Section FROM dbo.CutList1 WHERE [Job Number] = @jobNumber and [Section] = TC";
 
             var joists = new List<Joist>();
             var girders = new List<Girder>();
@@ -189,7 +190,7 @@ namespace DESign_BASE
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                var command = new SqlCommand(queryString, connection);
+                var command = new SqlCommand(queryStringJoists2, connection);
                 command.Parameters.AddWithValue("@jobNumber", jobNumber);
                 connection.Open();
                 var reader = command.ExecuteReader();
